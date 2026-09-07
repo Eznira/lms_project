@@ -14,6 +14,8 @@ class User(AbstractUser):
         default=Role.STUDENT,
     )
 
+    email_verified = models.BooleanField(default=False)
+
 class StudentProfile(models.Model):
     user = models.OneToOneField(
         User,
