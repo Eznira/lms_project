@@ -1,8 +1,54 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.utils import timezone
+import uuid
+
+
+class UserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError("Email is required")
+
+        email = self.normalize_email(email)
+
+        user = self.model(
+            email=email,
+            **extra_fields,
+        )
+
+        if password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
+
+        user.save(using=self._db)
+
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
+        extra_fields.setdefault("is_email_verified", True)
+        extra_fields.setdefault("role", self.model.Role.ADMIN)
+
+        if not extra_fields.get("is_staff"):
+            raise ValueError("Superuser must have is_staff=True")
+
+        if not extra_fields.get("is_superuser"):
+            raise ValueError("Superuser must have is_superuser=True")
+
+        return self.create_user(
+            email=email,
+            password=password,
+            **extra_fields,
+        )
 
 
 class User(AbstractUser):
+    username = None
+    email = models.EmailField(unique=True)
+
     class Role(models.TextChoices):
         STUDENT = "STUDENT", "Student"
         INSTRUCTOR = "INSTRUCTOR", "Instructor"
@@ -15,6 +61,14 @@ class User(AbstractUser):
     )
 
     email_verified = models.BooleanField(default=False)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+    objects = UserManager()
+
+    def __str__(self):
+        return self.email
+
 
 class StudentProfile(models.Model):
     user = models.OneToOneField(
@@ -46,3 +100,29 @@ class InstructorProfile(models.Model):
 
     def __str__(self):
         return self.user.get_full_name() or self.user.email
+
+
+class EmailVerificationToken(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="verification_tokens",
+    )
+
+    token = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    expires_at = models.DateTimeField()
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def __str__(self):
+        return f"Verification token for {self.user.email}"
