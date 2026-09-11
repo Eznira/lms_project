@@ -22,7 +22,7 @@ class Course(models.Model):
         PUBLISHED = "PUBLISHED", "Published"
         ARCHIVED = "ARCHIVED", "Archived"
 
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, unique=True)
     description = models.TextField()
 
     category = models.ForeignKey(
