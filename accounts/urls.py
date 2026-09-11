@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import (
 from .views import (
     InstructorCreateView,
     InstructorSetPasswordView,
+    LoginView,
     LogoutView,
     PasswordResetConfirmView,
     PasswordResetRequestView,
@@ -18,7 +19,7 @@ urlpatterns = [
     # Registration
     path("register/", RegisterView.as_view(), name="register"),
     # Login
-    path("login/", TokenObtainPairView.as_view(), name="login"),
+    path("login/", LoginView.as_view(), name="login"),
     # Refresh JWT
     path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     # Logout

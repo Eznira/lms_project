@@ -10,11 +10,15 @@ from django.utils.http import (
     urlsafe_base64_decode,
     urlsafe_base64_encode,
 )
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .models import EmailVerificationToken
 from .permissions import IsAdmin
@@ -34,6 +38,10 @@ User = get_user_model()
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        request=RegisterSerializer,
+        responses=RegisterSerializer,
+    )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
 
@@ -65,6 +73,10 @@ class RegisterView(APIView):
 class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        request=VerifyEmailSerializer,
+        responses=VerifyEmailSerializer,
+    )
     def post(self, request):
         serializer = VerifyEmailSerializer(data=request.data)
 
@@ -101,6 +113,10 @@ class VerifyEmailView(APIView):
 class InstructorCreateView(APIView):
     permission_classes = [IsAdmin]
 
+    @extend_schema(
+        request=InstructorCreateSerializer,
+        responses=InstructorCreateSerializer,
+    )
     def post(self, request):
         serializer = InstructorCreateSerializer(data=request.data)
 
@@ -138,6 +154,10 @@ class InstructorCreateView(APIView):
 class InstructorSetPasswordView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        request=InstructorSetPasswordSerializer,
+        responses=InstructorSetPasswordSerializer,
+    )
     def post(self, request):
         serializer = InstructorSetPasswordSerializer(data=request.data)
 
@@ -179,8 +199,20 @@ class InstructorSetPasswordView(APIView):
 
         return Response({"detail": "Password created successfully. You can now login."})
 
-
+@extend_schema_view(
+    post=extend_schema(
+        request=TokenObtainPairSerializer,
+        summary="Login",
+        description="Authenticate a user and return access and refresh tokens.",
+    )
+)
+class LoginView(TokenObtainPairView):
+    pass
 class LogoutView(APIView):
+    @extend_schema(
+        request=None,
+        responses={200: ...},
+    )
     def post(self, request):
         refresh_token = request.data.get("refresh")
 
@@ -206,6 +238,10 @@ class LogoutView(APIView):
 class PasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        request=PasswordResetRequestSerializer,
+        responses=PasswordResetRequestSerializer,
+    )
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
 
@@ -253,6 +289,10 @@ class PasswordResetRequestView(APIView):
 class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
 
+    @extend_schema(
+        request=PasswordResetConfirmSerializer,
+        responses=PasswordResetConfirmSerializer,
+    )
     def post(self, request):
         serializer = PasswordResetConfirmSerializer(data=request.data)
 
