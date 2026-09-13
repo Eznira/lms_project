@@ -11,6 +11,7 @@ from .views import (
     LogoutView,
     PasswordResetConfirmView,
     PasswordResetRequestView,
+    ProfileView,
     RegisterView,
     VerifyEmailView,
 )
@@ -40,6 +41,7 @@ urlpatterns = [
         PasswordResetConfirmView.as_view(),
         name="password-reset-confirm",
     ),
+
     # # Test view to get the current logged-in user's information
     # path("me/", MeView.as_view(), name="me"),
     # # Test view for instructor permission

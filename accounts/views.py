@@ -12,10 +12,9 @@ from django.utils.http import (
 )
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -27,6 +26,7 @@ from .serializers import (
     InstructorSetPasswordSerializer,
     PasswordResetConfirmSerializer,
     PasswordResetRequestSerializer,
+    ProfileSerializer,
     RegisterSerializer,
     VerifyEmailSerializer,
 )
@@ -331,6 +331,35 @@ class PasswordResetConfirmView(APIView):
         user.save(update_fields=["password"])
 
         return Response({"detail": "Password reset successful."})
+
+class ProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=None,
+        responses=ProfileSerializer,
+    )
+    def get(self, request):
+        serializer = ProfileSerializer(request.user)
+
+        return Response(serializer.data)
+
+    @extend_schema(
+        request=ProfileSerializer,
+        responses=ProfileSerializer,
+    )
+    def patch(self, request):
+        serializer = ProfileSerializer(
+            request.user,
+            data=request.data,
+            partial=True,
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        serializer.save()
+
+        return Response(serializer.data)
 # # Test view to get the current logged-in user's information
 # class MeView(APIView):
 #     # permission_classes = [IsAuthenticated]

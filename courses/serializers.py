@@ -1,10 +1,13 @@
-from os import name
-
+from attr import field, fields
+from django.utils.text import slugify
 from rest_framework import serializers
 
-from .models import Category, Course
+from accounts.serializers import StrictFieldsMixin
 
-class CourseSerializer(serializers.ModelSerializer):
+from .models import Category, Course, Lesson
+
+
+class CourseSerializer(StrictFieldsMixin, serializers.ModelSerializer):
     category_name = serializers.CharField(
         source="category.name",
         read_only=True,
@@ -38,15 +41,71 @@ class CourseSerializer(serializers.ModelSerializer):
         ]
 
     def get_instructor(self, obj):
-        return f"{obj.instructor.first_name} {obj.instructor.last_name}".strip()
+        return (
+            f"{obj.instructor.first_name} {obj.instructor.last_name}".strip()
+            or obj.instructor.email
+        )
 
-class CategorySerializer(serializers.ModelSerializer):
+
+class CategorySerializer(StrictFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = [  # noqa: RUF012
             "id",
             "name",
+            "slug",
             "description",
             "created_at",
         ]
-        read_only_fields = ["id", "created_at"]  # noqa: RUF012
+        read_only_fields = ["id", "slug", "created_at"]  # noqa: RUF012
+
+    def validate(self, attrs):
+        name = attrs.get("name")
+
+        if name:
+            slug = slugify(name)
+
+            queryset = Category.objects.filter(slug=slug)
+
+            # During PATCH, don't compare the category against itself.
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.pk)
+
+            if queryset.exists():
+                raise serializers.ValidationError(
+                    {
+                        "name": "A category with this name would generate an existing slug."
+                    }
+                )
+
+        return attrs
+
+    def create(self, validated_data):
+        validated_data["slug"] = slugify(validated_data["name"])
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        if "name" in validated_data:
+            validated_data["slug"] = slugify(validated_data["name"])
+
+        return super().update(instance, validated_data)
+
+
+class LessonSerializer(StrictFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = [  # noqa: RUF012
+            "id",
+            "course",
+            "title",
+            "content",
+            "video",
+            "pdf",
+            "audio",
+            "external_resource",
+            "order",
+            "created_at",
+            "updated_at",
+        ]
+
+        read_only_fields = ["id","created_at", "updated_at"]  # noqa: RUF012

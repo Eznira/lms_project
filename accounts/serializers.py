@@ -29,6 +29,116 @@ class StrictFieldsMixin:
         return super().to_internal_value(data)
 
 
+class StudentProfileSerializer(StrictFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = StudentProfile
+        fields = [  # noqa: RUF012
+            "phone",
+            "biography",
+            "profile_photo",
+        ]
+
+
+class InstructorProfileSerializer(StrictFieldsMixin, serializers.ModelSerializer):
+    class Meta:
+        model = InstructorProfile
+        fields = [  # noqa: RUF012
+            "qualification",
+            "specialization",
+            "biography",
+            "phone",
+            "profile_photo",
+        ]
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    profile = serializers.DictField(required=False)
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "role",
+            "profile",
+        ]
+        read_only_fields = [
+            "id",
+            "email",
+            "role",
+        ]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        if instance.role == User.Role.STUDENT:
+            data["profile"] = StudentProfileSerializer(instance.student_profile).data
+
+        elif instance.role == User.Role.INSTRUCTOR:
+            data["profile"] = InstructorProfileSerializer(
+                instance.instructor_profile
+            ).data
+
+        else:
+            data["profile"] = {}
+
+        return data
+
+    def validate_profile(self, value):
+        if self.instance.role == User.Role.STUDENT:
+            serializer = StudentProfileSerializer(
+                data=value,
+                partial=True,
+            )
+
+        elif self.instance.role == User.Role.INSTRUCTOR:
+            serializer = InstructorProfileSerializer(
+                data=value,
+                partial=True,
+            )
+
+        else:
+            raise serializers.ValidationError(
+                "Admin profile updates are not supported."
+            )
+
+        serializer.is_valid(raise_exception=True)
+
+        return serializer.validated_data
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop("profile", {})
+
+        instance.first_name = validated_data.get(
+            "first_name",
+            instance.first_name,
+        )
+
+        instance.last_name = validated_data.get(
+            "last_name",
+            instance.last_name,
+        )
+
+        instance.save()
+
+        if instance.role == User.Role.STUDENT:
+            profile = instance.student_profile
+
+        elif instance.role == User.Role.INSTRUCTOR:
+            profile = instance.instructor_profile
+
+        else:
+            return instance
+
+        for field, value in profile_data.items():
+            setattr(profile, field, value)
+
+        profile.save()
+
+        return instance
+
 class RegisterSerializer(StrictFieldsMixin, serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,

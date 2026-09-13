@@ -1,7 +1,5 @@
 from rest_framework.permissions import BasePermission
 
-from .models import Course
-
 
 class IsInstructorOrAdmin(BasePermission):
     """
@@ -25,3 +23,14 @@ class IsCourseOwnerOrAdmin(BasePermission):
             return True
 
         return obj.instructor == request.user
+
+class IsLessonOwnerOrAdmin(BasePermission):
+    """
+    Allows the lesson's course instructor or an admin to modify a lesson.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.role == request.user.Role.ADMIN:
+            return True
+
+        return obj.course.instructor == request.user

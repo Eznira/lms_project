@@ -4,8 +4,8 @@ from .models import Category, Course
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "created_at")
-    search_fields = ("name",)
+    list_display = ("name", "slug", "created_at")
+    search_fields = ("name", "slug")
 
 
 @admin.register(Course)

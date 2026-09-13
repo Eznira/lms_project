@@ -4,12 +4,12 @@ from django.db import models
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=120, unique=True)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
-
 
 class Course(models.Model):
     class Level(models.TextChoices):
@@ -22,7 +22,7 @@ class Course(models.Model):
         PUBLISHED = "PUBLISHED", "Published"
         ARCHIVED = "ARCHIVED", "Archived"
 
-    title = models.CharField(max_length=255, unique=True)
+    title = models.CharField(max_length=255)
     description = models.TextField()
 
     category = models.ForeignKey(
@@ -70,3 +70,53 @@ class Course(models.Model):
 
     def __str__(self):
         return self.title
+
+class Lesson(models.Model):
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="lessons",
+    )
+
+    title = models.CharField(max_length=255)
+
+    content = models.TextField(blank=True)
+
+    video = models.FileField(
+        upload_to="lessons/videos/",
+        blank=True,
+        null=True,
+    )
+
+    pdf = models.FileField(
+        upload_to="lessons/pdfs/",
+        blank=True,
+        null=True,
+    )
+
+    audio = models.FileField(
+        upload_to="lessons/audio/",
+        blank=True,
+        null=True,
+    )
+
+    external_resource = models.URLField(
+        blank=True,
+    )
+
+    order = models.PositiveIntegerField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["order"]  # noqa: RUF012
+        constraints = [  # noqa: RUF012
+            models.UniqueConstraint(
+                fields=["course", "order"],
+                name="unique_lesson_order_per_course",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.course.title} - {self.title}"
