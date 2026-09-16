@@ -1,9 +1,13 @@
 from django.db.models import Q
-from rest_framework import viewsets
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from accounts.permissions import IsAdmin
+from enrollments.models import LessonCompletion
+from enrollments.serializers import LessonCompletionSerializer
 
 from .models import Category, Course, Lesson
 from .permissions import (
@@ -111,3 +115,33 @@ class LessonViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("You can only add lessons to your own courses.")
 
         serializer.save()
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="complete",
+    )
+    def complete(self, request, pk=None):
+        lesson = self.get_object()
+
+        if request.user.role != request.user.Role.STUDENT:
+            return Response(
+                {"detail": "Only students can complete lessons."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        completion, created = LessonCompletion.objects.get_or_create(
+            student=request.user,
+            lesson=lesson,
+        )
+
+        serializer = LessonCompletionSerializer(completion)
+
+        return Response(
+            serializer.data,
+            status=(
+                status.HTTP_201_CREATED
+                if created
+                else status.HTTP_200_OK
+            ),
+        )
