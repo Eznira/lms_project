@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from enrollments.models import Enrollment
 from accounts.permissions import IsAdmin
 from enrollments.models import LessonCompletion
 from enrollments.serializers import LessonCompletionSerializer
@@ -28,7 +28,9 @@ class CourseViewSet(viewsets.ModelViewSet):
         if user.role == user.Role.STUDENT:
             return Course.objects.filter(status=Course.Status.PUBLISHED)
         if user.role == user.Role.INSTRUCTOR:
-            return Course.objects.filter(Q(instructor=user) | Q(status=Course.Status.PUBLISHED) )
+            return Course.objects.filter(
+                Q(instructor=user) | Q(status=Course.Status.PUBLISHED)
+            )
 
         return Course.objects.all()
 
@@ -63,14 +65,11 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
-        if self.action in [
-            "create",
-            "update",
-            "partial_update",
-            "destroy"
-        ]: return [IsAuthenticated(), IsAdmin()]
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAuthenticated(), IsAdmin()]
 
         return [IsAuthenticated()]
+
 
 class LessonViewSet(viewsets.ModelViewSet):
     serializer_class = LessonSerializer
@@ -130,6 +129,17 @@ class LessonViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
+        is_enrolled = Enrollment.objects.filter(
+            student=request.user,
+            course=lesson.course,
+        ).exists()
+
+        if not is_enrolled:
+            return Response(
+                {"detail": "You must be enrolled in this course."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         completion, created = LessonCompletion.objects.get_or_create(
             student=request.user,
             lesson=lesson,
@@ -139,9 +149,5 @@ class LessonViewSet(viewsets.ModelViewSet):
 
         return Response(
             serializer.data,
-            status=(
-                status.HTTP_201_CREATED
-                if created
-                else status.HTTP_200_OK
-            ),
+            status=(status.HTTP_201_CREATED if created else status.HTTP_200_OK),
         )
