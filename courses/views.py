@@ -1,12 +1,13 @@
+from django.db.migrations import serializer
 from django.db.models import Q
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from enrollments.models import Enrollment
+
 from accounts.permissions import IsAdmin
-from enrollments.models import LessonCompletion
+from enrollments.models import Enrollment, LessonCompletion
 from enrollments.serializers import LessonCompletionSerializer
 
 from .models import Category, Course, Lesson
@@ -79,7 +80,10 @@ class LessonViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         if user.role == user.Role.STUDENT:
-            return Lesson.objects.filter(course__status=Course.Status.PUBLISHED)
+            return Lesson.objects.filter(
+                course__status=Course.Status.PUBLISHED,
+                course__enrollments__student=user,
+            )
 
         if user.role == user.Role.INSTRUCTOR:
             return Lesson.objects.filter(
@@ -104,14 +108,17 @@ class LessonViewSet(viewsets.ModelViewSet):
 
         return [IsAuthenticated()]
 
-    def perform_create(self, serializer):
-        course = serializer.validated_data["course"]
+    def perform_update(self, serializer):
+        course = serializer.validated_data.get(
+            "course",
+            serializer.instance.course,
+        )
 
         if (
             self.request.user.role != self.request.user.Role.ADMIN
             and course.instructor != self.request.user
         ):
-            raise PermissionDenied("You can only add lessons to your own courses.")
+            raise PermissionDenied("You can only assign lessons to your own courses.")
 
         serializer.save()
 
