@@ -38,9 +38,10 @@ urlpatterns = [
     ),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path(
-            "api/",
-            include("enrollments.urls"),
-        ),
+        "api/",
+        include("enrollments.urls"),
+    ),
+    path("api/", include("assessments.urls")),
 ]
 
 
@@ -49,5 +50,3 @@ if settings.DEBUG:
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT,
     )
-
-
