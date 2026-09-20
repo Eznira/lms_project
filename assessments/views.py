@@ -4,12 +4,19 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from assessments.permissions import IsAssignmentOwnerOrAdmin
 from courses.models import Course
-from courses.permissions import IsCourseOwnerOrAdmin, IsInstructorOrAdmin
+from courses.permissions import IsInstructorOrAdmin
 
-from .models import Assignment
-from .serializers import AssignmentSerializer
+from .models import Assignment, AssignmentSubmission
+from .permissions import (
+    IsAssignmentOwnerOrAdmin,
+    IsSubmissionGraderOrAdmin,
+    IsSubmissionOwnerOrAdmin,
+)
+from .serializers import (
+    AssignmentSerializer,
+    AssignmentSubmissionSerializer,
+)
 
 
 class AssignmentViewSet(viewsets.ModelViewSet):
@@ -76,3 +83,75 @@ class AssignmentViewSet(viewsets.ModelViewSet):
             )
 
         serializer.save()
+
+
+class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
+    serializer_class = AssignmentSubmissionSerializer
+    permission_classes = [IsAuthenticated]
+
+    http_method_names = [
+        "get",
+        "post",
+        "patch",
+        "delete",
+        "head",
+        "options",
+    ]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role == user.Role.ADMIN:
+            return AssignmentSubmission.objects.all()
+
+        if user.role == user.Role.STUDENT:
+            return AssignmentSubmission.objects.filter(
+                student=user,
+            )
+
+        return AssignmentSubmission.objects.filter(
+            assignment__course__instructor=user,
+        )
+
+    def get_permissions(self):
+        if self.action == "create":
+            return [IsAuthenticated()]
+
+        if self.action in ["retrieve", "list"]:
+            return [
+                IsAuthenticated(),
+                IsSubmissionOwnerOrAdmin(),
+            ]
+
+        if self.action in ["update", "partial_update"]:
+            return [
+                IsAuthenticated(),
+                IsSubmissionGraderOrAdmin(),
+            ]
+
+        if self.action == "destroy":
+            return [
+                IsAuthenticated(),
+                IsSubmissionOwnerOrAdmin(),
+            ]
+
+        return [IsAuthenticated()]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+
+        if user.role != user.Role.STUDENT:
+            raise PermissionDenied("Only students can submit assignments.")
+
+        assignment = serializer.validated_data["assignment"]
+
+        if not assignment.course.enrollments.filter(student=user).exists():
+            raise PermissionDenied("You must be enrolled in this course.")
+
+        if AssignmentSubmission.objects.filter(
+            assignment=assignment,
+            student=user,
+        ).exists():
+            raise PermissionDenied("You have already submitted this assignment.")
+
+        serializer.save(student=user)

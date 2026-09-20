@@ -47,8 +47,6 @@ class AssignmentSubmission(models.Model):
 
     submission_file = models.FileField(
         upload_to="assignments/submissions/",
-        blank=True,
-        null=True,
     )
 
     submitted_at = models.DateTimeField(auto_now_add=True)

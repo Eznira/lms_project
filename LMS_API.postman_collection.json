@@ -1,45 +1,9 @@
 {
   "info": {
-    "_postman_id": "4300daa2-a391-47b6-86e1-73713d84d50b",
-    "name": "LMS API",
+    "_postman_id": "42315ff2-7731-41bc-abec-6e0f577c870a",
+    "name": "LMS_API Copy",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "42814936"
-  },
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://127.0.0.1:8000"
-    },
-    {
-      "key": "course_id",
-      "value": "1"
-    },
-    {
-      "key": "category_id",
-      "value": "1"
-    },
-    {
-      "key": "lesson_id",
-      "value": "1"
-    },
-    {
-      "key": "enrollment_id",
-      "value": "1"
-    },
-    {
-      "key": "assignment_id",
-      "value": "1"
-    }
-  ],
-  "auth": {
-    "type": "bearer",
-    "bearer": [
-      {
-        "key": "token",
-        "value": "{{access_token}}",
-        "type": "string"
-      }
-    ]
   },
   "item": [
     {
@@ -81,8 +45,20 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/auth/login/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Register",
@@ -103,8 +79,20 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/auth/register/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/auth/register/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Refresh Token",
@@ -142,8 +130,20 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/auth/refresh/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Logout",
@@ -164,8 +164,20 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/auth/logout/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Verify Email",
@@ -186,8 +198,20 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/auth/verify-email/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/auth/verify-email/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Password Reset",
@@ -208,8 +232,20 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/auth/password-reset/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/auth/password-reset/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "password-reset",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Password Reset Confirm",
@@ -230,8 +266,20 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/auth/password-reset-confirm/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/auth/password-reset-confirm/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "password-reset-confirm",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Create Instructors",
@@ -252,8 +300,20 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/auth/instructors/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/auth/instructors/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "instructors",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Set Instructor Password",
@@ -274,30 +334,45 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/auth/instructors/set-password/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/auth/instructors/set-password/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "instructors",
+                "set-password",
+                ""
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
     {
       "name": "Course",
-      "auth": {
-        "type": "bearer",
-        "bearer": [
-          {
-            "key": "token",
-            "value": "{{access_token}}",
-            "type": "string"
-          }
-        ]
-      },
       "item": [
         {
           "name": "List Courses",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/courses/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/courses/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Create Course",
@@ -318,15 +393,39 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/courses/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/courses/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Get Course",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/courses/{{course_id}}/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/courses/{{course_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{course_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Update Course - Put",
@@ -347,8 +446,20 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/courses/{{course_id}}/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/courses/{{course_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{course_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Update Course - Patch",
@@ -369,20 +480,42 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/courses/{{course_id}}/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/courses/{{course_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{course_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Delete Course",
           "request": {
             "method": "DELETE",
-            "url": "{{base_url}}/api/courses/{{course_id}}/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/courses/{{course_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "courses",
+                "{{course_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         }
-      ]
-    },
-    {
-      "name": "Category",
+      ],
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -392,14 +525,29 @@
             "type": "string"
           }
         ]
-      },
+      }
+    },
+    {
+      "name": "Category",
       "item": [
         {
           "name": "List Categories",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/categories/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categories/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Create Category",
@@ -420,15 +568,39 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/categories/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/categories/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Get Category",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/categories/{{category_id}}/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{category_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{category_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Update Category - Put",
@@ -449,8 +621,20 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/categories/{{category_id}}/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{category_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{category_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Update Category - Patch",
@@ -471,20 +655,42 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/categories/{{category_id}}/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{category_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{category_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Delete Category",
           "request": {
             "method": "DELETE",
-            "url": "{{base_url}}/api/categories/{{category_id}}/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/categories/{{category_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{category_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         }
-      ]
-    },
-    {
-      "name": "Profile",
+      ],
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -494,14 +700,30 @@
             "type": "string"
           }
         ]
-      },
+      }
+    },
+    {
+      "name": "Profile",
       "item": [
         {
           "name": "Get User Profile",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/auth/profile/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/profile/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Update User Profile",
@@ -522,13 +744,22 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/auth/profile/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/auth/profile/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "profile",
+                ""
+              ]
+            }
+          },
+          "response": []
         }
-      ]
-    },
-    {
-      "name": "Lesson",
+      ],
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -538,14 +769,29 @@
             "type": "string"
           }
         ]
-      },
+      }
+    },
+    {
+      "name": "Lesson",
       "item": [
         {
           "name": "List Lessons",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/lessons/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/lessons/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "lessons",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Create Lesson",
@@ -578,7 +824,7 @@
                 {
                   "key": "pdf",
                   "type": "file",
-                  "src": ""
+                  "value": ""
                 },
                 {
                   "key": "video",
@@ -597,15 +843,39 @@
                 }
               ]
             },
-            "url": "{{base_url}}/api/lessons/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/lessons/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "lessons",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Get Lesson",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/lessons/{{lesson_id}}/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/lessons/{{lesson_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "lessons",
+                "{{lesson_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Update Lesson - Put",
@@ -637,8 +907,20 @@
                 }
               ]
             },
-            "url": "{{base_url}}/api/lessons/{{lesson_id}}/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/lessons/{{lesson_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "lessons",
+                "{{lesson_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Update Lesson - Patch",
@@ -655,28 +937,63 @@
                 }
               ]
             },
-            "url": "{{base_url}}/api/lessons/{{lesson_id}}/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/lessons/{{lesson_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "lessons",
+                "{{lesson_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Delete Lesson",
           "request": {
             "method": "DELETE",
-            "url": "{{base_url}}/api/lessons/{{lesson_id}}/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/lessons/{{lesson_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "lessons",
+                "{{lesson_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Complete Lesson",
           "request": {
             "method": "POST",
             "header": [],
-            "url": "{{base_url}}/api/lessons/{{lesson_id}}/complete/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/lessons/{{lesson_id}}/complete/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "lessons",
+                "{{lesson_id}}",
+                "complete",
+                ""
+              ]
+            }
+          },
+          "response": []
         }
-      ]
-    },
-    {
-      "name": "Enrollment",
+      ],
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -686,7 +1003,10 @@
             "type": "string"
           }
         ]
-      },
+      }
+    },
+    {
+      "name": "Enrollment",
       "item": [
         {
           "name": "Enroll in Course",
@@ -707,20 +1027,40 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/enrollments/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "List Enrollments",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/enrollments/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                ""
+              ]
+            }
+          },
+          "response": []
         }
-      ]
-    },
-    {
-      "name": "Assignment",
+      ],
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -730,14 +1070,29 @@
             "type": "string"
           }
         ]
-      },
+      }
+    },
+    {
+      "name": "Assignment",
       "item": [
         {
           "name": "List Assignments",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/assignments/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/assignments/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Create Assignment",
@@ -758,8 +1113,19 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/assignments/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/assignments/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Create Assignment With Attachment",
@@ -792,19 +1158,43 @@
                 {
                   "key": "attachment",
                   "type": "file",
-                  "src": ""
+                  "value": ""
                 }
               ]
             },
-            "url": "{{base_url}}/api/assignments/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/assignments/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Get Assignment",
           "request": {
             "method": "GET",
-            "url": "{{base_url}}/api/assignments/{{assignment_id}}/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/assignments/{{assignment_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{assignment_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Update Assignment - Put",
@@ -825,8 +1215,20 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/assignments/{{assignment_id}}/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/assignments/{{assignment_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{assignment_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Update Assignment - Patch",
@@ -847,17 +1249,249 @@
                 }
               }
             },
-            "url": "{{base_url}}/api/assignments/{{assignment_id}}/"
-          }
+            "url": {
+              "raw": "{{base_url}}/api/assignments/{{assignment_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{assignment_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         },
         {
           "name": "Delete Assignment",
           "request": {
             "method": "DELETE",
-            "url": "{{base_url}}/api/assignments/{{assignment_id}}/"
-          }
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/assignments/{{assignment_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assignments",
+                "{{assignment_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
         }
-      ]
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Submission",
+      "item": [
+        {
+          "name": "Create Submission",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Submission created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.id) pm.collectionVariables.set(\"submission_id\", json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assignment\": \"{{assignment_id}}\",\n  \"content\": \"Here is my completed assignment submission.\",\n  \"submitted_at\": \"2026-09-19T10:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/submissions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "submissions",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Submissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/submissions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "submissions",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Submission",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/submissions/{{submission_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "submissions",
+                "{{submission_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Submission - Patch",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Updated submission content.\",\n  \"grade\": 85\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/submissions/{{submission_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "submissions",
+                "{{submission_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Submission",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/submissions/{{submission_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "submissions",
+                "{{submission_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{access_token}}",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "course_id",
+      "value": "1"
+    },
+    {
+      "key": "category_id",
+      "value": "1"
+    },
+    {
+      "key": "lesson_id",
+      "value": "1"
+    },
+    {
+      "key": "enrollment_id",
+      "value": "1"
+    },
+    {
+      "key": "assignment_id",
+      "value": "1"
+    },
+    {
+      "key": "submission_id",
+      "value": ""
     }
   ]
 }
