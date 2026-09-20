@@ -28,3 +28,18 @@ class IsSubmissionGraderOrAdmin(BasePermission):
             request.user.role == request.user.Role.INSTRUCTOR
             and obj.assignment.course.instructor == request.user
         )
+
+class IsQuizOwnerOrAdmin(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.role == request.user.Role.ADMIN:
+            return True
+
+        return obj.course.instructor == request.user
+
+
+class IsQuizQuestionOwnerOrAdmin(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.role == request.user.Role.ADMIN:
+            return True
+
+        return obj.quiz.course.instructor == request.user
