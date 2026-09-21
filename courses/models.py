@@ -38,7 +38,7 @@ class Course(models.Model):
     )
 
     duration = models.PositiveIntegerField(
-        help_text="Duration in minutes",
+        help_text="Duration in months",
     )
 
     price = models.DecimalField(

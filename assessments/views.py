@@ -180,18 +180,25 @@ class QuizViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
 
-        if user.role == user.Role.STUDENT:
-            return Quiz.objects.filter(
+        if user.role == user.Role.ADMIN:
+            queryset = Quiz.objects.all()
+
+        elif user.role == user.Role.INSTRUCTOR:
+            queryset = Quiz.objects.filter(course__instructor=user)
+
+        else:
+            queryset = Quiz.objects.filter(
                 course__status=Course.Status.PUBLISHED,
                 course__enrollments__student=user,
             )
 
-        if user.role == user.Role.INSTRUCTOR:
-            return Quiz.objects.filter(
-                Q(course__instructor=user) | Q(course__status=Course.Status.PUBLISHED)
-            )
+        # Optional course filter
+        course_id = self.request.query_params.get("course")
 
-        return Quiz.objects.all()
+        if course_id:
+            queryset = queryset.filter(course_id=course_id)
+
+        return queryset
 
     def get_permissions(self):
         if self.action == "create":
@@ -224,35 +231,23 @@ class QuizViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
-    def perform_update(self, serializer):
-        course = serializer.validated_data.get(
-            "course",
-            serializer.instance.course,
-        )
-
-        if (
-            self.request.user.role != self.request.user.Role.ADMIN
-            and course.instructor != self.request.user
-        ):
-            raise PermissionDenied("You can only assign quizzes to your own courses.")
-
-        serializer.save()
-
-    def destroy(self, request, *args, **kwargs):
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path="questions",
+    )
+    def questions(self, request, pk=None):
         quiz = self.get_object()
 
-        if not quiz.questions.exists():
-            return Response(
-                {
-                    "detail": (
-                        "A quiz must contain at least one question "
-                        "before it can be deleted."
-                    )
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        questions = QuizQuestion.objects.filter(quiz=quiz).order_by("order")
 
-        return super().destroy(request, *args, **kwargs)
+        serializer = QuizQuestionSerializer(
+            questions,
+            many=True,
+            context={"request": request},
+        )
+
+        return Response(serializer.data)
 
 
 class QuizQuestionViewSet(viewsets.ModelViewSet):
@@ -313,9 +308,7 @@ class QuizQuestionViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        serializer = BulkQuizQuestionSerializer(
-            data=request.data
-        )
+        serializer = BulkQuizQuestionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         quiz = serializer.validated_data["quiz"]
@@ -325,11 +318,7 @@ class QuizQuestionViewSet(viewsets.ModelViewSet):
             and quiz.course.instructor != request.user
         ):
             return Response(
-                {
-                    "detail": (
-                        "You can only add questions to your own quizzes."
-                    )
-                },
+                {"detail": ("You can only add questions to your own quizzes.")},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -343,16 +332,12 @@ class QuizQuestionViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+
 class QuizAttemptViewSet(viewsets.ModelViewSet):
     serializer_class = QuizAttemptSerializer
     permission_classes = [IsAuthenticated]
 
-    http_method_names = [
-        "get",
-        "post",
-        "head",
-        "options",
-    ]
+    http_method_names = ["get", "post", "head", "options"]
 
     def get_queryset(self):
         user = self.request.user
@@ -368,6 +353,7 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         user = request.user
 
+        # Only students can take quizzes
         if user.role != user.Role.STUDENT:
             return Response(
                 {"detail": "Only students can attempt quizzes."},
@@ -376,6 +362,13 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
 
         quiz_id = request.data.get("quiz")
 
+        if not quiz_id:
+            return Response(
+                {"quiz": "Quiz ID is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Get published quiz
         try:
             quiz = Quiz.objects.get(
                 pk=quiz_id,
@@ -387,49 +380,28 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        # Quiz must contain questions
         if not quiz.questions.exists():
             return Response(
                 {"detail": "Quiz must contain at least one question."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Student must be enrolled
         if not quiz.course.enrollments.filter(student=user).exists():
             return Response(
                 {"detail": "You must be enrolled in this course."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        if QuizAttempt.objects.filter(
-            quiz=quiz,
-            student=user,
-        ).exists():
-            return Response(
-                {"detail": "You have already attempted this quiz."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        # Calculate total marks
+        total_marks = sum(question.marks for question in quiz.questions.all())
 
-        answers = request.data.get("answers", {})
-
-        score = 0
-        total_marks = 0
-
-        for question in quiz.questions.all():
-            total_marks += question.marks
-
-            answer = answers.get(str(question.id))
-
-            if answer and answer.upper() == question.correct_answer:
-                score += question.marks
-
-        now = timezone.now()
-
+        # Create a new attempt
         attempt = QuizAttempt.objects.create(
             quiz=quiz,
             student=user,
-            answers=answers,
-            score=score,
             total_marks=total_marks,
-            submitted_at=now,
         )
 
         serializer = self.get_serializer(attempt)
@@ -437,4 +409,74 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
         return Response(
             serializer.data,
             status=status.HTTP_201_CREATED,
+        )
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="submit",
+    )
+    def submit(self, request, pk=None):
+        attempt = self.get_object()
+
+        # Only the student who owns the attempt can submit it
+        if attempt.student != request.user:
+            return Response(
+                {"detail": "You can only submit your own attempt."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        # Prevent submitting twice
+        if attempt.submitted_at:
+            return Response(
+                {"detail": "This attempt has already been submitted."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Check time limit
+        now = timezone.now()
+
+        deadline = attempt.started_at + timedelta(minutes=attempt.quiz.duration)
+
+        if now > deadline:
+            return Response(
+                {"detail": "The quiz time limit has expired."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        answers = request.data.get("answers", {})
+
+        if not isinstance(answers, dict):
+            return Response(
+                {"answers": "Answers must be an object."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Automatically grade
+        score = 0
+
+        for question in attempt.quiz.questions.all():
+            answer = answers.get(str(question.id))
+
+            if answer and answer.upper() == question.correct_answer:
+                score += question.marks
+
+        # Save result
+        attempt.answers = answers
+        attempt.score = score
+        attempt.submitted_at = now
+
+        attempt.save(
+            update_fields=[
+                "answers",
+                "score",
+                "submitted_at",
+            ]
+        )
+
+        serializer = self.get_serializer(attempt)
+
+        return Response(
+            serializer.data,
+            status=status.HTTP_200_OK,
         )

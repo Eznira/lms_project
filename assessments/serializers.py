@@ -1,7 +1,7 @@
 from django.utils import timezone
 from rest_framework import serializers
 
-from .models import Assignment, AssignmentSubmission, QuizAttempt, QuizQuestion, Quiz
+from .models import Assignment, AssignmentSubmission, Quiz, QuizAttempt, QuizQuestion
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
@@ -43,9 +43,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
         return value
 
-
 class AssignmentSubmissionSerializer(serializers.ModelSerializer):
-
     assignment_title = serializers.CharField(
         source="assignment.title",
         read_only=True,
@@ -94,7 +92,6 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
 
         return value
 
-
 class QuizSerializer(serializers.ModelSerializer):
     course_title = serializers.CharField(
         source="course.title",
@@ -119,6 +116,7 @@ class QuizSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
         read_only_fields = [
             "id",
             "course_title",
@@ -134,7 +132,6 @@ class QuizSerializer(serializers.ModelSerializer):
             )
 
         return value
-
 
 class QuizQuestionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -186,6 +183,7 @@ class QuizQuestionSerializer(serializers.ModelSerializer):
                 )
 
         return attrs
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
@@ -201,11 +199,18 @@ class QuizQuestionSerializer(serializers.ModelSerializer):
         return data
 
 class QuizAttemptSerializer(serializers.ModelSerializer):
-
     quiz_title = serializers.CharField(
         source="quiz.title",
         read_only=True,
     )
+
+    time_limit_minutes = serializers.IntegerField(
+        source="quiz.duration",
+        read_only=True,
+    )
+
+    percentage = serializers.SerializerMethodField()
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = QuizAttempt
@@ -213,66 +218,39 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
             "id",
             "quiz",
             "quiz_title",
-            "answers",
             "score",
             "total_marks",
+            "percentage",
+            "status",
             "started_at",
             "submitted_at",
+            "time_limit_minutes",
         ]
+
         read_only_fields = [
             "id",
             "quiz_title",
             "score",
             "total_marks",
+            "percentage",
+            "status",
             "started_at",
             "submitted_at",
+            "time_limit_minutes",
         ]
 
+    def get_percentage(self, obj):
+        if obj.total_marks == 0:
+            return 0
 
-    quiz = serializers.PrimaryKeyRelatedField(queryset=Quiz.objects.all())
+        return round(
+            (obj.score / obj.total_marks) * 100,
+            2,
+        )
 
-    questions = QuizQuestionSerializer(many=True)
+    def get_status(self, obj):
+        if obj.submitted_at:
+            return "SUBMITTED"
 
-    def validate(self, attrs):
-        quiz = attrs["quiz"]
-        questions = attrs["questions"]
-
-        if not questions:
-            raise serializers.ValidationError(
-                {"questions": "At least one question is required."}
-            )
-
-        orders = [question["order"] for question in questions]
-
-        if len(orders) != len(set(orders)):
-            raise serializers.ValidationError(
-                {"questions": "Question orders must be unique."}
-            )
-
-        existing_orders = set(quiz.questions.values_list("order", flat=True))
-
-        duplicate_orders = existing_orders.intersection(orders)
-
-        if duplicate_orders:
-            raise serializers.ValidationError(
-                {
-                    "questions": (
-                        f"These question orders already exist: "
-                        f"{sorted(duplicate_orders)}"
-                    )
-                }
-            )
-
-        return attrs
-
-    def create(self, validated_data):
-        quiz = validated_data["quiz"]
-        questions = validated_data["questions"]
-
-        return [
-            QuizQuestion.objects.create(
-                quiz=quiz,
-                **question,
-            )
-            for question in questions
-        ]
+        return "IN_PROGRESS"
+   

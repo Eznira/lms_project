@@ -1388,7 +1388,7 @@
           "response": []
         },
         {
-          "name": "Update Submission - Patch",
+          "name": "Grade Submission",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1556,7 +1556,7 @@
       "name": "Quiz-attempt",
       "item": [
         {
-          "name": "Get Quiz Attempts",
+          "name": "List Quiz Attempts",
           "request": {
             "method": "GET",
             "header": [],
@@ -1567,7 +1567,7 @@
           "response": []
         },
         {
-          "name": "Submit Quiz Attempt",
+          "name": "Start Quiz",
           "request": {
             "method": "GET",
             "header": [],
@@ -1578,7 +1578,18 @@
           "response": []
         },
         {
-          "name": "Get Quizzes",
+          "name": "Get Quiz Attempt",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Quiz",
           "request": {
             "method": "GET",
             "header": [],
@@ -1594,7 +1605,18 @@
       "name": "Quiz-questions",
       "item": [
         {
-          "name": "Get Quiz Questions",
+          "name": "LIst Quiz Questions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Quiz Question",
           "request": {
             "method": "GET",
             "header": [],
@@ -1616,7 +1638,7 @@
           "response": []
         },
         {
-          "name": "Get Question",
+          "name": "Update Question",
           "request": {
             "method": "GET",
             "header": [],
@@ -1627,7 +1649,29 @@
           "response": []
         },
         {
-          "name": "Update Question",
+          "name": "Partial Update Question",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Question",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Quiz Questions",
           "request": {
             "method": "GET",
             "header": [],

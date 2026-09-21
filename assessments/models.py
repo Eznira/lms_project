@@ -167,13 +167,6 @@ class QuizAttempt(models.Model):
         blank=True,
     )
 
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["quiz", "student"],
-                name="unique_student_quiz_attempt",
-            )
-        ]
 
     def __str__(self):
         return f"{self.student.email} - {self.quiz.title}"

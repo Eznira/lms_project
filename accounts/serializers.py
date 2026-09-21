@@ -13,7 +13,6 @@ from .models import (
 
 User = get_user_model()
 
-
 class StrictFieldsMixin:
     def to_internal_value(self, data):
         allowed_fields = set(self.fields.keys())
@@ -28,7 +27,6 @@ class StrictFieldsMixin:
 
         return super().to_internal_value(data)
 
-
 class StudentProfileSerializer(StrictFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = StudentProfile
@@ -37,7 +35,6 @@ class StudentProfileSerializer(StrictFieldsMixin, serializers.ModelSerializer):
             "biography",
             "profile_photo",
         ]
-
 
 class InstructorProfileSerializer(StrictFieldsMixin, serializers.ModelSerializer):
     class Meta:
@@ -49,7 +46,6 @@ class InstructorProfileSerializer(StrictFieldsMixin, serializers.ModelSerializer
             "phone",
             "profile_photo",
         ]
-
 
 class ProfileSerializer(serializers.ModelSerializer):
     profile = serializers.DictField(required=False)
@@ -193,14 +189,11 @@ class RegisterSerializer(StrictFieldsMixin, serializers.ModelSerializer):
 
         return user
 
-
 class VerifyEmailSerializer(StrictFieldsMixin, serializers.Serializer):
     token = serializers.UUIDField()
 
-
 class PasswordResetRequestSerializer(StrictFieldsMixin, serializers.Serializer):
     email = serializers.EmailField()
-
 
 class PasswordResetConfirmSerializer(StrictFieldsMixin, serializers.Serializer):
     uid = serializers.CharField()
@@ -222,7 +215,6 @@ class PasswordResetConfirmSerializer(StrictFieldsMixin, serializers.Serializer):
             )
 
         return attrs
-
 
 class InstructorCreateSerializer(StrictFieldsMixin, serializers.ModelSerializer):
     qualification = serializers.CharField()
@@ -299,7 +291,6 @@ class InstructorCreateSerializer(StrictFieldsMixin, serializers.ModelSerializer)
         )
 
         return user
-
 
 class InstructorSetPasswordSerializer(serializers.Serializer):
     token = serializers.UUIDField()
