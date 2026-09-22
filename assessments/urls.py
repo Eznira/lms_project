@@ -3,6 +3,9 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     AssignmentSubmissionViewSet,
     AssignmentViewSet,
+    ExamAttemptViewSet,
+    ExaminationViewSet,
+    ExamQuestionViewSet,
     QuizAttemptViewSet,
     QuizQuestionViewSet,
     QuizViewSet,
@@ -40,4 +43,21 @@ router.register(
     basename="quiz-attempt",
 )
 
+router.register(
+    "examinations",
+    ExaminationViewSet,
+    basename="examination",
+)
+
+router.register(
+    "exam-questions",
+    ExamQuestionViewSet,
+    basename="exam-question",
+)
+
+router.register(
+    "exam-attempts",
+    ExamAttemptViewSet,
+    basename="exam-attempt",
+)
 urlpatterns = router.urls

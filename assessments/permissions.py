@@ -43,3 +43,30 @@ class IsQuizQuestionOwnerOrAdmin(BasePermission):
             return True
 
         return obj.quiz.course.instructor == request.user
+
+
+class IsExamOwnerOrAdmin(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.role == request.user.Role.ADMIN:
+            return True
+
+        return obj.course.instructor == request.user
+
+
+class IsExamQuestionOwnerOrAdmin(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.role == request.user.Role.ADMIN:
+            return True
+
+        return obj.examination.course.instructor == request.user
+
+
+class IsExamAttemptOwnerOrAdmin(BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.role == request.user.Role.ADMIN:
+            return True
+
+        if request.user.role == request.user.Role.STUDENT:
+            return obj.student == request.user
+
+        return obj.examination.course.instructor == request.user
