@@ -267,6 +267,11 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
 
         return "IN_PROGRESS"
 
+class QuizSubmitSerializer(serializers.Serializer):
+    answers = serializers.DictField(
+        child=serializers.CharField(),
+    )
+
 
 class ExaminationSerializer(serializers.ModelSerializer):
     course_title = serializers.CharField(

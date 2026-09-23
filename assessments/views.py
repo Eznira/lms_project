@@ -42,6 +42,8 @@ from .serializers import (
     QuizAttemptSerializer,
     QuizQuestionSerializer,
     QuizSerializer,
+    QuizSubmitSerializer,
+    QuizSubmitSerializer,
 )
 
 
@@ -421,6 +423,10 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+    @extend_schema(
+        request=QuizSubmitSerializer,
+        responses=QuizAttemptSerializer,
+    )
     @action(
         detail=True,
         methods=["post"],
