@@ -52,6 +52,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
         return value
 
+
 class AssignmentSubmissionSerializer(serializers.ModelSerializer):
     assignment_title = serializers.CharField(
         source="assignment.title",
@@ -101,6 +102,7 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
 
         return value
 
+
 class QuizSerializer(serializers.ModelSerializer):
     course_title = serializers.CharField(
         source="course.title",
@@ -141,6 +143,7 @@ class QuizSerializer(serializers.ModelSerializer):
             )
 
         return value
+
 
 class QuizQuestionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -206,6 +209,7 @@ class QuizQuestionSerializer(serializers.ModelSerializer):
             data.pop("correct_answer", None)
 
         return data
+
 
 class QuizAttemptSerializer(serializers.ModelSerializer):
     quiz_title = serializers.CharField(
@@ -334,6 +338,7 @@ class ExaminationSerializer(serializers.ModelSerializer):
 
         return attrs
 
+
 class ExamQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamQuestion
@@ -407,7 +412,8 @@ class ExamQuestionSerializer(serializers.ModelSerializer):
                 )
 
         return attrs
-    
+
+
 class ExamAttemptSerializer(serializers.ModelSerializer):
     examination_title = serializers.CharField(
         source="examination.title",
@@ -464,3 +470,9 @@ class ExamAttemptSerializer(serializers.ModelSerializer):
             return "SUBMITTED"
 
         return "IN_PROGRESS"
+
+
+class ExamSubmitSerializer(serializers.Serializer):
+    answers = serializers.DictField(
+        child=serializers.CharField(),
+    )

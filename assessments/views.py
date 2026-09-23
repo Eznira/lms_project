@@ -1,8 +1,8 @@
 from datetime import timedelta
 
-from django.contrib.admin import action
 from django.db.models import Q
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -38,6 +38,7 @@ from .serializers import (
     ExamAttemptSerializer,
     ExaminationSerializer,
     ExamQuestionSerializer,
+    ExamSubmitSerializer,
     QuizAttemptSerializer,
     QuizQuestionSerializer,
     QuizSerializer,
@@ -109,6 +110,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
+
 class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = AssignmentSubmissionSerializer
     permission_classes = [IsAuthenticated]
@@ -179,6 +181,7 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("You have already submitted this assignment.")
 
         serializer.save(student=user)
+
 
 class QuizViewSet(viewsets.ModelViewSet):
     serializer_class = QuizSerializer
@@ -255,6 +258,7 @@ class QuizViewSet(viewsets.ModelViewSet):
         )
 
         return Response(serializer.data)
+
 
 class QuizQuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuizQuestionSerializer
@@ -337,6 +341,7 @@ class QuizQuestionViewSet(viewsets.ModelViewSet):
             ).data,
             status=status.HTTP_201_CREATED,
         )
+
 
 class QuizAttemptViewSet(viewsets.ModelViewSet):
     serializer_class = QuizAttemptSerializer
@@ -486,6 +491,7 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+
 class ExaminationViewSet(viewsets.ModelViewSet):
     serializer_class = ExaminationSerializer
     permission_classes = [IsAuthenticated]
@@ -567,6 +573,7 @@ class ExaminationViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+
 class ExamQuestionViewSet(viewsets.ModelViewSet):
     serializer_class = ExamQuestionSerializer
     permission_classes = [IsAuthenticated]
@@ -626,8 +633,10 @@ class ExamQuestionViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
+
 class ExamAttemptViewSet(viewsets.ModelViewSet):
     serializer_class = ExamAttemptSerializer
+
     permission_classes = [IsAuthenticated]
 
     http_method_names = [
@@ -722,6 +731,10 @@ class ExamAttemptViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+    @extend_schema(
+        request=ExamSubmitSerializer,
+        responses=ExamAttemptSerializer,
+    )
     @action(
         detail=True,
         methods=["post"],
