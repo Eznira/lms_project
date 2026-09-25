@@ -107,6 +107,31 @@ class LessonViewSet(viewsets.ModelViewSet):
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated]
 
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields = {
+        "course": ["exact"],
+    }
+
+    search_fields = [
+        "title",
+        "content",
+        "course__title",
+    ]
+
+    ordering_fields = [
+        "title",
+        "order",
+        "created_at",
+        "updated_at",
+    ]
+
+    ordering = ["order"]
+
     def get_queryset(self):
         user = self.request.user
 

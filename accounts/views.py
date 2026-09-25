@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
+
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
@@ -14,7 +14,7 @@ from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.views import APIView, settings
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -30,7 +30,7 @@ from .serializers import (
     RegisterSerializer,
     VerifyEmailSerializer,
 )
-from .utils import send_verification_email
+from .services.email_service import EmailService
 
 User = get_user_model()
 
@@ -56,9 +56,9 @@ class RegisterView(APIView):
         )
 
         if verification_token:
-            send_verification_email(
-                user,
-                verification_token.token,
+            EmailService.send_verification_email(
+                user=user,
+                token=verification_token.token,
             )
 
         return Response(
@@ -131,9 +131,9 @@ class InstructorCreateView(APIView):
         )
 
         if verification_token:
-            send_verification_email(
-                instructor,
-                verification_token.token,
+            EmailService.send_verification_email(
+                user=instructor,
+                token=verification_token.token,
             )
 
         return Response(
@@ -258,25 +258,16 @@ class PasswordResetRequestView(APIView):
             token = default_token_generator.make_token(user)
 
             reset_url = (
-                "http://127.0.0.1:8000/"
-                f"api/auth/password-reset-confirm/"
+                f"{settings.BACKEND_URL}"
+                f"/api/auth/password-reset-confirm/"
                 f"?uid={uid}&token={token}"
             )
 
-            send_mail(
-                subject="Reset your LMS password",
-                message=(
-                    f"Hello {user.first_name},\n\n"
-                    f"Use the following information "
-                    f"to reset your password.\n\n"
-                    f"UID: {uid}\n"
-                    f"Token: {token}\n\n"
-                    f"Reset URL:\n{reset_url}\n\n"
-                    f"If you did not request this, "
-                    f"ignore this email."
-                ),
-                from_email="noreply@lms.local",
-                recipient_list=[user.email],
+            EmailService.send_password_reset_email(
+                user=user,
+                uid=uid,
+                token=token,
+                reset_url=reset_url,
             )
 
         return Response(

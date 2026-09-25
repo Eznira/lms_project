@@ -3,10 +3,12 @@ from datetime import timedelta
 from django.db import IntegrityError
 from django.db.models import Q
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -57,6 +59,31 @@ from .serializers import (
 class AssignmentViewSet(viewsets.ModelViewSet):
     serializer_class = AssignmentSerializer
     permission_classes = [IsAuthenticated]
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields = {
+        "course": ["exact"],
+    }
+
+    search_fields = [
+        "title",
+        "description",
+        "course__title",
+    ]
+
+    ordering_fields = [
+        "title",
+        "due_date",
+        "created_at",
+        "updated_at",
+    ]
+
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         user = self.request.user
@@ -193,6 +220,30 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
 class QuizViewSet(viewsets.ModelViewSet):
     serializer_class = QuizSerializer
     permission_classes = [IsAuthenticated]
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields = {
+        "course": ["exact"],
+    }
+
+    search_fields = [
+        "title",
+        "description",
+        "course__title",
+    ]
+
+    ordering_fields = [
+        "title",
+        "created_at",
+        "updated_at",
+    ]
+
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         user = self.request.user
@@ -503,6 +554,34 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
 class ExaminationViewSet(viewsets.ModelViewSet):
     serializer_class = ExaminationSerializer
     permission_classes = [IsAuthenticated]
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields = {
+        "course": ["exact"],
+        "status": ["exact"],
+    }
+
+    search_fields = [
+        "title",
+        "description",
+        "course__title",
+    ]
+
+    ordering_fields = [
+        "title",
+        "duration",
+        "start_time",
+        "end_time",
+        "created_at",
+        "updated_at",
+    ]
+
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         user = self.request.user
