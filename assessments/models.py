@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.db import models
 
@@ -276,6 +278,10 @@ class ExamAttempt(models.Model):
 
     answers = models.JSONField(default=dict)
 
+    # Marks manually awarded by an instructor/admin.
+    # Example: {"3": 4, "7": 2}
+    manual_grades = models.JSONField(default=dict)
+
     score = models.PositiveIntegerField(default=0)
 
     total_marks = models.PositiveIntegerField(default=0)
@@ -289,3 +295,44 @@ class ExamAttempt(models.Model):
 
     def __str__(self):
         return f"{self.student.email} - {self.examination.title}"
+   
+
+class Certificate(models.Model):
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="certificates",
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        related_name="certificates",
+    )
+    certificate_number = models.CharField(
+        max_length=50,
+        unique=True,
+        editable=False,
+    )
+    completion_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+    )
+    issued_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["student", "course"],
+                name="unique_student_course_certificate",
+            )
+        ]
+        ordering = ["-issued_at"]
+
+    def save(self, *args, **kwargs):
+        if not self.certificate_number:
+            self.certificate_number = f"CERT-{uuid.uuid4().hex[:12].upper()}"
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.certificate_number} - {self.student.email} - {self.course.title}"

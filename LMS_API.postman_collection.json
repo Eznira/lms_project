@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "42315ff2-7731-41bc-abec-6e0f577c870a",
-    "name": "LMS_API Copy",
+    "name": "LMS_API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "42814936"
   },
@@ -9,57 +9,6 @@
     {
       "name": "Auth",
       "item": [
-        {
-          "name": "Login",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Login successful\", function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "const json = pm.response.json();",
-                  "if (json.access) pm.environment.set(\"access_token\", json.access);",
-                  "if (json.refresh) pm.environment.set(\"refresh_token\", json.refresh);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"StrongPassword123\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/auth/login/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login",
-                ""
-              ]
-            }
-          },
-          "response": []
-        },
         {
           "name": "Register",
           "request": {
@@ -72,7 +21,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"password\": \"StrongPassword123\",\n  \"password_confirm\": \"StrongPassword123\",\n  \"role\": \"STUDENT\"\n}",
+              "raw": "{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"password\": \"StrongPassword123!\",\n  \"password_confirm\": \"StrongPassword123!\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -95,6 +44,85 @@
           "response": []
         },
         {
+          "name": "Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"your-verification-token-here\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/verify-email/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login successful\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst json = pm.response.json();\nif (json.access) pm.environment.set(\"access_token\", json.access);\nif (json.refresh) pm.environment.set(\"refresh_token\", json.refresh);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"StrongPassword123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Refresh Token",
           "event": [
             {
@@ -102,13 +130,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Refresh successful\", function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
-                  "});",
-                  "",
-                  "const json = pm.response.json();",
-                  "if (json.access) pm.environment.set(\"access_token\", json.access);",
-                  "if (json.refresh) pm.environment.set(\"refresh_token\", json.refresh);"
+                  "const json = pm.response.json();\nif (json.access) pm.environment.set(\"access_token\", json.access);"
                 ]
               }
             }
@@ -148,6 +170,16 @@
         {
           "name": "Logout",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -173,40 +205,6 @@
                 "api",
                 "auth",
                 "logout",
-                ""
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Verify Email",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"token\": \"PASTE_VERIFICATION_UUID_HERE\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/auth/verify-email/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "verify-email",
                 ""
               ]
             }
@@ -259,7 +257,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"PASTE_RESET_UUID_HERE\",\n  \"password\": \"NewStrongPassword123\",\n  \"password_confirm\": \"NewStrongPassword123\"\n}",
+              "raw": "{\n  \"uid\": \"encoded-uid\",\n  \"token\": \"reset-token\",\n  \"new_password\": \"NewStrongPassword123!\",\n  \"new_password_confirm\": \"NewStrongPassword123!\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -284,6 +282,16 @@
         {
           "name": "Create Instructors",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -293,7 +301,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"instructor@example.com\",\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Doe\"\n}",
+              "raw": "{\n  \"email\": \"instructor@example.com\",\n  \"first_name\": \"Jane\",\n  \"last_name\": \"Smith\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -327,7 +335,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"token\": \"PASTE_INSTRUCTOR_TOKEN_HERE\",\n  \"password\": \"StrongPassword123\",\n  \"password_confirm\": \"StrongPassword123\"\n}",
+              "raw": "{\n  \"token\": \"instructor-setup-token\",\n  \"new_password\": \"InstructorPass123!\",\n  \"new_password_confirm\": \"InstructorPass123!\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -358,6 +366,16 @@
         {
           "name": "List Courses",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -376,7 +394,28 @@
         },
         {
           "name": "Create Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.id) pm.environment.set(\"course_id\", json.id);"
+                ]
+              }
+            }
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -386,7 +425,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Python Basics\",\n  \"description\": \"Introduction to Python programming\",\n  \"category\": {{category_id}}\n}",
+              "raw": "{\n  \"title\": \"Python Basics\",\n  \"description\": \"Introduction to Python programming\",\n  \"category\": {{category_id}},\n  \"duration\": 30,\n  \"price\": \"49.99\",\n  \"level\": \"beginner\",\n  \"status\": \"draft\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -410,6 +449,16 @@
         {
           "name": "Get Course",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -430,6 +479,16 @@
         {
           "name": "Update Course - Put",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
             "header": [
               {
@@ -439,7 +498,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Python Basics Updated\",\n  \"description\": \"Updated course description\",\n  \"category\": {{category_id}}\n}",
+              "raw": "{\n  \"title\": \"Python Basics Updated\",\n  \"description\": \"Updated introduction to Python programming\",\n  \"category\": {{category_id}},\n  \"duration\": 40,\n  \"price\": \"59.99\",\n  \"level\": \"beginner\",\n  \"status\": \"published\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -464,6 +523,16 @@
         {
           "name": "Update Course - Patch",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
             "header": [
               {
@@ -473,7 +542,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Python Basics - PATCH\"\n}",
+              "raw": "{\n  \"status\": \"published\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -498,6 +567,16 @@
         {
           "name": "Delete Course",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
             "header": [],
             "url": {
@@ -533,6 +612,16 @@
         {
           "name": "List Categories",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -551,7 +640,28 @@
         },
         {
           "name": "Create Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.id) pm.environment.set(\"category_id\", json.id);"
+                ]
+              }
+            }
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -561,7 +671,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Programming\",\n  \"slug\": \"programming\"\n}",
+              "raw": "{\n  \"name\": \"Programming\",\n  \"description\": \"Courses related to programming and software development\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -585,6 +695,16 @@
         {
           "name": "Get Category",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -605,6 +725,16 @@
         {
           "name": "Update Category - Put",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
             "header": [
               {
@@ -614,7 +744,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Programming Updated\",\n  \"slug\": \"programming-updated\"\n}",
+              "raw": "{\n  \"name\": \"Programming Updated\",\n  \"description\": \"Updated description for programming courses\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -639,6 +769,16 @@
         {
           "name": "Update Category - Patch",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
             "header": [
               {
@@ -648,7 +788,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Programming PATCH\"\n}",
+              "raw": "{\n  \"description\": \"Partially updated description\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -673,6 +813,16 @@
         {
           "name": "Delete Category",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
             "header": [],
             "url": {
@@ -708,16 +858,25 @@
         {
           "name": "Get User Profile",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/auth/profile/",
+              "raw": "{{base_url}}/api/profile/",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
-                "auth",
                 "profile",
                 ""
               ]
@@ -728,6 +887,16 @@
         {
           "name": "Update User Profile",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
             "header": [
               {
@@ -737,7 +906,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"first_name\": \"John Updated\",\n  \"last_name\": \"Doe Updated\"\n}",
+              "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"profile\": {\n    \"phone\": \"+1234567890\",\n    \"biography\": \"A passionate learner.\"\n  }\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -745,13 +914,12 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/auth/profile/",
+              "raw": "{{base_url}}/api/profile/",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
-                "auth",
                 "profile",
                 ""
               ]
@@ -777,6 +945,16 @@
         {
           "name": "List Lessons",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -795,53 +973,43 @@
         },
         {
           "name": "Create Lesson",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.id) pm.environment.set(\"lesson_id\", json.id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
+            "auth": {
+              "type": "bearer",
+              "bearer": [
                 {
-                  "key": "course",
-                  "value": "{{course_id}}",
-                  "type": "text"
-                },
-                {
-                  "key": "title",
-                  "value": "Introduction to Python",
-                  "type": "text"
-                },
-                {
-                  "key": "content",
-                  "value": "This lesson introduces Python.",
-                  "type": "text"
-                },
-                {
-                  "key": "order",
-                  "value": "1",
-                  "type": "text"
-                },
-                {
-                  "key": "pdf",
-                  "type": "file",
-                  "value": ""
-                },
-                {
-                  "key": "video",
-                  "value": "",
-                  "type": "text"
-                },
-                {
-                  "key": "audio",
-                  "value": "",
-                  "type": "text"
-                },
-                {
-                  "key": "external_resource",
-                  "value": "",
-                  "type": "text"
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
                 }
               ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course\": {{course_id}},\n  \"title\": \"Introduction to Variables\",\n  \"content\": \"In this lesson, we cover Python variables and data types.\",\n  \"order\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/lessons/",
@@ -860,6 +1028,16 @@
         {
           "name": "Get Lesson",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -880,32 +1058,31 @@
         {
           "name": "Update Lesson - Put",
           "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
+            "auth": {
+              "type": "bearer",
+              "bearer": [
                 {
-                  "key": "course",
-                  "value": "{{course_id}}",
-                  "type": "text"
-                },
-                {
-                  "key": "title",
-                  "value": "Introduction to Python - Updated",
-                  "type": "text"
-                },
-                {
-                  "key": "content",
-                  "value": "Updated lesson content.",
-                  "type": "text"
-                },
-                {
-                  "key": "order",
-                  "value": "1",
-                  "type": "text"
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
                 }
               ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course\": {{course_id}},\n  \"title\": \"Introduction to Variables - Updated\",\n  \"content\": \"Updated content for Python variables and data types.\",\n  \"order\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{base_url}}/api/lessons/{{lesson_id}}/",
@@ -925,38 +1102,32 @@
         {
           "name": "Update Lesson - Patch",
           "request": {
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "formdata",
-              "formdata": [
+            "auth": {
+              "type": "bearer",
+              "bearer": [
                 {
-                  "key": "title",
-                  "value": "Introduction to Python - PATCH",
-                  "type": "text"
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
                 }
               ]
             },
-            "url": {
-              "raw": "{{base_url}}/api/lessons/{{lesson_id}}/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "lessons",
-                "{{lesson_id}}",
-                ""
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Lesson",
-          "request": {
-            "method": "DELETE",
-            "header": [],
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Partially updated lesson content.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
               "raw": "{{base_url}}/api/lessons/{{lesson_id}}/",
               "host": [
@@ -975,6 +1146,16 @@
         {
           "name": "Complete Lesson",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [],
             "url": {
@@ -987,6 +1168,36 @@
                 "lessons",
                 "{{lesson_id}}",
                 "complete",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Lesson",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/lessons/{{lesson_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "lessons",
+                "{{lesson_id}}",
                 ""
               ]
             }
@@ -1009,8 +1220,58 @@
       "name": "Enrollment",
       "item": [
         {
-          "name": "Enroll in Course",
+          "name": "List Enrollments",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Enroll in Course",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.id) pm.environment.set(\"enrollment_id\", json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -1042,18 +1303,59 @@
           "response": []
         },
         {
-          "name": "List Enrollments",
+          "name": "Get Enrollment",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/enrollments/",
+              "raw": "{{base_url}}/api/enrollments/{{enrollment_id}}/",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "enrollments",
+                "{{enrollment_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Enrollment",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/enrollments/{{enrollment_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "enrollments",
+                "{{enrollment_id}}",
                 ""
               ]
             }
@@ -1078,6 +1380,16 @@
         {
           "name": "List Assignments",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -1096,7 +1408,28 @@
         },
         {
           "name": "Create Assignment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.id) pm.environment.set(\"assignment_id\", json.id);"
+                ]
+              }
+            }
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [
               {
@@ -1106,7 +1439,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Python Assignment 1\",\n  \"description\": \"Complete the Python exercises.\",\n  \"due_date\": \"2026-10-01T23:59:00Z\",\n  \"total_marks\": 100\n}",
+              "raw": "{\n  \"course\": {{course_id}},\n  \"title\": \"Python Variables Assignment\",\n  \"description\": \"Write a Python script demonstrating variable usage.\",\n  \"due_date\": \"2027-01-01T23:59:00Z\",\n  \"total_marks\": 100\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1130,35 +1463,45 @@
         {
           "name": "Create Assignment With Attachment",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [],
             "body": {
               "mode": "formdata",
               "formdata": [
                 {
+                  "key": "course",
+                  "value": "{{course_id}}",
+                  "type": "text"
+                },
+                {
                   "key": "title",
-                  "value": "Python Assignment 1",
+                  "value": "Assignment With File",
                   "type": "text"
                 },
                 {
                   "key": "description",
-                  "value": "Complete the Python exercises.",
+                  "value": "Assignment that includes an attachment file.",
                   "type": "text"
                 },
                 {
                   "key": "due_date",
-                  "value": "2026-10-01T23:59:00Z",
+                  "value": "2027-01-01T23:59:00Z",
                   "type": "text"
                 },
                 {
                   "key": "total_marks",
                   "value": "100",
                   "type": "text"
-                },
-                {
-                  "key": "attachment",
-                  "type": "file",
-                  "value": ""
                 }
               ]
             },
@@ -1179,6 +1522,16 @@
         {
           "name": "Get Assignment",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -1199,6 +1552,16 @@
         {
           "name": "Update Assignment - Put",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
             "header": [
               {
@@ -1208,7 +1571,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Python Assignment 1 Updated\",\n  \"description\": \"Updated description.\",\n  \"due_date\": \"2026-10-05T23:59:00Z\",\n  \"total_marks\": 100\n}",
+              "raw": "{\n  \"course\": {{course_id}},\n  \"title\": \"Python Variables Assignment Updated\",\n  \"description\": \"Updated assignment description.\",\n  \"due_date\": \"2027-02-01T23:59:00Z\",\n  \"total_marks\": 100\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1233,6 +1596,16 @@
         {
           "name": "Update Assignment - Patch",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
             "header": [
               {
@@ -1242,7 +1615,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Python Assignment 1 - PATCH\"\n}",
+              "raw": "{\n  \"description\": \"Partially updated assignment description.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1267,6 +1640,16 @@
         {
           "name": "Delete Assignment",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
             "header": [],
             "url": {
@@ -1300,57 +1683,18 @@
       "name": "Submission",
       "item": [
         {
-          "name": "Create Submission",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"Submission created\", function () {",
-                  "    pm.response.to.have.status(201);",
-                  "});",
-                  "",
-                  "const json = pm.response.json();",
-                  "if (json.id) pm.collectionVariables.set(\"submission_id\", json.id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"assignment\": \"{{assignment_id}}\",\n  \"content\": \"Here is my completed assignment submission.\",\n  \"submitted_at\": \"2026-09-19T10:00:00Z\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{base_url}}/api/submissions/",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "submissions",
-                ""
-              ]
-            }
-          },
-          "response": []
-        },
-        {
           "name": "List Submissions",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -1368,8 +1712,62 @@
           "response": []
         },
         {
+          "name": "Create Submission",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "assignment",
+                  "value": "{{assignment_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "submission_file",
+                  "value": "",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/submissions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "submissions",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Get Submission",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -1390,6 +1788,16 @@
         {
           "name": "Grade Submission",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PATCH",
             "header": [
               {
@@ -1399,7 +1807,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"content\": \"Updated submission content.\",\n  \"grade\": 85\n}",
+              "raw": "{\n  \"grade\": 85,\n  \"feedback\": \"Good work! Well structured solution.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1424,6 +1832,16 @@
         {
           "name": "Delete Submission",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
             "header": [],
             "url": {
@@ -1459,10 +1877,28 @@
         {
           "name": "List Quizzes",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quizzes/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quizzes",
+                ""
+              ]
             }
           },
           "response": []
@@ -1475,17 +1911,32 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Quiz created\", function () {\r\n    pm.response.to.have.status(201);\r\n});\r\n\r\nconst json = pm.response.json();\r\nif (json.id) pm.collectionVariables.set(\"quiz_id\", json.id);"
+                  "const json = pm.response.json();\nif (json.id) pm.environment.set(\"quiz_id\", json.id);"
                 ]
               }
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
-            "header": [],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"course\": 1,\r\n  \"title\": \"String Manipulation\",\r\n  \"description\": \"Test comprehension...\",\r\n  \"duration\": 30\r\n}",
+              "raw": "{\n  \"course\": {{course_id}},\n  \"title\": \"Python Basics Quiz\",\n  \"description\": \"Test your knowledge of Python basics.\",\n  \"duration\": 30\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1509,10 +1960,29 @@
         {
           "name": "Get Quiz",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quizzes/{{quiz_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quizzes",
+                "{{quiz_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1520,10 +1990,43 @@
         {
           "name": "Update Quiz",
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course\": {{course_id}},\n  \"title\": \"Python Basics Quiz Updated\",\n  \"description\": \"Updated quiz description.\",\n  \"duration\": 45\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quizzes/{{quiz_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quizzes",
+                "{{quiz_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1531,10 +2034,43 @@
         {
           "name": "Partial Update Quiz",
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"duration\": 60\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quizzes/{{quiz_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quizzes",
+                "{{quiz_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1542,10 +2078,29 @@
         {
           "name": "Delete Quiz",
           "request": {
-            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quizzes/{{quiz_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quizzes",
+                "{{quiz_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1558,21 +2113,82 @@
         {
           "name": "List Quiz Attempts",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quiz-attempts/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quiz-attempts",
+                ""
+              ]
             }
           },
           "response": []
         },
         {
           "name": "Start Quiz",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.id) pm.environment.set(\"quiz_attempt_id\", json.id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quiz\": {{quiz_id}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quiz-attempts/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quiz-attempts",
+                ""
+              ]
             }
           },
           "response": []
@@ -1580,10 +2196,29 @@
         {
           "name": "Get Quiz Attempt",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quiz-attempts/{{quiz_attempt_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quiz-attempts",
+                "{{quiz_attempt_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1591,10 +2226,44 @@
         {
           "name": "Submit Quiz",
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": {\n    \"1\": \"b\",\n    \"2\": \"a\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quiz-attempts/{{quiz_attempt_id}}/submit/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quiz-attempts",
+                "{{quiz_attempt_id}}",
+                "submit",
+                ""
+              ]
             }
           },
           "response": []
@@ -1605,12 +2274,84 @@
       "name": "Quiz-questions",
       "item": [
         {
-          "name": "LIst Quiz Questions",
+          "name": "List Quiz Questions",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quiz-questions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quiz-questions",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Quiz Questions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.id) pm.environment.set(\"quiz_question_id\", json.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quiz\": {{quiz_id}},\n  \"question_text\": \"What is the correct way to declare a variable in Python?\",\n  \"question_type\": \"mcq\",\n  \"option_a\": \"var x = 5\",\n  \"option_b\": \"x = 5\",\n  \"option_c\": \"int x = 5\",\n  \"option_d\": \"declare x = 5\",\n  \"correct_answer\": \"b\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/quiz-questions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quiz-questions",
+                ""
+              ]
             }
           },
           "response": []
@@ -1618,54 +2359,29 @@
         {
           "name": "Get Quiz Question",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create Quiz Questions",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": ""
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Question",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": ""
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Partial Update Question",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": ""
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Question",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quiz-questions/{{quiz_question_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quiz-questions",
+                "{{quiz_question_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1673,10 +2389,148 @@
         {
           "name": "Get Quiz Questions",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/quizzes/{{quiz_id}}/questions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quizzes",
+                "{{quiz_id}}",
+                "questions",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Question",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quiz\": {{quiz_id}},\n  \"question_text\": \"Updated: What is the correct way to declare a variable in Python?\",\n  \"question_type\": \"mcq\",\n  \"option_a\": \"var x = 5\",\n  \"option_b\": \"x = 5\",\n  \"option_c\": \"int x = 5\",\n  \"option_d\": \"declare x = 5\",\n  \"correct_answer\": \"b\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/quiz-questions/{{quiz_question_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quiz-questions",
+                "{{quiz_question_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Question",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"correct_answer\": \"b\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/quiz-questions/{{quiz_question_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quiz-questions",
+                "{{quiz_question_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Question",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/quiz-questions/{{quiz_question_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quiz-questions",
+                "{{quiz_question_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1687,23 +2541,84 @@
       "name": "Examination",
       "item": [
         {
-          "name": "List Examination",
+          "name": "List Examinations",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/examinations/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "examinations",
+                ""
+              ]
             }
           },
           "response": []
         },
         {
           "name": "Create Examination",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.id) pm.environment.set(\"examination_id\", json.id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course\": {{course_id}},\n  \"title\": \"Python Final Exam\",\n  \"description\": \"Comprehensive exam covering all Python topics.\",\n  \"duration\": 120,\n  \"start_time\": \"2027-01-15T09:00:00Z\",\n  \"end_time\": \"2027-01-15T11:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/examinations/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "examinations",
+                ""
+              ]
             }
           },
           "response": []
@@ -1711,10 +2626,60 @@
         {
           "name": "Get Examination",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/examinations/{{examination_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "examinations",
+                "{{examination_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Exam Questions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/examinations/{{examination_id}}/questions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "examinations",
+                "{{examination_id}}",
+                "questions",
+                ""
+              ]
             }
           },
           "response": []
@@ -1722,21 +2687,87 @@
         {
           "name": "Update Examination",
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course\": {{course_id}},\n  \"title\": \"Python Final Exam Updated\",\n  \"description\": \"Updated comprehensive exam.\",\n  \"duration\": 150,\n  \"start_time\": \"2027-01-20T09:00:00Z\",\n  \"end_time\": \"2027-01-20T11:30:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/examinations/{{examination_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "examinations",
+                "{{examination_id}}",
+                ""
+              ]
             }
           },
           "response": []
         },
         {
-          "name": "Partial Update",
+          "name": "Partial Update Examination",
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/examinations/{{examination_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "examinations",
+                "{{examination_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1744,21 +2775,29 @@
         {
           "name": "Delete Examination",
           "request": {
-            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
             "header": [],
             "url": {
-              "raw": ""
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Exam Question",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/examinations/{{examination_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "examinations",
+                "{{examination_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1771,21 +2810,82 @@
         {
           "name": "List Exam Questions",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/exam-questions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-questions",
+                ""
+              ]
             }
           },
           "response": []
         },
         {
           "name": "Create Exam Question",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.id) pm.environment.set(\"exam_question_id\", json.id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"examination\": {{examination_id}},\n  \"question_text\": \"Explain the concept of object-oriented programming in Python.\",\n  \"question_type\": \"essay\",\n  \"marks\": 20\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/exam-questions/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-questions",
+                ""
+              ]
             }
           },
           "response": []
@@ -1793,10 +2893,29 @@
         {
           "name": "Get Exam Question",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/exam-questions/{{exam_question_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-questions",
+                "{{exam_question_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1804,10 +2923,43 @@
         {
           "name": "Update Exam Question",
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"examination\": {{examination_id}},\n  \"question_text\": \"Updated: Explain OOP in Python with examples.\",\n  \"question_type\": \"essay\",\n  \"marks\": 25\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/exam-questions/{{exam_question_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-questions",
+                "{{exam_question_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1815,10 +2967,43 @@
         {
           "name": "Partial Update Exam Question",
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marks\": 30\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/exam-questions/{{exam_question_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-questions",
+                "{{exam_question_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1826,10 +3011,29 @@
         {
           "name": "Delete Exam Question",
           "request": {
-            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/exam-questions/{{exam_question_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-questions",
+                "{{exam_question_id}}",
+                ""
+              ]
             }
           },
           "response": []
@@ -1842,21 +3046,82 @@
         {
           "name": "List Exam Attempts",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/exam-attempts/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                ""
+              ]
             }
           },
           "response": []
         },
         {
           "name": "Start Exam",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();\nif (json.id) pm.environment.set(\"exam_attempt_id\", json.id);"
+                ]
+              }
+            }
+          ],
           "request": {
-            "method": "GET",
-            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"examination\": {{examination_id}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": ""
+              "raw": "{{base_url}}/api/exam-attempts/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                ""
+              ]
             }
           },
           "response": []
@@ -1864,6 +3129,241 @@
         {
           "name": "Get Exam Attempt",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/exam-attempts/{{exam_attempt_id}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "{{exam_attempt_id}}",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Submit Exam",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"answers\": {\n    \"1\": \"This is my essay answer about OOP in Python.\",\n    \"2\": \"b\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/exam-attempts/{{exam_attempt_id}}/submit/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "{{exam_attempt_id}}",
+                "submit",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Essay Grading",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"question_id\": {{exam_question_id}},\n  \"marks\": 18\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/exam-attempts/{{exam_attempt_id}}/grade/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "exam-attempts",
+                "{{exam_attempt_id}}",
+                "grade",
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Grade",
+      "item": [
+        {
+          "name": "List Grades",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/grades/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "grades",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "course",
+                  "value": "{{course_id}}",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Results",
+      "item": [
+        {
+          "name": "List Students Result",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/results/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "results",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Results by Course",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/results/?course={{course_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "results",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "course",
+                  "value": "{{course_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Certificate",
+      "item": [
+        {
+          "name": "List Certificates",
+          "request": {
             "method": "GET",
             "header": [],
             "url": {
@@ -1873,7 +3373,51 @@
           "response": []
         },
         {
-          "name": "Submit Exam",
+          "name": "Create Certificate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Certificate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Certificate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Partial Update Certificate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Certificate",
           "request": {
             "method": "GET",
             "header": [],
@@ -1906,32 +3450,80 @@
       "value": "1"
     },
     {
-      "key": "category_id",
-      "value": "1"
-    },
-    {
       "key": "lesson_id",
       "value": "1"
     },
     {
-      "key": "enrollment_id",
-      "value": "1"
-    },
-    {
-      "key": "assignment_id",
-      "value": "1"
-    },
-    {
       "key": "submission_id",
+      "value": "1"
+    },
+    {
+      "key": "access_token",
       "value": ""
     },
     {
-      "key": "quiz_id",
+      "key": "refresh_token",
       "value": ""
     },
     {
-      "key": "examination_id",
-      "value": ""
+      "key": "admin_username",
+      "value": "admin@lms.com"
+    },
+    {
+      "key": "admin_password",
+      "value": "Admin@1234!"
+    },
+    {
+      "key": "instructor_username",
+      "value": "instructor@lms.com"
+    },
+    {
+      "key": "instructor_password",
+      "value": "Instructor@1234!"
+    },
+    {
+      "key": "student1_username",
+      "value": "student1@lms.com"
+    },
+    {
+      "key": "student1_password",
+      "value": "Student1@1234!"
+    },
+    {
+      "key": "student2_username",
+      "value": "student2@lms.com"
+    },
+    {
+      "key": "student2_password",
+      "value": "Student2@1234!"
+    },
+    {
+      "key": "student3_username",
+      "value": "student3@lms.com"
+    },
+    {
+      "key": "student3_password",
+      "value": "Student3@1234!"
+    },
+    {
+      "key": "user_id",
+      "value": "1"
+    },
+    {
+      "key": "quiz_attempt_id",
+      "value": "1"
+    },
+    {
+      "key": "quiz_question_id",
+      "value": "1"
+    },
+    {
+      "key": "exam_question_id",
+      "value": "1"
+    },
+    {
+      "key": "exam_attempt_id",
+      "value": "1"
     }
   ]
 }

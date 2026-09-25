@@ -3,12 +3,15 @@ from rest_framework.routers import DefaultRouter
 from .views import (
     AssignmentSubmissionViewSet,
     AssignmentViewSet,
+    CertificateViewSet,
     ExamAttemptViewSet,
     ExaminationViewSet,
     ExamQuestionViewSet,
+    GradeViewSet,
     QuizAttemptViewSet,
     QuizQuestionViewSet,
     QuizViewSet,
+    ResultViewSet,
 )
 
 router = DefaultRouter()
@@ -60,4 +63,23 @@ router.register(
     ExamAttemptViewSet,
     basename="exam-attempt",
 )
+
+router.register(
+    "grades",
+    GradeViewSet,
+    basename="grade",
+)
+
+router.register(
+    "results",
+    ResultViewSet,
+    basename="result",
+)
+
+router.register(
+    "certificates",
+    CertificateViewSet,
+    basename="certificate",
+)
+
 urlpatterns = router.urls

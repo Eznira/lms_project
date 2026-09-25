@@ -4,6 +4,7 @@ from rest_framework import serializers
 from .models import (
     Assignment,
     AssignmentSubmission,
+    Certificate,
     ExamAttempt,
     Examination,
     ExamQuestion,
@@ -51,7 +52,6 @@ class AssignmentSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Total marks must be greater than zero.")
 
         return value
-
 
 class AssignmentSubmissionSerializer(serializers.ModelSerializer):
     assignment_title = serializers.CharField(
@@ -102,7 +102,6 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
 
         return value
 
-
 class QuizSerializer(serializers.ModelSerializer):
     course_title = serializers.CharField(
         source="course.title",
@@ -143,7 +142,6 @@ class QuizSerializer(serializers.ModelSerializer):
             )
 
         return value
-
 
 class QuizQuestionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -210,7 +208,6 @@ class QuizQuestionSerializer(serializers.ModelSerializer):
 
         return data
 
-
 class QuizAttemptSerializer(serializers.ModelSerializer):
     quiz_title = serializers.CharField(
         source="quiz.title",
@@ -271,7 +268,6 @@ class QuizSubmitSerializer(serializers.Serializer):
     answers = serializers.DictField(
         child=serializers.CharField(),
     )
-
 
 class ExaminationSerializer(serializers.ModelSerializer):
     course_title = serializers.CharField(
@@ -342,7 +338,6 @@ class ExaminationSerializer(serializers.ModelSerializer):
             )
 
         return attrs
-
 
 class ExamQuestionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -418,7 +413,6 @@ class ExamQuestionSerializer(serializers.ModelSerializer):
 
         return attrs
 
-
 class ExamAttemptSerializer(serializers.ModelSerializer):
     examination_title = serializers.CharField(
         source="examination.title",
@@ -476,8 +470,71 @@ class ExamAttemptSerializer(serializers.ModelSerializer):
 
         return "IN_PROGRESS"
 
-
 class ExamSubmitSerializer(serializers.Serializer):
     answers = serializers.DictField(
         child=serializers.CharField(),
     )
+
+class ExamGradeSerializer(serializers.Serializer):
+    question_id = serializers.IntegerField()
+    marks = serializers.IntegerField(min_value=0)
+
+class GradeSerializer(serializers.Serializer):
+    assessment_type = serializers.CharField()
+    assessment_id = serializers.IntegerField()
+    title = serializers.CharField()
+    score = serializers.IntegerField()
+    total_marks = serializers.IntegerField()
+    percentage = serializers.FloatField()
+
+class ResultSerializer(serializers.Serializer):
+    student_id = serializers.IntegerField(allow_null=True, required=False)
+    student_email = serializers.EmailField(allow_null=True, required=False)
+    course_id = serializers.IntegerField()
+    course_title = serializers.CharField()
+
+    assignment_score = serializers.IntegerField()
+    assignment_total = serializers.IntegerField()
+
+    quiz_score = serializers.IntegerField()
+    quiz_total = serializers.IntegerField()
+
+    examination_score = serializers.IntegerField()
+    examination_total = serializers.IntegerField()
+
+    total_score = serializers.IntegerField()
+    total_marks = serializers.IntegerField()
+    percentage = serializers.FloatField()
+
+class CertificateSerializer(serializers.ModelSerializer):
+    student_email = serializers.EmailField(
+        source="student.email",
+        read_only=True,
+    )
+
+    course_title = serializers.CharField(
+        source="course.title",
+        read_only=True,
+    )
+
+    class Meta:
+        model = Certificate
+        fields = [
+            "id",
+            "student",
+            "student_email",
+            "course",
+            "course_title",
+            "certificate_number",
+            "completion_percentage",
+            "issued_at",
+        ]
+
+        read_only_fields = [
+            "id",
+            "student_email",
+            "course_title",
+            "certificate_number",
+            "issued_at",
+            "completion_percentage",
+        ]

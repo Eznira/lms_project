@@ -1,8 +1,10 @@
 from django.db.migrations import serializer
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -22,6 +24,35 @@ from .serializers import CategorySerializer, CourseSerializer, LessonSerializer
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated]
+
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+
+    filterset_fields = {
+        "category": ["exact"],
+        "category__slug": ["exact"],
+        "level": ["exact"],
+        "status": ["exact"],
+    }
+
+    search_fields = [
+        "title",
+        "description",
+        "category__name",
+    ]
+
+    ordering_fields = [
+        "title",
+        "price",
+        "duration",
+        "created_at",
+        "updated_at",
+    ]
+
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         user = self.request.user

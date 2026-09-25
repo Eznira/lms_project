@@ -1,8 +1,9 @@
 from datetime import timedelta
 
+from django.db import IntegrityError
 from django.db.models import Q
 from django.utils import timezone
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -15,6 +16,7 @@ from courses.permissions import IsInstructorOrAdmin
 from .models import (
     Assignment,
     AssignmentSubmission,
+    Certificate,
     ExamAttempt,
     Examination,
     ExamQuestion,
@@ -24,9 +26,11 @@ from .models import (
 )
 from .permissions import (
     IsAssignmentOwnerOrAdmin,
+    IsCertificateOwnerOrAdmin,
     IsExamAttemptOwnerOrAdmin,
     IsExamOwnerOrAdmin,
     IsExamQuestionOwnerOrAdmin,
+    IsInstructorOrAdminCanGrade,
     IsQuizOwnerOrAdmin,
     IsQuizQuestionOwnerOrAdmin,
     IsSubmissionGraderOrAdmin,
@@ -35,15 +39,18 @@ from .permissions import (
 from .serializers import (
     AssignmentSerializer,
     AssignmentSubmissionSerializer,
+    CertificateSerializer,
     ExamAttemptSerializer,
+    ExamGradeSerializer,
     ExaminationSerializer,
     ExamQuestionSerializer,
     ExamSubmitSerializer,
+    GradeSerializer,
     QuizAttemptSerializer,
     QuizQuestionSerializer,
     QuizSerializer,
     QuizSubmitSerializer,
-    QuizSubmitSerializer,
+    ResultSerializer,
 )
 
 
@@ -111,7 +118,6 @@ class AssignmentViewSet(viewsets.ModelViewSet):
             )
 
         serializer.save()
-
 
 class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = AssignmentSubmissionSerializer
@@ -183,7 +189,6 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("You have already submitted this assignment.")
 
         serializer.save(student=user)
-
 
 class QuizViewSet(viewsets.ModelViewSet):
     serializer_class = QuizSerializer
@@ -260,7 +265,6 @@ class QuizViewSet(viewsets.ModelViewSet):
         )
 
         return Response(serializer.data)
-
 
 class QuizQuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuizQuestionSerializer
@@ -343,7 +347,6 @@ class QuizQuestionViewSet(viewsets.ModelViewSet):
             ).data,
             status=status.HTTP_201_CREATED,
         )
-
 
 class QuizAttemptViewSet(viewsets.ModelViewSet):
     serializer_class = QuizAttemptSerializer
@@ -497,7 +500,6 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
-
 class ExaminationViewSet(viewsets.ModelViewSet):
     serializer_class = ExaminationSerializer
     permission_classes = [IsAuthenticated]
@@ -579,7 +581,6 @@ class ExaminationViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
-
 class ExamQuestionViewSet(viewsets.ModelViewSet):
     serializer_class = ExamQuestionSerializer
     permission_classes = [IsAuthenticated]
@@ -639,7 +640,6 @@ class ExamQuestionViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
-
 class ExamAttemptViewSet(viewsets.ModelViewSet):
     serializer_class = ExamAttemptSerializer
 
@@ -648,6 +648,7 @@ class ExamAttemptViewSet(viewsets.ModelViewSet):
     http_method_names = [
         "get",
         "post",
+        "patch",
         "head",
         "options",
     ]
@@ -662,6 +663,21 @@ class ExamAttemptViewSet(viewsets.ModelViewSet):
             return ExamAttempt.objects.filter(examination__course__instructor=user)
 
         return ExamAttempt.objects.filter(student=user)
+
+    def get_permissions(self):
+        if self.action == "submit":
+            return [
+                IsAuthenticated(),
+                IsExamAttemptOwnerOrAdmin(),
+            ]
+
+        if self.action == "grade":
+            return [
+                IsAuthenticated(),
+                IsInstructorOrAdminCanGrade(),
+            ]
+
+        return [IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
         user = request.user
@@ -749,13 +765,6 @@ class ExamAttemptViewSet(viewsets.ModelViewSet):
     def submit(self, request, pk=None):
         attempt = self.get_object()
 
-        # Only the student who owns the attempt can submit it
-        if attempt.student != request.user:
-            return Response(
-                {"detail": "You can only submit your own attempt."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
         if attempt.submitted_at:
             return Response(
                 {"detail": "This attempt has already been submitted."},
@@ -819,4 +828,733 @@ class ExamAttemptViewSet(viewsets.ModelViewSet):
         return Response(
             serializer.data,
             status=status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        request=ExamGradeSerializer,
+        responses=ExamAttemptSerializer,
+    )
+    @action(
+        detail=True,
+        methods=["patch"],
+        url_path="grade",
+    )
+    def grade(self, request, pk=None):
+        attempt = self.get_object()
+
+        # Exam must already be submitted
+        if not attempt.submitted_at:
+            return Response(
+                {"detail": "You cannot grade an exam that has not been submitted."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validate grading request
+        serializer = ExamGradeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        question_id = serializer.validated_data["question_id"]
+        marks = serializer.validated_data["marks"]
+
+        # Make sure question belongs to this examination
+        try:
+            question = ExamQuestion.objects.get(
+                id=question_id,
+                examination=attempt.examination,
+            )
+        except ExamQuestion.DoesNotExist:
+            return Response(
+                {"detail": "Question does not belong to this examination."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Only essay questions require manual grading
+        if question.question_type != ExamQuestion.QuestionType.ESSAY:
+            return Response(
+                {"detail": "Only essay questions require manual grading."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Cannot award more than the question's marks
+        if marks > question.marks:
+            return Response(
+                {"marks": f"Marks cannot exceed {question.marks}."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Save the manual grade
+        manual_grades = attempt.manual_grades or {}
+
+        manual_grades[str(question.id)] = marks
+
+        attempt.manual_grades = manual_grades
+
+        # Recalculate the complete score
+        score = 0
+
+        for exam_question in attempt.examination.questions.all():
+            # Automatically graded questions
+            if exam_question.question_type in [
+                ExamQuestion.QuestionType.MCQ,
+                ExamQuestion.QuestionType.TRUE_FALSE,
+            ]:
+                answer = attempt.answers.get(str(exam_question.id))
+
+                if answer and answer.upper() == exam_question.correct_answer:
+                    score += exam_question.marks
+
+            # Manually graded essay questions
+            elif exam_question.question_type == ExamQuestion.QuestionType.ESSAY:
+                score += manual_grades.get(
+                    str(exam_question.id),
+                    0,
+                )
+
+        attempt.score = score
+
+        attempt.save(
+            update_fields=[
+                "manual_grades",
+                "score",
+            ]
+        )
+
+        # Return updated attempt/result
+        response_serializer = ExamAttemptSerializer(attempt)
+
+        return Response(
+            response_serializer.data,
+            status=status.HTTP_200_OK,
+        )
+
+class GradeViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="List grades",
+        description=(
+            "Returns grades for assignments, quizzes, and examinations. "
+            "Students see their own grades. Instructors see grades for "
+            "students in their courses. Admins see all grades. "
+            "For quizzes and examinations, only the highest submitted "
+            "attempt per student and assessment is included."
+        ),
+        parameters=[
+            OpenApiParameter(
+                name="course",
+                type=int,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description="Filter grades by course ID.",
+            ),
+        ],
+        responses=GradeSerializer(many=True),
+    )
+    def list(self, request):
+        user = request.user
+        course_id = request.query_params.get("course")
+
+        grades = []
+
+        # =========================================================
+        # ASSIGNMENTS
+        # =========================================================
+
+        if user.role == user.Role.STUDENT:
+            assignment_submissions = AssignmentSubmission.objects.filter(
+                student=user,
+                grade__isnull=False,
+            ).select_related(
+                "assignment",
+                "assignment__course",
+            )
+
+        elif user.role == user.Role.INSTRUCTOR:
+            assignment_submissions = AssignmentSubmission.objects.filter(
+                assignment__course__instructor=user,
+                grade__isnull=False,
+            ).select_related(
+                "assignment",
+                "assignment__course",
+                "student",
+            )
+
+        else:
+            assignment_submissions = AssignmentSubmission.objects.filter(
+                grade__isnull=False,
+            ).select_related(
+                "assignment",
+                "assignment__course",
+                "student",
+            )
+
+        if course_id:
+            assignment_submissions = assignment_submissions.filter(
+                assignment__course_id=course_id
+            )
+
+        for submission in assignment_submissions:
+            total_marks = submission.assignment.total_marks
+
+            percentage = (
+                round((submission.grade / total_marks) * 100, 2) if total_marks else 0
+            )
+
+            grades.append(
+                {
+                    "assessment_type": "ASSIGNMENT",
+                    "assessment_id": submission.id,
+                    "title": submission.assignment.title,
+                    "score": submission.grade,
+                    "total_marks": total_marks,
+                    "percentage": percentage,
+                }
+            )
+
+        # =========================================================
+        # QUIZZES
+        # =========================================================
+
+        if user.role == user.Role.STUDENT:
+            quiz_attempts = QuizAttempt.objects.filter(
+                student=user,
+                submitted_at__isnull=False,
+            ).select_related(
+                "quiz",
+                "quiz__course",
+            )
+
+        elif user.role == user.Role.INSTRUCTOR:
+            quiz_attempts = QuizAttempt.objects.filter(
+                quiz__course__instructor=user,
+                submitted_at__isnull=False,
+            ).select_related(
+                "quiz",
+                "quiz__course",
+                "student",
+            )
+
+        else:
+            quiz_attempts = QuizAttempt.objects.filter(
+                submitted_at__isnull=False,
+            ).select_related(
+                "quiz",
+                "quiz__course",
+                "student",
+            )
+
+        if course_id:
+            quiz_attempts = quiz_attempts.filter(quiz__course_id=course_id)
+
+        # ---------------------------------------------------------
+        # Only the highest attempt for each student + quiz counts
+        # ---------------------------------------------------------
+
+        best_quiz_attempts = {}
+
+        for attempt in quiz_attempts:
+            key = (
+                attempt.student_id,
+                attempt.quiz_id,
+            )
+
+            current_best = best_quiz_attempts.get(key)
+
+            if current_best is None or attempt.score > current_best.score:
+                best_quiz_attempts[key] = attempt
+
+        for attempt in best_quiz_attempts.values():
+            total_marks = attempt.total_marks
+
+            percentage = (
+                round((attempt.score / total_marks) * 100, 2) if total_marks else 0
+            )
+
+            grades.append(
+                {
+                    "assessment_type": "QUIZ",
+                    "assessment_id": attempt.id,
+                    "title": attempt.quiz.title,
+                    "score": attempt.score,
+                    "total_marks": total_marks,
+                    "percentage": percentage,
+                }
+            )
+
+        # =========================================================
+        # EXAMINATIONS
+        # =========================================================
+
+        if user.role == user.Role.STUDENT:
+            exam_attempts = ExamAttempt.objects.filter(
+                student=user,
+                submitted_at__isnull=False,
+            ).select_related(
+                "examination",
+                "examination__course",
+            )
+
+        elif user.role == user.Role.INSTRUCTOR:
+            exam_attempts = ExamAttempt.objects.filter(
+                examination__course__instructor=user,
+                submitted_at__isnull=False,
+            ).select_related(
+                "examination",
+                "examination__course",
+                "student",
+            )
+
+        else:
+            exam_attempts = ExamAttempt.objects.filter(
+                submitted_at__isnull=False,
+            ).select_related(
+                "examination",
+                "examination__course",
+                "student",
+            )
+
+        if course_id:
+            exam_attempts = exam_attempts.filter(examination__course_id=course_id)
+
+        # ---------------------------------------------------------
+        # Only the highest attempt for each student + examination
+        # counts
+        # ---------------------------------------------------------
+
+        best_exam_attempts = {}
+
+        for attempt in exam_attempts:
+            key = (
+                attempt.student_id,
+                attempt.examination_id,
+            )
+
+            current_best = best_exam_attempts.get(key)
+
+            if current_best is None or attempt.score > current_best.score:
+                best_exam_attempts[key] = attempt
+
+        for attempt in best_exam_attempts.values():
+            total_marks = attempt.total_marks
+
+            percentage = (
+                round((attempt.score / total_marks) * 100, 2) if total_marks else 0
+            )
+
+            grades.append(
+                {
+                    "assessment_type": "EXAMINATION",
+                    "assessment_id": attempt.id,
+                    "title": attempt.examination.title,
+                    "score": attempt.score,
+                    "total_marks": total_marks,
+                    "percentage": percentage,
+                }
+            )
+
+        serializer = GradeSerializer(
+            grades,
+            many=True,
+        )
+
+        return Response(serializer.data)
+
+class ResultViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="List course results",
+        description=(
+            "Returns calculated course results. "
+            "Students receive their own results. "
+            "Instructors receive results for students associated with "
+            "their courses. Admins receive results for all courses."
+        ),
+        parameters=[
+            OpenApiParameter(
+                name="course",
+                type=int,
+                location=OpenApiParameter.QUERY,
+                required=False,
+                description="Filter results by course ID.",
+            ),
+        ],
+        responses=ResultSerializer(many=True),
+    )
+    def list(self, request):
+        user = request.user
+        course_id = request.query_params.get("course")
+
+        # =========================================================
+        # DETERMINE COURSES
+        # =========================================================
+
+        if user.role == user.Role.STUDENT:
+            courses = Course.objects.filter(enrollments__student=user)
+
+        elif user.role == user.Role.INSTRUCTOR:
+            courses = Course.objects.filter(instructor=user)
+
+        else:
+            courses = Course.objects.all()
+
+        if course_id:
+            courses = courses.filter(id=course_id)
+
+        courses = courses.distinct()
+
+        results = []
+
+        # =========================================================
+        # STUDENTS
+        # =========================================================
+
+        if user.role == user.Role.STUDENT:
+            for course in courses:
+                result = self.calculate_student_result(
+                    student=user,
+                    course=course,
+                )
+
+                results.append(result)
+
+        # =========================================================
+        # INSTRUCTORS / ADMINS
+        # =========================================================
+
+        else:
+            for course in courses:
+                # Get students who have activity in this course.
+                student_ids = set()
+
+                assignment_students = AssignmentSubmission.objects.filter(
+                    assignment__course=course,
+                ).values_list(
+                    "student_id",
+                    flat=True,
+                )
+
+                quiz_students = QuizAttempt.objects.filter(
+                    quiz__course=course,
+                ).values_list(
+                    "student_id",
+                    flat=True,
+                )
+
+                exam_students = ExamAttempt.objects.filter(
+                    examination__course=course,
+                ).values_list(
+                    "student_id",
+                    flat=True,
+                )
+
+                student_ids.update(assignment_students)
+                student_ids.update(quiz_students)
+                student_ids.update(exam_students)
+
+                # -------------------------------------------------
+                # Also include enrolled students
+                # -------------------------------------------------
+
+                enrolled_students = course.enrollments.values_list(
+                    "student_id",
+                    flat=True,
+                )
+
+                student_ids.update(enrolled_students)
+
+                for student_id in student_ids:
+                    from accounts.models import User
+
+                    student = User.objects.get(id=student_id)
+
+                    result = self.calculate_student_result(
+                        student=student,
+                        course=course,
+                    )
+
+                    results.append(result)
+
+        serializer = ResultSerializer(
+            results,
+            many=True,
+        )
+
+        return Response(serializer.data)
+
+    # =============================================================
+    # CALCULATE ONE STUDENT'S RESULT FOR ONE COURSE
+    # =============================================================
+
+    def calculate_student_result(self, student, course):
+
+        # =========================================================
+        # ASSIGNMENTS
+        # =========================================================
+
+        assignment_submissions = AssignmentSubmission.objects.filter(
+            assignment__course=course,
+            student=student,
+            grade__isnull=False,
+        ).select_related(
+            "assignment",
+        )
+
+        assignment_score = sum(
+            submission.grade for submission in assignment_submissions
+        )
+
+        assignment_total = sum(
+            submission.assignment.total_marks for submission in assignment_submissions
+        )
+
+        # =========================================================
+        # QUIZZES
+        # =========================================================
+
+        quiz_attempts = QuizAttempt.objects.filter(
+            quiz__course=course,
+            student=student,
+            submitted_at__isnull=False,
+        )
+
+        best_quiz_attempts = {}
+
+        for attempt in quiz_attempts:
+            current_best = best_quiz_attempts.get(attempt.quiz_id)
+
+            if current_best is None or attempt.score > current_best.score:
+                best_quiz_attempts[attempt.quiz_id] = attempt
+
+        quiz_score = sum(attempt.score for attempt in best_quiz_attempts.values())
+
+        quiz_total = sum(attempt.total_marks for attempt in best_quiz_attempts.values())
+
+        # =========================================================
+        # EXAMINATIONS
+        # =========================================================
+
+        exam_attempts = ExamAttempt.objects.filter(
+            examination__course=course,
+            student=student,
+            submitted_at__isnull=False,
+        )
+
+        best_exam_attempts = {}
+
+        for attempt in exam_attempts:
+            current_best = best_exam_attempts.get(attempt.examination_id)
+
+            if current_best is None or attempt.score > current_best.score:
+                best_exam_attempts[attempt.examination_id] = attempt
+
+        examination_score = sum(
+            attempt.score for attempt in best_exam_attempts.values()
+        )
+
+        examination_total = sum(
+            attempt.total_marks for attempt in best_exam_attempts.values()
+        )
+
+        # =========================================================
+        # OVERALL RESULT
+        # =========================================================
+
+        total_score = assignment_score + quiz_score + examination_score
+
+        total_marks = assignment_total + quiz_total + examination_total
+
+        percentage = (
+            round(
+                (total_score / total_marks) * 100,
+                2,
+            )
+            if total_marks
+            else 0
+        )
+
+        return {
+            "student_id": student.id,
+            "student_email": student.email,
+            "course_id": course.id,
+            "course_title": course.title,
+            "assignment_score": assignment_score,
+            "assignment_total": assignment_total,
+            "quiz_score": quiz_score,
+            "quiz_total": quiz_total,
+            "examination_score": examination_score,
+            "examination_total": examination_total,
+            "total_score": total_score,
+            "total_marks": total_marks,
+            "percentage": percentage,
+        }
+
+class CertificateViewSet(viewsets.ModelViewSet):
+    serializer_class = CertificateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.role == user.Role.STUDENT:
+            return Certificate.objects.filter(student=user).select_related(
+                "student",
+                "course",
+            )
+
+        if user.role == user.Role.INSTRUCTOR:
+            return Certificate.objects.filter(course__instructor=user).select_related(
+                "student",
+                "course",
+            )
+
+        return Certificate.objects.all().select_related(
+            "student",
+            "course",
+        )
+
+    def get_permissions(self):
+        if self.action == "create":
+            return [
+                IsAuthenticated(),
+            ]
+
+        if self.action in [
+            "update",
+            "partial_update",
+            "destroy",
+        ]:
+            return [
+                IsAuthenticated(),
+                IsCertificateOwnerOrAdmin(),
+            ]
+
+        return [
+            IsAuthenticated(),
+        ]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+
+        if user.role == user.Role.STUDENT:
+            raise PermissionDenied("Students cannot create certificates.")
+
+        student = serializer.validated_data["student"]
+        course = serializer.validated_data["course"]
+
+        # Instructor can only issue certificates
+        # for their own courses.
+        if user.role == user.Role.INSTRUCTOR and course.instructor != user:
+            raise PermissionDenied(
+                "You can only issue certificates for your own courses."
+            )
+
+        # Calculate the student's current result.
+        result = self.calculate_completion_percentage(
+            student,
+            course,
+        )
+
+        if result is None:
+            raise PermissionDenied("The student has no graded work for this course.")
+
+        try:
+            serializer.save(completion_percentage=result)
+        except IntegrityError:
+            raise PermissionDenied(
+                "This student already has a certificate for this course."
+            )
+
+    def calculate_completion_percentage(
+        self,
+        student,
+        course,
+    ):
+        """
+        Calculate the student's overall course percentage.
+
+        Quiz and examination attempts:
+        only the highest submitted attempt counts.
+        """
+
+        # =========================================================
+        # ASSIGNMENTS
+        # =========================================================
+
+        assignment_submissions = AssignmentSubmission.objects.filter(
+            assignment__course=course,
+            student=student,
+            grade__isnull=False,
+        ).select_related("assignment")
+
+        assignment_score = sum(
+            submission.grade for submission in assignment_submissions
+        )
+
+        assignment_total = sum(
+            submission.assignment.total_marks for submission in assignment_submissions
+        )
+
+        # =========================================================
+        # QUIZZES
+        # =========================================================
+
+        quiz_attempts = QuizAttempt.objects.filter(
+            quiz__course=course,
+            student=student,
+            submitted_at__isnull=False,
+        )
+
+        best_quiz_attempts = {}
+
+        for attempt in quiz_attempts:
+            current_best = best_quiz_attempts.get(attempt.quiz_id)
+
+            if current_best is None or attempt.score > current_best.score:
+                best_quiz_attempts[attempt.quiz_id] = attempt
+
+        quiz_score = sum(attempt.score for attempt in best_quiz_attempts.values())
+
+        quiz_total = sum(attempt.total_marks for attempt in best_quiz_attempts.values())
+
+        # =========================================================
+        # EXAMINATIONS
+        # =========================================================
+
+        exam_attempts = ExamAttempt.objects.filter(
+            examination__course=course,
+            student=student,
+            submitted_at__isnull=False,
+        )
+
+        best_exam_attempts = {}
+
+        for attempt in exam_attempts:
+            current_best = best_exam_attempts.get(attempt.examination_id)
+
+            if current_best is None or attempt.score > current_best.score:
+                best_exam_attempts[attempt.examination_id] = attempt
+
+        examination_score = sum(
+            attempt.score for attempt in best_exam_attempts.values()
+        )
+
+        examination_total = sum(
+            attempt.total_marks for attempt in best_exam_attempts.values()
+        )
+
+        # =========================================================
+        # FINAL PERCENTAGE
+        # =========================================================
+
+        total_score = assignment_score + quiz_score + examination_score
+
+        total_marks = assignment_total + quiz_total + examination_total
+
+        if total_marks == 0:
+            return None
+
+        return round(
+            (total_score / total_marks) * 100,
+            2,
         )
