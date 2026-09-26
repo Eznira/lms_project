@@ -56,10 +56,14 @@ class RegisterView(APIView):
         )
 
         if verification_token:
-            EmailService.send_verification_email(
-                user=user,
-                token=verification_token.token,
-            )
+            try:
+                EmailService.send_verification_email(
+            user=user,
+            token=verification_token.token,
+        )
+            except Exception as e:
+                print("EMAIL ERROR:", repr(e))
+                raise
 
         return Response(
             {
