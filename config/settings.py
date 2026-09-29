@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     "enrollments",
     "assessments",
     "notifications",
+    "reviews",
+    "analytics",
 ]
 
 MIDDLEWARE = [

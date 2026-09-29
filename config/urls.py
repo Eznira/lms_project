@@ -46,6 +46,11 @@ urlpatterns = [
         "api/",
         include("notifications.urls"),
     ),
+    path("api/", include("reviews.urls")),
+    path(
+        "api/analytics/",
+        include("analytics.urls"),
+    ),
 ]
 
 

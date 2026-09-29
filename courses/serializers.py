@@ -1,4 +1,5 @@
 from attr import field, fields
+from django.db.models.aggregates import Avg
 from django.utils.text import slugify
 from rest_framework import serializers
 
@@ -15,6 +16,9 @@ class CourseSerializer(StrictFieldsMixin, serializers.ModelSerializer):
 
     instructor = serializers.SerializerMethodField()
 
+    average_rating = serializers.SerializerMethodField()
+    review_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Course
         fields = [  # noqa: RUF012
@@ -29,6 +33,8 @@ class CourseSerializer(StrictFieldsMixin, serializers.ModelSerializer):
             "level",
             "thumbnail",
             "status",
+            "average_rating",
+            "review_count",
             "created_at",
             "updated_at",
         ]
@@ -36,6 +42,8 @@ class CourseSerializer(StrictFieldsMixin, serializers.ModelSerializer):
             "id",
             "category_name",
             "instructor",
+            "average_rating",
+            "review_count",
             "created_at",
             "updated_at",
         ]
@@ -45,6 +53,14 @@ class CourseSerializer(StrictFieldsMixin, serializers.ModelSerializer):
             f"{obj.instructor.first_name} {obj.instructor.last_name}".strip()
             or obj.instructor.email
         )
+
+    def get_average_rating(self, obj):
+        average = obj.reviews.aggregate(average=Avg("rating"))["average"]
+
+        return round(average, 2) if average else 0
+
+    def get_review_count(self, obj):
+        return obj.reviews.count()
 
 
 class CategorySerializer(StrictFieldsMixin, serializers.ModelSerializer):
@@ -108,4 +124,4 @@ class LessonSerializer(StrictFieldsMixin, serializers.ModelSerializer):
             "updated_at",
         ]
 
-        read_only_fields = ["id","created_at", "updated_at"]  # noqa: RUF012
+        read_only_fields = ["id", "created_at", "updated_at"]  # noqa: RUF012
