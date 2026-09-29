@@ -51,7 +51,7 @@ class AssignmentSubmission(models.Model):
         upload_to="assignments/submissions/",
     )
 
-    submitted_at = models.DateTimeField(auto_now_add=True)
+    submitted_at = models.DateTimeField(auto_now=True)
 
     grade = models.PositiveIntegerField(
         null=True,

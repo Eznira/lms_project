@@ -53,6 +53,13 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
         return value
 
+
+from django.utils import timezone
+from rest_framework import serializers
+
+from .models import AssignmentSubmission
+
+
 class AssignmentSubmissionSerializer(serializers.ModelSerializer):
     assignment_title = serializers.CharField(
         source="assignment.title",
@@ -81,6 +88,8 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
             "assignment_title",
             "student_email",
             "submitted_at",
+            "grade",
+            "feedback",
         ]
 
     def validate_assignment(self, assignment):
@@ -89,18 +98,28 @@ class AssignmentSubmissionSerializer(serializers.ModelSerializer):
 
         return assignment
 
+
+class AssignmentGradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssignmentSubmission
+        fields = [
+            "grade",
+            "feedback",
+        ]
+
     def validate_grade(self, value):
         if value < 0:
             raise serializers.ValidationError("Grade cannot be negative.")
 
-        assignment = self.instance.assignment if self.instance else None
+        assignment = self.instance.assignment
 
-        if assignment and value > assignment.total_marks:
+        if value > assignment.total_marks:
             raise serializers.ValidationError(
                 f"Grade cannot exceed {assignment.total_marks}."
             )
 
         return value
+
 
 class QuizSerializer(serializers.ModelSerializer):
     course_title = serializers.CharField(
@@ -142,6 +161,7 @@ class QuizSerializer(serializers.ModelSerializer):
             )
 
         return value
+
 
 class QuizQuestionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -208,6 +228,7 @@ class QuizQuestionSerializer(serializers.ModelSerializer):
 
         return data
 
+
 class QuizAttemptSerializer(serializers.ModelSerializer):
     quiz_title = serializers.CharField(
         source="quiz.title",
@@ -264,10 +285,12 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
 
         return "IN_PROGRESS"
 
+
 class QuizSubmitSerializer(serializers.Serializer):
     answers = serializers.DictField(
         child=serializers.CharField(),
     )
+
 
 class ExaminationSerializer(serializers.ModelSerializer):
     course_title = serializers.CharField(
@@ -338,6 +361,7 @@ class ExaminationSerializer(serializers.ModelSerializer):
             )
 
         return attrs
+
 
 class ExamQuestionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -413,6 +437,7 @@ class ExamQuestionSerializer(serializers.ModelSerializer):
 
         return attrs
 
+
 class ExamAttemptSerializer(serializers.ModelSerializer):
     examination_title = serializers.CharField(
         source="examination.title",
@@ -470,14 +495,17 @@ class ExamAttemptSerializer(serializers.ModelSerializer):
 
         return "IN_PROGRESS"
 
+
 class ExamSubmitSerializer(serializers.Serializer):
     answers = serializers.DictField(
         child=serializers.CharField(),
     )
 
+
 class ExamGradeSerializer(serializers.Serializer):
     question_id = serializers.IntegerField()
     marks = serializers.IntegerField(min_value=0)
+
 
 class GradeSerializer(serializers.Serializer):
     assessment_type = serializers.CharField()
@@ -486,6 +514,7 @@ class GradeSerializer(serializers.Serializer):
     score = serializers.IntegerField()
     total_marks = serializers.IntegerField()
     percentage = serializers.FloatField()
+
 
 class ResultSerializer(serializers.Serializer):
     student_id = serializers.IntegerField(allow_null=True, required=False)
@@ -505,6 +534,7 @@ class ResultSerializer(serializers.Serializer):
     total_score = serializers.IntegerField()
     total_marks = serializers.IntegerField()
     percentage = serializers.FloatField()
+
 
 class CertificateSerializer(serializers.ModelSerializer):
     student_email = serializers.EmailField(

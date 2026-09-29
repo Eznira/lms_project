@@ -42,6 +42,10 @@ urlpatterns = [
         include("enrollments.urls"),
     ),
     path("api/", include("assessments.urls")),
+    path(
+        "api/",
+        include("notifications.urls"),
+    ),
 ]
 
 

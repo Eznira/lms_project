@@ -15,6 +15,7 @@ from .models import (
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "title",
         "course",
         "due_date",
@@ -37,6 +38,7 @@ class AssignmentAdmin(admin.ModelAdmin):
 @admin.register(AssignmentSubmission)
 class AssignmentSubmissionAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "assignment",
         "student",
         "submitted_at",
@@ -58,6 +60,7 @@ class AssignmentSubmissionAdmin(admin.ModelAdmin):
 @admin.register(Quiz)
 class QuizAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "title",
         "course",
         "duration",
@@ -89,6 +92,7 @@ class QuizAdmin(admin.ModelAdmin):
 @admin.register(QuizQuestion)
 class QuizQuestionAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "question_text",
         "quiz",
         "question_type",
@@ -117,6 +121,7 @@ class QuizQuestionAdmin(admin.ModelAdmin):
 @admin.register(QuizAttempt)
 class QuizAttemptAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "student",
         "quiz",
         "score",
@@ -154,6 +159,7 @@ class QuizAttemptAdmin(admin.ModelAdmin):
 @admin.register(Examination)
 class ExaminationAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "title",
         "course",
         "duration",
@@ -185,6 +191,7 @@ class ExaminationAdmin(admin.ModelAdmin):
 @admin.register(ExamQuestion)
 class ExaminationQuestionAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "question_text",
         "examination",
         "question_type",
@@ -213,6 +220,7 @@ class ExaminationQuestionAdmin(admin.ModelAdmin):
 @admin.register(ExamAttempt)
 class ExaminationAttemptAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "student",
         "examination",
         "score",
@@ -255,6 +263,7 @@ from .models import Certificate
 @admin.register(Certificate)
 class CertificateAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "certificate_number",
         "student",
         "course",

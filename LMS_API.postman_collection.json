@@ -1712,7 +1712,7 @@
           "response": []
         },
         {
-          "name": "Create Submission",
+          "name": "Submit Assignment",
           "request": {
             "auth": {
               "type": "bearer",
@@ -1786,7 +1786,7 @@
           "response": []
         },
         {
-          "name": "Grade Submission",
+          "name": "Resubmit Assignment",
           "request": {
             "auth": {
               "type": "bearer",
@@ -1855,6 +1855,17 @@
                 "{{submission_id}}",
                 ""
               ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Grade Assignment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
             }
           },
           "response": []
@@ -3418,6 +3429,55 @@
         },
         {
           "name": "Delete Certificate",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "List Notification",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark as read",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unread count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark all as read",
           "request": {
             "method": "GET",
             "header": [],

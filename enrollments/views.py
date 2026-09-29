@@ -2,6 +2,8 @@ from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from notifications.services import NotificationService
+
 from .models import Enrollment
 from .serializers import EnrollmentSerializer
 
@@ -39,9 +41,14 @@ class EnrollmentViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(student=request.user)
+        enrollment = serializer.save(student=request.user)
 
         headers = self.get_success_headers(serializer.data)
+
+        NotificationService.enrollment_notification(
+            student=request.user,
+            course=enrollment.course,
+        )
 
         return Response(
             serializer.data,

@@ -5,7 +5,7 @@ from .models import Category, Course, Lesson
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ["name", "slug", "created_at"]
+    list_display = ["id", "name", "slug", "created_at"]
     search_fields = ["name"]
     prepopulated_fields = {"slug": ("name",)}
 
@@ -13,6 +13,7 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     list_display = [
+        "id",
         "title",
         "category",
         "instructor",
@@ -29,6 +30,7 @@ class CourseAdmin(admin.ModelAdmin):
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
     list_display = [
+        "id",
         "title",
         "course",
         "order",

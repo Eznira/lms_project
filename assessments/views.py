@@ -1,4 +1,5 @@
 from datetime import timedelta
+from tkinter import N
 
 from django.db import IntegrityError
 from django.db.models import Q
@@ -14,6 +15,7 @@ from rest_framework.response import Response
 
 from courses.models import Course
 from courses.permissions import IsInstructorOrAdmin
+from notifications.services import NotificationService
 
 from .models import (
     Assignment,
@@ -39,6 +41,7 @@ from .permissions import (
     IsSubmissionOwnerOrAdmin,
 )
 from .serializers import (
+    AssignmentGradeSerializer,
     AssignmentSerializer,
     AssignmentSubmissionSerializer,
     CertificateSerializer,
@@ -146,6 +149,7 @@ class AssignmentViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
+
 class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = AssignmentSubmissionSerializer
     permission_classes = [IsAuthenticated]
@@ -174,9 +178,17 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
             assignment__course__instructor=user,
         )
 
+    def get_serializer_class(self):
+        if self.action == "grade":
+            return AssignmentGradeSerializer
+
+        return AssignmentSubmissionSerializer
+
     def get_permissions(self):
         if self.action == "create":
-            return [IsAuthenticated()]
+            return [
+                IsAuthenticated(),
+            ]
 
         if self.action in ["retrieve", "list"]:
             return [
@@ -184,10 +196,16 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
                 IsSubmissionOwnerOrAdmin(),
             ]
 
-        if self.action in ["update", "partial_update"]:
+        if self.action == "grade":
             return [
                 IsAuthenticated(),
                 IsSubmissionGraderOrAdmin(),
+            ]
+
+        if self.action == "partial_update":
+            return [
+                IsAuthenticated(),
+                IsSubmissionOwnerOrAdmin(),
             ]
 
         if self.action == "destroy":
@@ -196,7 +214,9 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
                 IsSubmissionOwnerOrAdmin(),
             ]
 
-        return [IsAuthenticated()]
+        return [
+            IsAuthenticated(),
+        ]
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -206,7 +226,9 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
 
         assignment = serializer.validated_data["assignment"]
 
-        if not assignment.course.enrollments.filter(student=user).exists():
+        if not assignment.course.enrollments.filter(
+            student=user,
+        ).exists():
             raise PermissionDenied("You must be enrolled in this course.")
 
         if AssignmentSubmission.objects.filter(
@@ -217,6 +239,74 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
 
         serializer.save(student=user)
 
+        NotificationService.assignment_submission_notification_student(
+            user,
+            assignment,
+        )
+
+        NotificationService.assignment_submission_notification_instructor(
+            assignment.course.instructor,
+            user,
+            assignment,
+        )
+
+    def perform_update(self, serializer):
+        submission = serializer.instance
+        user = self.request.user
+
+        if user.role != user.Role.STUDENT:
+            raise PermissionDenied("Only students can update their submissions.")
+
+        if submission.student != user:
+            raise PermissionDenied("You can only update your own submission.")
+
+        if submission.grade is not None:
+            raise PermissionDenied(
+                "You cannot resubmit an assignment that has already been graded."
+            )
+
+        if timezone.now() > submission.assignment.due_date:
+            raise PermissionDenied(
+                "You cannot resubmit this assignment after the due date."
+            )
+
+        serializer.save()
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="grade",
+    )
+    def grade(self, request, pk=None):
+        submission = self.get_object()
+
+        if submission.grade is not None:
+            return Response(
+                {"detail": "This assignment has already been graded."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = AssignmentGradeSerializer(
+            submission,
+            data=request.data,
+            partial=True,
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        submission = serializer.save()
+
+        NotificationService.grade_notification(
+            student=submission.student,
+            item_name=submission.assignment.title,
+            score=submission.grade,
+        )
+
+        return Response(
+            AssignmentSubmissionSerializer(submission).data,
+            status=status.HTTP_200_OK,
+        )
+    
 class QuizViewSet(viewsets.ModelViewSet):
     serializer_class = QuizSerializer
     permission_classes = [IsAuthenticated]
@@ -902,6 +992,9 @@ class ExamAttemptViewSet(viewsets.ModelViewSet):
             ]
         )
 
+        NotificationService.exam_submission_notification_student(attempt.student, attempt.examination)  
+        NotificationService.exam_submission_notification_instructor(attempt.examination.course.instructor, attempt.student, attempt.examination)
+
         serializer = self.get_serializer(attempt)
 
         return Response(
@@ -997,6 +1090,8 @@ class ExamAttemptViewSet(viewsets.ModelViewSet):
                 "score",
             ]
         )
+
+        NotificationService.grade_notification(attempt.student, attempt.examination.title)
 
         # Return updated attempt/result
         response_serializer = ExamAttemptSerializer(attempt)
@@ -1539,6 +1634,10 @@ class CertificateViewSet(viewsets.ModelViewSet):
 
         try:
             serializer.save(completion_percentage=result)
+            NotificationService.certificate_notification(
+                student=student,
+                course=course,
+            )
         except IntegrityError:
             raise PermissionDenied(
                 "This student already has a certificate for this course."

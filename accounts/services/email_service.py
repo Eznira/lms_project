@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 
 
 class EmailService:
@@ -9,13 +9,23 @@ class EmailService:
         subject,
         message,
         recipient,
+        html_message=None,
     ):
-        send_mail(
+        email = EmailMultiAlternatives(
             subject=subject,
-            message=message,
+            body=message,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[recipient],
-            using="default",
+            to=[recipient],
+        )
+
+        if html_message:
+            email.attach_alternative(
+                html_message,
+                "text/html",
+            )
+
+        email.send(
+            fail_silently=True,
         )
 
     @staticmethod
