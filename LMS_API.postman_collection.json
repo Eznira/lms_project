@@ -2,6 +2,7 @@
   "info": {
     "_postman_id": "42315ff2-7731-41bc-abec-6e0f577c870a",
     "name": "LMS_API",
+    "description": "## LMS API\n\nThis collection provides a complete set of REST API endpoints for a **Learning Management System (LMS)** backend. It is organized into the following functional modules:\n\n### Authentication & User Management\n\nHandles user registration, email verification, login, token refresh, logout, password reset, and instructor account creation. Bearer token authentication is configured at the collection level using the `{{access_token}}` variable.\n\n### Courses & Categories\n\nSupports full CRUD operations for courses and course categories, enabling instructors and admins to create, update, and manage the course catalog.\n\n### Lessons\n\nCovers creating, retrieving, updating, and deleting lessons within a course, as well as marking lessons as complete for progress tracking.\n\n### Enrollments\n\nAllows students to enroll in courses, view their enrollments, and manage enrollment records.\n\n### Assignments & Submissions\n\nManages assignment creation by instructors, student submissions (including file attachments), resubmissions, and instructor grading.\n\n### Quizzes & Quiz Attempts\n\nSupports quiz creation, question management, and the full quiz attempt lifecycle — starting, submitting, and reviewing attempts.\n\n### Examinations & Exam Attempts\n\nCovers examination scheduling, question management, and the exam attempt flow including essay grading.\n\n### Grades & Results\n\nProvides endpoints for listing grades and viewing student results per course.\n\n### Certificates\n\nHandles certificate issuance, retrieval, update, and deletion for course completions.\n\n### Notifications\n\nEnables listing notifications, marking individual or all notifications as read, and checking unread counts.\n\n### Reviews\n\nSupports creating, reading, updating, and deleting course reviews by students.\n\n### Analytics\n\nExposes analytics endpoints for students, instructors, and admins to track performance and platform usage.\n\n---\n\n**Base URL:** `{{base_url}}` (default: `http://127.0.0.1:8000`)\n\n**Auth:** Bearer token via `{{access_token}}` — obtain a token using the Login request in the Auth folder.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "42814936"
   },
@@ -39,7 +40,8 @@
                 "register",
                 ""
               ]
-            }
+            },
+            "description": "Registers a new student account on the platform.\n\nAccepts `email`, `first_name`, `last_name`, `password`, and `password_confirm`. On success, creates a `User` with the STUDENT role, a linked `StudentProfile`, and sends a verification email containing a one-time token.\n\n**Method:** POST  \n**Auth:** None required  \n**Body (JSON):**\n- `email` (string, required) — must be unique\n- `first_name` (string, required)\n- `last_name` (string, required)\n- `password` (string, required)\n- `password_confirm` (string, required) — must match password\n\n**Response:** 201 Created — user details  \n**Notes:** The account is inactive until the email is verified via the Verify Email endpoint."
           },
           "response": []
         },
@@ -73,7 +75,8 @@
                 "verify-email",
                 ""
               ]
-            }
+            },
+            "description": "Activates a newly registered student account by verifying the email token.\n\nThe token is sent to the user's email after registration. Once verified, the user's `email_verified` flag is set to true and the account becomes active.\n\n**Method:** POST  \n**Auth:** None required  \n**Body (JSON):**\n- `token` (string, required) — UUID token from the verification email\n\n**Response:** 200 OK — success message  \n**Notes:** Tokens expire after a set period. If expired, the user must re-register or request a new token."
           },
           "response": []
         },
@@ -118,7 +121,8 @@
                 "login",
                 ""
               ]
-            }
+            },
+            "description": "Authenticates a user and returns a JWT access and refresh token pair.\n\nUses email and password credentials. The returned `access` token should be stored in `{{access_token}}` and used as a Bearer token for all protected endpoints. The `refresh` token should be stored in `{{refresh_token}}`.\n\n**Method:** POST  \n**Auth:** None required  \n**Body (JSON):**\n- `email` (string, required)\n- `password` (string, required)\n\n**Response:** 200 OK — `{ \"access\": \"...\", \"refresh\": \"...\" }`  \n**Notes:** Access tokens are short-lived. Use the Refresh Token endpoint to obtain a new access token without re-logging in."
           },
           "response": []
         },
@@ -163,7 +167,8 @@
                 "refresh",
                 ""
               ]
-            }
+            },
+            "description": "Issues a new JWT access token using a valid refresh token.\n\nUse this endpoint when the current access token has expired. The refresh token remains valid until it is used to log out or it expires naturally.\n\n**Method:** POST  \n**Auth:** None required  \n**Body (JSON):**\n- `refresh` (string, required) — the refresh token from login, stored in `{{refresh_token}}`\n\n**Response:** 200 OK — `{ \"access\": \"...\" }`"
           },
           "response": []
         },
@@ -207,7 +212,8 @@
                 "logout",
                 ""
               ]
-            }
+            },
+            "description": "Logs out the authenticated user by blacklisting their refresh token.\n\nAfter logout, the refresh token can no longer be used to generate new access tokens. The user must log in again to obtain a new token pair.\n\n**Method:** POST  \n**Auth:** Bearer token required (`{{access_token}}`)  \n**Body (JSON):**\n- `refresh` (string, required) — the refresh token to blacklist\n\n**Response:** 205 Reset Content"
           },
           "response": []
         },
@@ -241,7 +247,8 @@
                 "password-reset",
                 ""
               ]
-            }
+            },
+            "description": "Sends a password reset email to the specified email address.\n\nIf the email belongs to a registered account, a reset link containing a `uid` and `token` is sent. The link is used in the Password Reset Confirm endpoint.\n\n**Method:** POST  \n**Auth:** None required  \n**Body (JSON):**\n- `email` (string, required)\n\n**Response:** 200 OK — success message (response is the same whether or not the email exists, for security)"
           },
           "response": []
         },
@@ -275,7 +282,8 @@
                 "password-reset-confirm",
                 ""
               ]
-            }
+            },
+            "description": "Completes the password reset flow by setting a new password using the uid and token from the reset email.\n\n**Method:** POST  \n**Auth:** None required  \n**Body (JSON):**\n- `uid` (string, required) — base64-encoded user ID from the reset link\n- `token` (string, required) — password reset token from the reset link\n- `new_password` (string, required)\n- `confirm_password` (string, required) — must match new_password\n\n**Response:** 200 OK — success message  \n**Notes:** The token is single-use and expires after a short period."
           },
           "response": []
         },
@@ -319,7 +327,8 @@
                 "instructors",
                 ""
               ]
-            }
+            },
+            "description": "Creates a new instructor account. Admin-only endpoint.\n\nCreates a User with the INSTRUCTOR role, a linked InstructorProfile, and sends a one-time set-password token to the instructor's email. The instructor must use the Set Instructor Password endpoint to activate their account.\n\n**Method:** POST  \n**Auth:** Bearer token required — Admin role  \n**Body (JSON):**\n- `email` (string, required)\n- `first_name` (string, required)\n- `last_name` (string, required)\n- `qualification` (string, optional)\n- `specialization` (string, optional)\n\n**Response:** 201 Created — instructor details"
           },
           "response": []
         },
@@ -354,11 +363,13 @@
                 "set-password",
                 ""
               ]
-            }
+            },
+            "description": "Allows a newly created instructor to set their password using the one-time token sent to their email.\n\nThis endpoint is used after an admin creates an instructor account. The instructor receives a token via email and uses it here to set their password and activate their account.\n\n**Method:** POST  \n**Auth:** None required  \n**Body (JSON):**\n- `token` (string, required) — one-time token from the instructor setup email\n- `password` (string, required)\n- `confirm_password` (string, required)\n\n**Response:** 200 OK — success message"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Handles all authentication and user account management operations for the LMS.\n\nThis folder covers the full user lifecycle: student self-registration with email verification, JWT-based login and token refresh, secure logout via token blacklisting, and password reset via email. It also includes admin-only endpoints for creating instructor accounts and allowing instructors to set their initial password via a one-time token.\n\n**Auth model:** Email-based JWT (SimpleJWT). After login, use the returned `access` token as a Bearer token for all protected endpoints. Store it in the `{{access_token}}` variable.\n\n**Roles involved:** Student (self-register), Admin (create instructors), Instructor (set password)"
     },
     {
       "name": "Course",
@@ -388,7 +399,8 @@
                 "courses",
                 ""
               ]
-            }
+            },
+            "description": "Returns a paginated list of courses. Students and unauthenticated users see only published courses. Instructors see their own courses plus all published courses. Admins see all courses regardless of status.\n\nSupports filtering and search via query parameters.\n\n**Method:** GET  \n**Auth:** Optional (unauthenticated users see published courses only)  \n**Query params:**\n- `search` — search by title or description\n- `category` — filter by category ID\n- `level` — filter by level (BEGINNER / INTERMEDIATE / ADVANCED)\n- `status` — filter by status (admin/instructor only)\n\n**Response:** 200 OK — paginated list of courses"
           },
           "response": []
         },
@@ -442,7 +454,8 @@
                 "courses",
                 ""
               ]
-            }
+            },
+            "description": "Creates a new course. Restricted to instructors and admins.\n\nThe authenticated instructor is automatically set as the course owner. New courses are created with a DRAFT status by default and must be explicitly published.\n\n**Method:** POST  \n**Auth:** Bearer token required — Instructor or Admin role  \n**Body (multipart/form-data or JSON):**\n- `title` (string, required)\n- `description` (string, required)\n- `category` (integer, required) — category ID\n- `duration` (integer) — duration in months\n- `price` (decimal)\n- `level` (string) — BEGINNER / INTERMEDIATE / ADVANCED\n- `thumbnail` (file, optional)\n- `status` (string) — DRAFT / PUBLISHED / ARCHIVED\n\n**Response:** 201 Created — course details"
           },
           "response": []
         },
@@ -472,7 +485,8 @@
                 "{{course_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves the full details of a single course by its ID, including category, instructor, and metadata.\n\n**Method:** GET  \n**Auth:** Optional (published courses are publicly accessible)  \n**Path param:** `id` — course ID (use `{{course_id}}`)\n\n**Response:** 200 OK — course object"
           },
           "response": []
         },
@@ -516,7 +530,8 @@
                 "{{course_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Fully replaces a course record. All fields must be provided. Restricted to the course's instructor or an admin.\n\n**Method:** PUT  \n**Auth:** Bearer token required — course owner (Instructor) or Admin  \n**Path param:** `id` — course ID (use `{{course_id}}`)  \n**Body:** All course fields (same as Create Course)\n\n**Response:** 200 OK — updated course object  \n**Notes:** Use PATCH (Update Course - Patch) for partial updates."
           },
           "response": []
         },
@@ -560,7 +575,8 @@
                 "{{course_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Partially updates a course record. Only the fields provided in the request body are updated. Restricted to the course's instructor or an admin.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — course owner (Instructor) or Admin  \n**Path param:** `id` — course ID (use `{{course_id}}`)  \n**Body (JSON):** Any subset of course fields\n\n**Response:** 200 OK — updated course object"
           },
           "response": []
         },
@@ -590,11 +606,13 @@
                 "{{course_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Permanently deletes a course and all its associated data (lessons, assignments, quizzes, etc.). Restricted to the course's instructor or an admin.\n\n**Method:** DELETE  \n**Auth:** Bearer token required — course owner (Instructor) or Admin  \n**Path param:** `id` — course ID (use `{{course_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         }
       ],
+      "description": "Provides full CRUD operations for managing courses on the platform.\n\nInstructors can create, update, and delete their own courses. Students and unauthenticated users can only view published courses. Admins have full access across all courses. Each course belongs to a category and has metadata including level (Beginner / Intermediate / Advanced), price, duration, and a thumbnail image.\n\n**Roles involved:** Instructor (create/update/delete own courses), Admin (full access), Student (read published courses only)",
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -634,7 +652,8 @@
                 "categories",
                 ""
               ]
-            }
+            },
+            "description": "Returns a list of all course categories. Accessible to all users including unauthenticated requests.\n\n**Method:** GET  \n**Auth:** None required\n\n**Response:** 200 OK — list of category objects (id, name, slug, description)"
           },
           "response": []
         },
@@ -688,7 +707,8 @@
                 "categories",
                 ""
               ]
-            }
+            },
+            "description": "Creates a new course category. Admin-only endpoint.\n\n**Method:** POST  \n**Auth:** Bearer token required — Admin role  \n**Body (JSON):**\n- `name` (string, required) — category name; slug is auto-generated\n- `description` (string, optional)\n\n**Response:** 201 Created — category object"
           },
           "response": []
         },
@@ -718,7 +738,8 @@
                 "{{category_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves a single category by its ID.\n\n**Method:** GET  \n**Auth:** None required  \n**Path param:** `id` — category ID (use `{{category_id}}`)\n\n**Response:** 200 OK — category object"
           },
           "response": []
         },
@@ -762,7 +783,8 @@
                 "{{category_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Fully replaces a category record. All fields must be provided. Admin-only.\n\n**Method:** PUT  \n**Auth:** Bearer token required — Admin role  \n**Path param:** `id` — category ID (use `{{category_id}}`)  \n**Body (JSON):** `name`, `description`\n\n**Response:** 200 OK — updated category object"
           },
           "response": []
         },
@@ -806,7 +828,8 @@
                 "{{category_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Partially updates a category. Only provided fields are updated. Admin-only.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Admin role  \n**Path param:** `id` — category ID (use `{{category_id}}`)  \n**Body (JSON):** Any subset of category fields\n\n**Response:** 200 OK — updated category object"
           },
           "response": []
         },
@@ -836,11 +859,13 @@
                 "{{category_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Permanently deletes a category. Admin-only.\n\n**Method:** DELETE  \n**Auth:** Bearer token required — Admin role  \n**Path param:** `id` — category ID (use `{{category_id}}`)\n\n**Response:** 204 No Content  \n**Notes:** Deleting a category may affect courses linked to it. Ensure courses are reassigned before deletion."
           },
           "response": []
         }
       ],
+      "description": "Manages course categories used to organise and filter courses on the platform.\n\nOnly admins can create, update, or delete categories. All users (including unauthenticated) can list and retrieve categories. Each category has a name, slug, and optional description.\n\n**Roles involved:** Admin (write), Any user (read)",
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -880,7 +905,8 @@
                 "profile",
                 ""
               ]
-            }
+            },
+            "description": "Returns the authenticated user's profile, including their role-specific profile data.\n\nStudents receive a `StudentProfile` (phone, biography, photo). Instructors receive an `InstructorProfile` (qualification, specialization, biography, phone, photo).\n\n**Method:** GET  \n**Auth:** Bearer token required  \n\n**Response:** 200 OK — user object with nested profile"
           },
           "response": []
         },
@@ -923,11 +949,13 @@
                 "profile",
                 ""
               ]
-            }
+            },
+            "description": "Partially updates the authenticated user's profile. Only the fields provided are updated.\n\n**Method:** PATCH  \n**Auth:** Bearer token required  \n**Body (multipart/form-data or JSON):** Any subset of profile fields:\n- `first_name`, `last_name`\n- `phone`, `biography`\n- `profile_photo` (file)\n- Instructor-only: `qualification`, `specialization`\n\n**Response:** 200 OK — updated profile object"
           },
           "response": []
         }
       ],
+      "description": "Allows authenticated users to view and update their own profile information.\n\nThe profile structure differs by role: students have a StudentProfile (phone, biography, photo) and instructors have an InstructorProfile (qualification, specialization, biography, phone, photo). The GET endpoint returns the full nested profile; PATCH allows partial updates.\n\n**Roles involved:** Any authenticated user",
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -967,7 +995,8 @@
                 "lessons",
                 ""
               ]
-            }
+            },
+            "description": "Returns a list of lessons for a specific course. Students must be enrolled in the course to access lessons.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `course` (integer, required) — filter by course ID (use `{{course_id}}`)\n\n**Response:** 200 OK — list of lesson objects ordered by `order` field"
           },
           "response": []
         },
@@ -1021,7 +1050,8 @@
                 "lessons",
                 ""
               ]
-            }
+            },
+            "description": "Creates a new lesson within a course. Restricted to the course's instructor or an admin.\n\n**Method:** POST  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Body (multipart/form-data or JSON):**\n- `course` (integer, required) — course ID\n- `title` (string, required)\n- `content` (string) — text/HTML content\n- `order` (integer, required) — position in the course curriculum; must be unique per course\n- `video` (file, optional)\n- `pdf` (file, optional)\n- `audio` (file, optional)\n- `external_resource` (URL, optional)\n\n**Response:** 201 Created — lesson object"
           },
           "response": []
         },
@@ -1051,7 +1081,8 @@
                 "{{lesson_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves the full details of a single lesson by its ID. Students must be enrolled in the parent course.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — lesson ID (use `{{lesson_id}}`)\n\n**Response:** 200 OK — lesson object"
           },
           "response": []
         },
@@ -1095,7 +1126,8 @@
                 "{{lesson_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Fully replaces a lesson record. All fields must be provided. Restricted to the course's instructor or an admin.\n\n**Method:** PUT  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — lesson ID (use `{{lesson_id}}`)  \n**Body:** All lesson fields\n\n**Response:** 200 OK — updated lesson object"
           },
           "response": []
         },
@@ -1139,7 +1171,8 @@
                 "{{lesson_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Partially updates a lesson. Only provided fields are updated. Restricted to the course's instructor or an admin.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — lesson ID (use `{{lesson_id}}`)  \n**Body (JSON):** Any subset of lesson fields\n\n**Response:** 200 OK — updated lesson object"
           },
           "response": []
         },
@@ -1170,7 +1203,8 @@
                 "complete",
                 ""
               ]
-            }
+            },
+            "description": "Marks a lesson as complete for the authenticated student. Records a `LessonCompletion` entry used for progress tracking.\n\n**Method:** POST  \n**Auth:** Bearer token required — Student (must be enrolled in the course)  \n**Path param:** `id` — lesson ID (use `{{lesson_id}}`)  \n**Body:** None required\n\n**Response:** 200 OK — success message  \n**Notes:** Calling this endpoint again for an already-completed lesson is idempotent."
           },
           "response": []
         },
@@ -1200,11 +1234,13 @@
                 "{{lesson_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Permanently deletes a lesson. Restricted to the course's instructor or an admin.\n\n**Method:** DELETE  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — lesson ID (use `{{lesson_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         }
       ],
+      "description": "Manages lessons within a course. Each lesson belongs to a course and has an order that determines its position in the curriculum.\n\nInstructors can create, update, and delete lessons for their own courses. Students who are enrolled in a course can view its lessons and mark individual lessons as complete, which tracks their progress. Lessons can include video, PDF, audio, and external resource links.\n\n**Roles involved:** Instructor (create/update/delete), Enrolled Student (read + mark complete), Admin (full access)",
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -1244,7 +1280,8 @@
                 "enrollments",
                 ""
               ]
-            }
+            },
+            "description": "Returns a list of enrollments. Students see only their own enrollments. Admins see all enrollments across the platform.\n\n**Method:** GET  \n**Auth:** Bearer token required\n\n**Response:** 200 OK — list of enrollment objects (student, course, enrolled_at)"
           },
           "response": []
         },
@@ -1298,7 +1335,8 @@
                 "enrollments",
                 ""
               ]
-            }
+            },
+            "description": "Enrolls the authenticated student in a course. A notification is automatically sent to the student upon successful enrollment.\n\n**Method:** POST  \n**Auth:** Bearer token required — Student role  \n**Body (JSON):**\n- `course` (integer, required) — course ID (use `{{course_id}}`)\n\n**Response:** 201 Created — enrollment object  \n**Notes:** Students cannot enroll in the same course twice. Only published courses can be enrolled in."
           },
           "response": []
         },
@@ -1328,7 +1366,8 @@
                 "{{enrollment_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves the details of a specific enrollment by its ID.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — enrollment ID (use `{{enrollment_id}}`)\n\n**Response:** 200 OK — enrollment object"
           },
           "response": []
         },
@@ -1358,11 +1397,13 @@
                 "{{enrollment_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Removes a student's enrollment from a course (unenroll). Students can only delete their own enrollment. Admins can delete any enrollment.\n\n**Method:** DELETE  \n**Auth:** Bearer token required  \n**Path param:** `id` — enrollment ID (use `{{enrollment_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         }
       ],
+      "description": "Handles student enrollment in courses.\n\nStudents can enroll themselves in any published course, view their active enrollments, retrieve a specific enrollment, and unenroll (delete). Admins can view all enrollments across the platform. An enrollment notification is automatically sent to the student upon successful enrollment.\n\n**Roles involved:** Student (enroll/view/delete own), Admin (view all)",
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -1402,7 +1443,8 @@
                 "assignments",
                 ""
               ]
-            }
+            },
+            "description": "Returns a list of assignments. Filter by course to see assignments for a specific course. Students see assignments for courses they are enrolled in. Instructors see assignments for their own courses.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `course` (integer) — filter by course ID (use `{{course_id}}`)\n\n**Response:** 200 OK — list of assignment objects"
           },
           "response": []
         },
@@ -1456,7 +1498,8 @@
                 "assignments",
                 ""
               ]
-            }
+            },
+            "description": "Creates a new assignment for a course. Restricted to the course's instructor or an admin.\n\n**Method:** POST  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Body (JSON):**\n- `course` (integer, required) — course ID\n- `title` (string, required)\n- `description` (string, required)\n- `due_date` (datetime, required) — ISO 8601 format\n- `total_marks` (integer, required)\n\n**Response:** 201 Created — assignment object"
           },
           "response": []
         },
@@ -1515,7 +1558,8 @@
                 "assignments",
                 ""
               ]
-            }
+            },
+            "description": "Creates a new assignment with a file attachment (e.g. a PDF brief or resource document). Restricted to the course's instructor or an admin.\n\n**Method:** POST  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Body (multipart/form-data):**\n- `course` (integer, required)\n- `title` (string, required)\n- `description` (string, required)\n- `due_date` (datetime, required)\n- `total_marks` (integer, required)\n- `attachment` (file, required) — the assignment brief or resource file\n\n**Response:** 201 Created — assignment object"
           },
           "response": []
         },
@@ -1545,7 +1589,8 @@
                 "{{assignment_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves the full details of a single assignment by its ID.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — assignment ID (use `{{assignment_id}}`)\n\n**Response:** 200 OK — assignment object"
           },
           "response": []
         },
@@ -1589,7 +1634,8 @@
                 "{{assignment_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Fully replaces an assignment record. All fields must be provided. Restricted to the course's instructor or an admin.\n\n**Method:** PUT  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — assignment ID (use `{{assignment_id}}`)  \n**Body:** All assignment fields\n\n**Response:** 200 OK — updated assignment object"
           },
           "response": []
         },
@@ -1633,7 +1679,8 @@
                 "{{assignment_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Partially updates an assignment. Only provided fields are updated. Restricted to the course's instructor or an admin.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — assignment ID (use `{{assignment_id}}`)  \n**Body (JSON):** Any subset of assignment fields\n\n**Response:** 200 OK — updated assignment object"
           },
           "response": []
         },
@@ -1663,11 +1710,13 @@
                 "{{assignment_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Permanently deletes an assignment and all its submissions. Restricted to the course's instructor or an admin.\n\n**Method:** DELETE  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — assignment ID (use `{{assignment_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         }
       ],
+      "description": "Manages assignments created by instructors for their courses.\n\nInstructors can create assignments with a title, description, due date, total marks, and an optional file attachment. Students enrolled in the course can view assignments. Full CRUD is available to instructors and admins. Assignments are linked to a specific course.\n\n**Roles involved:** Instructor (create/update/delete), Enrolled Student (read), Admin (full access)",
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -1707,7 +1756,8 @@
                 "submissions",
                 ""
               ]
-            }
+            },
+            "description": "Returns a list of submissions. Students see only their own submissions. Instructors see all submissions for their assignments.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `assignment` (integer) — filter by assignment ID\n\n**Response:** 200 OK — list of submission objects"
           },
           "response": []
         },
@@ -1751,7 +1801,8 @@
                 "submissions",
                 ""
               ]
-            }
+            },
+            "description": "Submits a student's work for an assignment. Each student can only have one submission per assignment.\n\n**Method:** POST  \n**Auth:** Bearer token required — Student role  \n**Body (multipart/form-data):**\n- `assignment` (integer, required) — assignment ID\n- `submission_file` (file, required) — the student's submitted work\n\n**Response:** 201 Created — submission object  \n**Notes:** To update a submission, use the Resubmit Assignment endpoint."
           },
           "response": []
         },
@@ -1781,7 +1832,8 @@
                 "{{submission_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves the details of a specific submission by its ID, including grade and feedback if already graded.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — submission ID (use `{{submission_id}}`)\n\n**Response:** 200 OK — submission object"
           },
           "response": []
         },
@@ -1825,7 +1877,8 @@
                 "{{submission_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Replaces a student's existing submission with a new file. Used when a student wants to update their submitted work before the due date.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Student (submission owner)  \n**Path param:** `id` — submission ID (use `{{submission_id}}`)  \n**Body (multipart/form-data):**\n- `submission_file` (file, required) — the updated submission file\n\n**Response:** 200 OK — updated submission object"
           },
           "response": []
         },
@@ -1855,7 +1908,8 @@
                 "{{submission_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Permanently deletes a student's submission. Students can only delete their own submission. Admins can delete any submission.\n\n**Method:** DELETE  \n**Auth:** Bearer token required  \n**Path param:** `id` — submission ID (use `{{submission_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         },
@@ -1866,11 +1920,13 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Assigns a grade and optional feedback to a student's submission. Restricted to instructors and admins.\n\n**Method:** POST  \n**Auth:** Bearer token required — Instructor or Admin  \n**Path param:** `id` — submission ID (use `{{submission_id}}`)  \n**Body (JSON):**\n- `grade` (integer, required) — numeric grade (must not exceed the assignment's `total_marks`)\n- `feedback` (string, optional) — written feedback for the student\n\n**Response:** 200 OK — updated submission object with grade and feedback"
           },
           "response": []
         }
       ],
+      "description": "Handles student submissions for assignments, including grading by instructors.\n\nStudents can submit their work (with a file upload), resubmit if needed, and delete their submission. Each student can only have one submission per assignment. Instructors can view all submissions for their assignments and assign a grade and feedback. The `Grade Assignment` request is restricted to instructors and admins.\n\n**Roles involved:** Student (submit/resubmit/delete own), Instructor (view all + grade), Admin (full access)",
       "auth": {
         "type": "bearer",
         "bearer": [
@@ -1910,7 +1966,8 @@
                 "quizzes",
                 ""
               ]
-            }
+            },
+            "description": "Returns a list of quizzes. Filter by course to see quizzes for a specific course. Students see quizzes for enrolled courses only.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `course` (integer) — filter by course ID (use `{{course_id}}`)\n\n**Response:** 200 OK — list of quiz objects"
           },
           "response": []
         },
@@ -1964,7 +2021,8 @@
                 "quizzes",
                 ""
               ]
-            }
+            },
+            "description": "Creates a new quiz for a course. Restricted to the course's instructor or an admin. Questions are added separately via the Quiz-questions folder.\n\n**Method:** POST  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Body (JSON):**\n- `course` (integer, required) — course ID\n- `title` (string, required)\n- `description` (string, optional)\n- `duration` (integer, required) — time limit in minutes\n\n**Response:** 201 Created — quiz object"
           },
           "response": []
         },
@@ -1994,7 +2052,8 @@
                 "{{quiz_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves the full details of a single quiz by its ID, including its questions.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — quiz ID (use `{{quiz_id}}`)\n\n**Response:** 200 OK — quiz object with nested questions"
           },
           "response": []
         },
@@ -2038,7 +2097,8 @@
                 "{{quiz_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Fully replaces a quiz record. All fields must be provided. Restricted to the course's instructor or an admin.\n\n**Method:** PUT  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — quiz ID (use `{{quiz_id}}`)  \n**Body:** All quiz fields\n\n**Response:** 200 OK — updated quiz object"
           },
           "response": []
         },
@@ -2082,7 +2142,8 @@
                 "{{quiz_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Partially updates a quiz. Only provided fields are updated. Restricted to the course's instructor or an admin.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — quiz ID (use `{{quiz_id}}`)  \n**Body (JSON):** Any subset of quiz fields\n\n**Response:** 200 OK — updated quiz object"
           },
           "response": []
         },
@@ -2112,11 +2173,13 @@
                 "{{quiz_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Permanently deletes a quiz and all its questions and attempts. Restricted to the course's instructor or an admin.\n\n**Method:** DELETE  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — quiz ID (use `{{quiz_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Manages quizzes attached to courses. Each quiz has a title, description, and a time duration in minutes.\n\nInstructors create and manage quizzes for their courses. Questions are managed separately in the Quiz-questions folder. Students can view quizzes for courses they are enrolled in. Quizzes are auto-graded upon submission based on correct answers defined in each question.\n\n**Roles involved:** Instructor (create/update/delete), Enrolled Student (read), Admin (full access)"
     },
     {
       "name": "Quiz-attempt",
@@ -2146,7 +2209,8 @@
                 "quiz-attempts",
                 ""
               ]
-            }
+            },
+            "description": "Returns a list of quiz attempts. Students see only their own attempts. Instructors and admins see all attempts for their quizzes.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `quiz` (integer) — filter by quiz ID (use `{{quiz_id}}`)\n\n**Response:** 200 OK — list of quiz attempt objects"
           },
           "response": []
         },
@@ -2200,7 +2264,8 @@
                 "quiz-attempts",
                 ""
               ]
-            }
+            },
+            "description": "Starts a new quiz attempt for the authenticated student. Records the start time. The student must be enrolled in the course the quiz belongs to.\n\n**Method:** POST  \n**Auth:** Bearer token required — Student role  \n**Body (JSON):**\n- `quiz` (integer, required) — quiz ID (use `{{quiz_id}}`)\n\n**Response:** 201 Created — quiz attempt object with attempt ID  \n**Notes:** Store the returned attempt ID in `{{quiz_attempt_id}}` for use in the Submit Quiz request."
           },
           "response": []
         },
@@ -2230,7 +2295,8 @@
                 "{{quiz_attempt_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves the details of a specific quiz attempt, including the student's answers and score (if submitted).\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — quiz attempt ID (use `{{quiz_attempt_id}}`)\n\n**Response:** 200 OK — quiz attempt object"
           },
           "response": []
         },
@@ -2275,11 +2341,13 @@
                 "submit",
                 ""
               ]
-            }
+            },
+            "description": "Submits a student's quiz attempt with their answers. The system auto-grades the submission by comparing answers against the correct answers stored in each question.\n\n**Method:** POST  \n**Auth:** Bearer token required — Student (attempt owner)  \n**Path param:** `id` — quiz attempt ID (use `{{quiz_attempt_id}}`)  \n**Body (JSON):**\n- `answers` (object, required) — a JSON object mapping question IDs to the student's chosen answer (e.g. `{\"1\": \"A\", \"2\": \"True\"}`)\n\n**Response:** 200 OK — attempt object with `score` and `total_marks`"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Manages the lifecycle of a student's quiz attempt — from starting to submitting.\n\nA student starts a quiz attempt, which records the start time. On submission, the student's answers (stored as JSON) are auto-graded against the correct answers, and a score is calculated. Each student can only have one attempt per quiz. Instructors and admins can view all attempts.\n\n**Roles involved:** Student (start + submit own attempt), Instructor/Admin (view all)"
     },
     {
       "name": "Quiz-questions",
@@ -2309,7 +2377,8 @@
                 "quiz-questions",
                 ""
               ]
-            }
+            },
+            "description": "Returns a list of questions for a specific quiz, ordered by the `order` field.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `quiz` (integer, required) — quiz ID (use `{{quiz_id}}`)\n\n**Response:** 200 OK — list of question objects"
           },
           "response": []
         },
@@ -2363,7 +2432,8 @@
                 "quiz-questions",
                 ""
               ]
-            }
+            },
+            "description": "Creates a new question for a quiz. Restricted to the course's instructor or an admin.\n\n**Method:** POST  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Body (JSON):**\n- `quiz` (integer, required) — quiz ID\n- `question_text` (string, required)\n- `question_type` (string, required) — MCQ or TRUE_FALSE\n- `option_a`, `option_b`, `option_c`, `option_d` (string) — required for MCQ\n- `correct_answer` (string, required) — e.g. \"A\", \"B\", \"True\", \"False\"\n- `marks` (integer, required)\n- `order` (integer, required)\n\n**Response:** 201 Created — question object"
           },
           "response": []
         },
@@ -2393,7 +2463,8 @@
                 "{{quiz_question_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves a single quiz question by its ID.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — question ID (use `{{quiz_question_id}}`)\n\n**Response:** 200 OK — question object"
           },
           "response": []
         },
@@ -2424,7 +2495,8 @@
                 "questions",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves all questions for a specific quiz. Similar to List Quiz Questions but may return a non-paginated response.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `quiz` (integer, required) — quiz ID (use `{{quiz_id}}`)\n\n**Response:** 200 OK — list of question objects"
           },
           "response": []
         },
@@ -2468,7 +2540,8 @@
                 "{{quiz_question_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Fully replaces a quiz question. All fields must be provided. Restricted to the course's instructor or an admin.\n\n**Method:** PUT  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — question ID (use `{{quiz_question_id}}`)  \n**Body:** All question fields\n\n**Response:** 200 OK — updated question object"
           },
           "response": []
         },
@@ -2512,7 +2585,8 @@
                 "{{quiz_question_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Partially updates a quiz question. Only provided fields are updated. Restricted to the course's instructor or an admin.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — question ID (use `{{quiz_question_id}}`)  \n**Body (JSON):** Any subset of question fields\n\n**Response:** 200 OK — updated question object"
           },
           "response": []
         },
@@ -2542,11 +2616,13 @@
                 "{{quiz_question_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Permanently deletes a quiz question. Restricted to the course's instructor or an admin.\n\n**Method:** DELETE  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — question ID (use `{{quiz_question_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Manages individual questions within a quiz.\n\nEach question belongs to a quiz and supports two types: Multiple Choice (MCQ) with options A–D, and True/False. Each question has a correct answer, a mark value, and an order. Instructors create and manage questions; students see questions when they start a quiz attempt.\n\n**Roles involved:** Instructor (create/update/delete), Student (read during attempt), Admin (full access)"
     },
     {
       "name": "Examination",
@@ -2576,7 +2652,8 @@
                 "examinations",
                 ""
               ]
-            }
+            },
+            "description": "Returns a list of examinations. Filter by course to see exams for a specific course. Students see exams for enrolled courses only.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `course` (integer) — filter by course ID (use `{{course_id}}`)\n\n**Response:** 200 OK — list of examination objects including status and time window"
           },
           "response": []
         },
@@ -2630,7 +2707,8 @@
                 "examinations",
                 ""
               ]
-            }
+            },
+            "description": "Creates a new examination for a course with a defined time window. Restricted to the course's instructor or an admin.\n\n**Method:** POST  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Body (JSON):**\n- `course` (integer, required) — course ID\n- `title` (string, required)\n- `description` (string, optional)\n- `duration` (integer, required) — duration in minutes\n- `start_time` (datetime, required) — ISO 8601 format\n- `end_time` (datetime, required) — ISO 8601 format\n- `status` (string) — SCHEDULED / ONGOING / COMPLETED\n\n**Response:** 201 Created — examination object"
           },
           "response": []
         },
@@ -2660,7 +2738,8 @@
                 "{{examination_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves the full details of a single examination by its ID.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — examination ID (use `{{examination_id}}`)\n\n**Response:** 200 OK — examination object"
           },
           "response": []
         },
@@ -2691,7 +2770,8 @@
                 "questions",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves all questions for a specific examination. Typically called when a student starts an exam attempt.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — examination ID (use `{{examination_id}}`)\n\n**Response:** 200 OK — list of exam question objects"
           },
           "response": []
         },
@@ -2735,7 +2815,8 @@
                 "{{examination_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Fully replaces an examination record. All fields must be provided. Restricted to the course's instructor or an admin.\n\n**Method:** PUT  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — examination ID (use `{{examination_id}}`)  \n**Body:** All examination fields\n\n**Response:** 200 OK — updated examination object"
           },
           "response": []
         },
@@ -2779,7 +2860,8 @@
                 "{{examination_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Partially updates an examination. Only provided fields are updated. Restricted to the course's instructor or an admin.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — examination ID (use `{{examination_id}}`)  \n**Body (JSON):** Any subset of examination fields\n\n**Response:** 200 OK — updated examination object"
           },
           "response": []
         },
@@ -2809,11 +2891,13 @@
                 "{{examination_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Permanently deletes an examination and all its questions and attempts. Restricted to the course's instructor or an admin.\n\n**Method:** DELETE  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — examination ID (use `{{examination_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Manages formal examinations for courses, including scheduling and time-window enforcement.\n\nExaminations have a defined start and end time, and a status (Scheduled / Ongoing / Completed). Students can only attempt an exam during its active window. Questions are managed separately in the Examination-questions folder. Instructors create and manage exams; admins have full access.\n\n**Roles involved:** Instructor (create/update/delete), Enrolled Student (read + attempt), Admin (full access)"
     },
     {
       "name": "Examination-questions",
@@ -2843,7 +2927,8 @@
                 "exam-questions",
                 ""
               ]
-            }
+            },
+            "description": "Returns a list of questions for a specific examination.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `examination` (integer, required) — examination ID (use `{{examination_id}}`)\n\n**Response:** 200 OK — list of exam question objects"
           },
           "response": []
         },
@@ -2897,7 +2982,8 @@
                 "exam-questions",
                 ""
               ]
-            }
+            },
+            "description": "Creates a new question for an examination. Supports MCQ, True/False, and Essay types. Restricted to the course's instructor or an admin.\n\n**Method:** POST  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Body (JSON):**\n- `examination` (integer, required) — examination ID\n- `question_text` (string, required)\n- `question_type` (string, required) — MCQ / TRUE_FALSE / ESSAY\n- `option_a`, `option_b`, `option_c`, `option_d` (string) — required for MCQ\n- `correct_answer` (string) — required for MCQ and TRUE_FALSE; omit for ESSAY\n- `marks` (integer, required)\n- `order` (integer, required)\n\n**Response:** 201 Created — exam question object"
           },
           "response": []
         },
@@ -2927,7 +3013,8 @@
                 "{{exam_question_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves a single exam question by its ID.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — exam question ID (use `{{exam_question_id}}`)\n\n**Response:** 200 OK — exam question object"
           },
           "response": []
         },
@@ -2971,7 +3058,8 @@
                 "{{exam_question_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Fully replaces an exam question. All fields must be provided. Restricted to the course's instructor or an admin.\n\n**Method:** PUT  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — exam question ID (use `{{exam_question_id}}`)  \n**Body:** All exam question fields\n\n**Response:** 200 OK — updated exam question object"
           },
           "response": []
         },
@@ -3015,7 +3103,8 @@
                 "{{exam_question_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Partially updates an exam question. Only provided fields are updated. Restricted to the course's instructor or an admin.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — exam question ID (use `{{exam_question_id}}`)  \n**Body (JSON):** Any subset of exam question fields\n\n**Response:** 200 OK — updated exam question object"
           },
           "response": []
         },
@@ -3045,11 +3134,13 @@
                 "{{exam_question_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Permanently deletes an exam question. Restricted to the course's instructor or an admin.\n\n**Method:** DELETE  \n**Auth:** Bearer token required — Instructor (course owner) or Admin  \n**Path param:** `id` — exam question ID (use `{{exam_question_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Manages questions for a specific examination.\n\nSupports three question types: Multiple Choice (MCQ), True/False, and Essay. MCQ and True/False questions are auto-graded; Essay questions require manual grading by an instructor via the Exam-attempt `Essay Grading` endpoint. Each question has a mark value and an order.\n\n**Roles involved:** Instructor (create/update/delete), Admin (full access)"
     },
     {
       "name": "Exam-attempt",
@@ -3079,7 +3170,8 @@
                 "exam-attempts",
                 ""
               ]
-            }
+            },
+            "description": "Returns a list of exam attempts. Students see only their own attempts. Instructors and admins see all attempts for their examinations.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `examination` (integer) — filter by examination ID (use `{{examination_id}}`)\n\n**Response:** 200 OK — list of exam attempt objects"
           },
           "response": []
         },
@@ -3133,7 +3225,8 @@
                 "exam-attempts",
                 ""
               ]
-            }
+            },
+            "description": "Starts a new exam attempt for the authenticated student. The exam must be within its active time window (start_time ≤ now ≤ end_time). Records the start time.\n\n**Method:** POST  \n**Auth:** Bearer token required — Student role  \n**Body (JSON):**\n- `examination` (integer, required) — examination ID (use `{{examination_id}}`)\n\n**Response:** 201 Created — exam attempt object with attempt ID  \n**Notes:** Store the returned attempt ID in `{{exam_attempt_id}}` for use in the Submit Exam request."
           },
           "response": []
         },
@@ -3163,7 +3256,8 @@
                 "{{exam_attempt_id}}",
                 ""
               ]
-            }
+            },
+            "description": "Retrieves the details of a specific exam attempt, including answers, score, and manual grades (if graded).\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — exam attempt ID (use `{{exam_attempt_id}}`)\n\n**Response:** 200 OK — exam attempt object"
           },
           "response": []
         },
@@ -3208,7 +3302,8 @@
                 "submit",
                 ""
               ]
-            }
+            },
+            "description": "Submits a student's exam attempt with their answers. MCQ and True/False answers are auto-graded. Essay answers are stored for manual grading.\n\n**Method:** POST  \n**Auth:** Bearer token required — Student (attempt owner)  \n**Path param:** `id` — exam attempt ID (use `{{exam_attempt_id}}`)  \n**Body (JSON):**\n- `answers` (object, required) — a JSON object mapping question IDs to the student's answer (e.g. `{\"1\": \"A\", \"2\": \"False\", \"3\": \"The French Revolution began in 1789...\"}`)\n\n**Response:** 200 OK — attempt object with auto-graded score  \n**Notes:** Essay answers will not be included in the score until manually graded via the Essay Grading endpoint."
           },
           "response": []
         },
@@ -3253,11 +3348,13 @@
                 "grade",
                 ""
               ]
-            }
+            },
+            "description": "Manually grades essay-type answers in a submitted exam attempt. Restricted to instructors and admins.\n\nUpdates the `manual_grades` field with scores for each essay question and recalculates the total exam score.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Instructor or Admin  \n**Path param:** `id` — exam attempt ID (use `{{exam_attempt_id}}`)  \n**Body (JSON):**\n- `manual_grades` (object, required) — a JSON object mapping essay question IDs to the awarded marks (e.g. `{\"3\": 8, \"5\": 10}`)\n\n**Response:** 200 OK — updated attempt object with recalculated total score"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Manages the lifecycle of a student's exam attempt — from starting to submitting, including essay grading.\n\nA student starts an attempt within the exam's time window. On submission, MCQ and True/False answers are auto-graded. Essay answers are stored and must be manually graded by an instructor using the `Essay Grading` endpoint (PATCH), which updates `manual_grades` and recalculates the total score.\n\n**Roles involved:** Student (start + submit own attempt), Instructor (grade essays), Admin (full access)"
     },
     {
       "name": "Grade",
@@ -3294,11 +3391,13 @@
                   "disabled": true
                 }
               ]
-            }
+            },
+            "description": "Returns an aggregated view of a student's grades across all assessments (assignments, quizzes, and exams) for a course. Students see their own grades; instructors and admins can view grades for all students.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `course` (integer) — filter by course ID (use `{{course_id}}`)\n\n**Response:** 200 OK — list of grade objects with scores per assessment type"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Provides a read-only aggregated view of a student's grades across all assessments in a course.\n\nReturns grades from assignments, quizzes, and examinations in one response. Students see their own grades; instructors and admins can view grades for all students in their courses.\n\n**Roles involved:** Student (own grades), Instructor/Admin (all grades)"
     },
     {
       "name": "Results",
@@ -3328,7 +3427,8 @@
                 "results",
                 ""
               ]
-            }
+            },
+            "description": "Returns overall course result summaries for all students. Intended for instructors and admins to review student performance across the platform.\n\n**Method:** GET  \n**Auth:** Bearer token required — Instructor or Admin  \n\n**Response:** 200 OK — list of result objects (student, course, overall score, pass/fail status)"
           },
           "response": []
         },
@@ -3363,11 +3463,13 @@
                   "value": "{{course_id}}"
                 }
               ]
-            }
+            },
+            "description": "Returns result summaries filtered by a specific course. Useful for instructors reviewing performance in one of their courses.\n\n**Method:** GET  \n**Auth:** Bearer token required — Instructor or Admin  \n**Query params:**\n- `course` (integer, required) — course ID (use `{{course_id}}`)\n\n**Response:** 200 OK — list of result objects for the specified course"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Provides overall course result summaries for students, aggregating performance across all assessments.\n\n`List Students Result` returns results for all students (admin/instructor view). `Results by Course` filters results for a specific course. Results include the overall score and pass/fail status based on the combined performance across assignments, quizzes, and exams.\n\n**Roles involved:** Instructor/Admin (view all), Student (own results)"
     },
     {
       "name": "Certificate",
@@ -3379,7 +3481,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Returns a list of certificates. Students see their own certificates. Instructors and admins see all certificates.\n\n**Method:** GET  \n**Auth:** Bearer token required\n\n**Response:** 200 OK — list of certificate objects (certificate_number, student, course, completion_percentage, issued_at)"
           },
           "response": []
         },
@@ -3390,7 +3493,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Issues a course completion certificate to a student. Restricted to instructors and admins. A unique certificate number is auto-generated. Each student can only have one certificate per course.\n\n**Method:** POST  \n**Auth:** Bearer token required — Instructor or Admin  \n**Body (JSON):**\n- `student` (integer, required) — student user ID\n- `course` (integer, required) — course ID\n- `completion_percentage` (decimal, optional) — auto-calculated if not provided\n\n**Response:** 201 Created — certificate object with certificate_number"
           },
           "response": []
         },
@@ -3401,7 +3505,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Retrieves the details of a specific certificate by its ID.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — certificate ID (use `{{certificate_id}}`)\n\n**Response:** 200 OK — certificate object"
           },
           "response": []
         },
@@ -3412,7 +3517,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Fully replaces a certificate record. All fields must be provided. Restricted to instructors and admins.\n\n**Method:** PUT  \n**Auth:** Bearer token required — Instructor or Admin  \n**Path param:** `id` — certificate ID (use `{{certificate_id}}`)  \n**Body:** All certificate fields\n\n**Response:** 200 OK — updated certificate object"
           },
           "response": []
         },
@@ -3423,7 +3529,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Partially updates a certificate record. Only provided fields are updated. Restricted to instructors and admins.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Instructor or Admin  \n**Path param:** `id` — certificate ID (use `{{certificate_id}}`)  \n**Body (JSON):** Any subset of certificate fields\n\n**Response:** 200 OK — updated certificate object"
           },
           "response": []
         },
@@ -3434,11 +3541,13 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Permanently deletes a certificate. Restricted to instructors and admins.\n\n**Method:** DELETE  \n**Auth:** Bearer token required — Instructor or Admin  \n**Path param:** `id` — certificate ID (use `{{certificate_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Manages course completion certificates issued to students.\n\nInstructors and admins can issue certificates to students who have completed a course. Each certificate has a unique auto-generated certificate number and records the student's completion percentage. A student can only have one certificate per course. Certificates can be retrieved, updated, or deleted by authorised users.\n\n**Roles involved:** Instructor/Admin (create/update/delete), Student (read own), Any (verify by certificate number)"
     },
     {
       "name": "Notifications",
@@ -3450,7 +3559,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Returns a list of all notifications for the authenticated user, ordered by most recent first.\n\nNotification types include: ENROLLMENT, ASSIGNMENT_SUBMISSION, EXAM_SUBMISSION, ASSIGNMENT_REMINDER, EXAM_REMINDER, GRADE, CERTIFICATE, GENERAL.\n\n**Method:** GET  \n**Auth:** Bearer token required\n\n**Response:** 200 OK — list of notification objects (title, message, type, is_read, created_at)"
           },
           "response": []
         },
@@ -3461,7 +3571,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Marks a specific notification as read for the authenticated user.\n\n**Method:** PATCH  \n**Auth:** Bearer token required  \n**Path param:** `id` — notification ID\n\n**Response:** 200 OK — updated notification object with `is_read: true`"
           },
           "response": []
         },
@@ -3472,7 +3583,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Returns the count of unread notifications for the authenticated user. Useful for displaying a notification badge in the UI.\n\n**Method:** GET  \n**Auth:** Bearer token required\n\n**Response:** 200 OK — `{ \"unread_count\": <integer> }`"
           },
           "response": []
         },
@@ -3483,11 +3595,13 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Marks all unread notifications as read for the authenticated user in a single operation.\n\n**Method:** POST  \n**Auth:** Bearer token required  \n**Body:** None required\n\n**Response:** 200 OK — success message"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Manages in-app notifications sent to users for key platform events.\n\nNotification types include: enrollment, assignment submission, exam submission, assignment/exam reminders, grade updates, certificate issuance, and general announcements. Users can list their notifications, mark individual ones as read, mark all as read, and check their unread count.\n\n**Roles involved:** Any authenticated user (own notifications only)"
     },
     {
       "name": "Reviews",
@@ -3499,7 +3613,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Returns a list of reviews. Filter by course to see reviews for a specific course. Students see all reviews; instructors and admins can view reviews for their courses.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `course` (integer) — filter by course ID (use `{{course_id}}`)\n\n**Response:** 200 OK — list of review objects (student, course, rating, comment, created_at)"
           },
           "response": []
         },
@@ -3510,7 +3625,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Creates a course review from the authenticated student. Each student can only leave one review per course. The student must be enrolled in the course.\n\n**Method:** POST  \n**Auth:** Bearer token required — Student role  \n**Body (JSON):**\n- `course` (integer, required) — course ID\n- `rating` (integer, required) — value between 1 and 5\n- `comment` (string, optional)\n\n**Response:** 201 Created — review object"
           },
           "response": []
         },
@@ -3521,7 +3637,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Retrieves a single review by its ID.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — review ID (use `{{reviews_id}}`)\n\n**Response:** 200 OK — review object"
           },
           "response": []
         },
@@ -3532,7 +3649,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Updates the authenticated student's review for a course. Students can only update their own reviews.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Student (review owner)  \n**Path param:** `id` — review ID (use `{{reviews_id}}`)  \n**Body (JSON):**\n- `rating` (integer, optional) — 1 to 5\n- `comment` (string, optional)\n\n**Response:** 200 OK — updated review object"
           },
           "response": []
         },
@@ -3543,11 +3661,13 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Permanently deletes a review. Students can only delete their own reviews. Admins can delete any review.\n\n**Method:** DELETE  \n**Auth:** Bearer token required  \n**Path param:** `id` — review ID (use `{{reviews_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Allows students to post, update, and delete reviews for courses they are enrolled in.\n\nEach student can leave one review per course, with a rating (1–5) and an optional comment. Instructors and admins can read all reviews. The platform uses reviews to calculate average course ratings displayed in analytics.\n\n**Roles involved:** Enrolled Student (create/update/delete own), Any authenticated user (read), Admin (full access)"
     },
     {
       "name": "Analytics",
@@ -3559,7 +3679,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Returns a personalised analytics dashboard for the authenticated student.\n\nIncludes:\n- Total courses enrolled and completed\n- Lesson completion progress per course\n- Assignment submission count and average score\n- Quiz attempt count and average score\n- Number of certificates earned\n\n**Method:** GET  \n**Auth:** Bearer token required — Student role  \n**Endpoint:** `GET /api/analytics/student/`\n\n**Response:** 200 OK — analytics summary object"
           },
           "response": []
         },
@@ -3570,7 +3691,8 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Returns an analytics dashboard for the authenticated instructor covering all their courses.\n\nIncludes:\n- Total number of students enrolled across all courses\n- Assignment completion rates\n- Quiz performance statistics\n- Average course ratings from student reviews\n- Course completion statistics\n\n**Method:** GET  \n**Auth:** Bearer token required — Instructor role  \n**Endpoint:** `GET /api/analytics/instructor/`\n\n**Response:** 200 OK — analytics summary object"
           },
           "response": []
         },
@@ -3581,11 +3703,13 @@
             "header": [],
             "url": {
               "raw": ""
-            }
+            },
+            "description": "Returns a platform-wide analytics dashboard for admins.\n\nIncludes:\n- Total user counts by role (students, instructors, admins)\n- Total courses, published vs draft\n- Enrollment statistics\n- Student engagement metrics\n- Revenue estimates based on enrollment counts and course prices\n- Average platform rating\n\n**Method:** GET  \n**Auth:** Bearer token required — Admin role  \n**Endpoint:** `GET /api/analytics/admin/`\n\n**Response:** 200 OK — platform-wide analytics summary object"
           },
           "response": []
         }
-      ]
+      ],
+      "description": "Provides role-specific analytics dashboards for students, instructors, and admins.\n\n- **Student Analytics:** Courses enrolled, lesson completion progress, assignment scores, quiz performance, and certificates earned.\n- **Instructor Analytics:** Total students taught, assignment completion rates, quiz performance across courses, average course ratings, and course completion statistics.\n- **Admin Analytics:** Platform-wide user counts, course and enrollment statistics, student engagement metrics, revenue estimates (based on enrollments), and average ratings.\n\nEach endpoint is restricted to its respective role.\n\n**Roles involved:** Student, Instructor, Admin (each sees only their own analytics endpoint)"
     }
   ],
   "auth": {
