@@ -1,6 +1,7 @@
 from attr import field, fields
 from django.db.models.aggregates import Avg
 from django.utils.text import slugify
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from accounts.serializers import StrictFieldsMixin
@@ -48,17 +49,20 @@ class CourseSerializer(StrictFieldsMixin, serializers.ModelSerializer):
             "updated_at",
         ]
 
+    @extend_schema_field(serializers.CharField())
     def get_instructor(self, obj):
         return (
             f"{obj.instructor.first_name} {obj.instructor.last_name}".strip()
             or obj.instructor.email
         )
 
+    @extend_schema_field(serializers.FloatField())
     def get_average_rating(self, obj):
         average = obj.reviews.aggregate(average=Avg("rating"))["average"]
 
         return round(average, 2) if average else 0
 
+    @extend_schema_field(serializers.IntegerField())
     def get_review_count(self, obj):
         return obj.reviews.count()
 

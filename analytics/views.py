@@ -1,10 +1,16 @@
 from django.db.models import Avg, Count, Q, Sum
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.models import User
+from analytics.serializers import (
+    AdminAnalyticsSerializer,
+    InstructorAnalyticsSerializer,
+    StudentAnalyticsSerializer,
+)
 from assessments.models import (
     Assignment,
     AssignmentSubmission,
@@ -30,6 +36,11 @@ def percentage(score, total):
 class StudentAnalyticsView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Get student analytics",
+        description="Return analytics data for the authenticated student.",
+        responses=StudentAnalyticsSerializer,
+    )
     def get(self, request):
         user = request.user
 
@@ -195,6 +206,11 @@ class StudentAnalyticsView(APIView):
 class InstructorAnalyticsView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Get instructor analytics",
+        description="Return analytics data for the authenticated instructor.",
+        responses=InstructorAnalyticsSerializer
+    )
     def get(self, request):
         user = request.user
 
@@ -351,6 +367,11 @@ class InstructorAnalyticsView(APIView):
 class AdminAnalyticsView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Get admin analytics",
+        description="Return analytics data for the authenticated admin.",
+        responses=AdminAnalyticsSerializer
+    )
     def get(self, request):
         user = request.user
 

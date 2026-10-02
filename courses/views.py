@@ -7,6 +7,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from sqlparse.sql import Assignment
 
 from accounts.permissions import IsAdmin
 from enrollments.models import Enrollment, LessonCompletion
@@ -55,6 +56,9 @@ class CourseViewSet(viewsets.ModelViewSet):
     ordering = ["-created_at"]
 
     def get_queryset(self):
+
+        if getattr(self, "swagger_fake_view", False):
+            return Course.objects.none()
         user = self.request.user
 
         if user.role == user.Role.STUDENT:
@@ -133,6 +137,8 @@ class LessonViewSet(viewsets.ModelViewSet):
     ordering = ["order"]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Lesson.objects.none()
         user = self.request.user
 
         if user.role == user.Role.STUDENT:

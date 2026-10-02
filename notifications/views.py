@@ -40,6 +40,9 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
     ]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Notification.objects.none()
+
         user = self.request.user
 
         if user.role == user.Role.ADMIN:

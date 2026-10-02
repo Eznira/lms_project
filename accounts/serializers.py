@@ -311,3 +311,6 @@ class InstructorSetPasswordSerializer(serializers.Serializer):
             )
 
         return attrs
+
+class LogoutResponseSerializer(serializers.Serializer):
+    detail = serializers.CharField()

@@ -1,0 +1,4551 @@
+openapi: 3.0.3
+info:
+  title: Education LMS API
+  version: 1.0.0
+  description: REST API for an Education Learning Management System.
+paths:
+  /api/analytics/admin/:
+    get:
+      operationId: analytics_admin_retrieve
+      description: Return analytics data for the authenticated admin.
+      summary: Get admin analytics
+      tags:
+      - analytics
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminAnalytics'
+          description: ''
+  /api/analytics/instructor/:
+    get:
+      operationId: analytics_instructor_retrieve
+      description: Return analytics data for the authenticated instructor.
+      summary: Get instructor analytics
+      tags:
+      - analytics
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstructorAnalytics'
+          description: ''
+  /api/analytics/student/:
+    get:
+      operationId: analytics_student_retrieve
+      description: Return analytics data for the authenticated student.
+      summary: Get student analytics
+      tags:
+      - analytics
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentAnalytics'
+          description: ''
+  /api/assignments/:
+    get:
+      operationId: assignments_list
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - assignments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+          description: ''
+    post:
+      operationId: assignments_create
+      tags:
+      - assignments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+          description: ''
+  /api/assignments/{id}/:
+    get:
+      operationId: assignments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this assignment.
+        required: true
+      tags:
+      - assignments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+          description: ''
+    put:
+      operationId: assignments_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this assignment.
+        required: true
+      tags:
+      - assignments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+          description: ''
+    patch:
+      operationId: assignments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this assignment.
+        required: true
+      tags:
+      - assignments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAssignment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAssignment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAssignment'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+          description: ''
+    delete:
+      operationId: assignments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this assignment.
+        required: true
+      tags:
+      - assignments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/auth/instructors/:
+    post:
+      operationId: auth_instructors_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstructorCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InstructorCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InstructorCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstructorCreate'
+          description: ''
+  /api/auth/instructors/set-password/:
+    post:
+      operationId: auth_instructors_set_password_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstructorSetPassword'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InstructorSetPassword'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InstructorSetPassword'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstructorSetPassword'
+          description: ''
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Authenticate a user and return access and refresh tokens.
+      summary: Login
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutResponse'
+          description: ''
+  /api/auth/password-reset/:
+    post:
+      operationId: auth_password_reset_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordResetRequest'
+          description: ''
+  /api/auth/password-reset-confirm/:
+    post:
+      operationId: auth_password_reset_confirm_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetConfirm'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordResetConfirm'
+          description: ''
+  /api/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Register'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Register'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Register'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+  /api/auth/verify-email/:
+    post:
+      operationId: auth_verify_email_create
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyEmail'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyEmail'
+          description: ''
+  /api/categories/:
+    get:
+      operationId: categories_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - categories
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
+    post:
+      operationId: categories_create
+      tags:
+      - categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /api/categories/{id}/:
+    get:
+      operationId: categories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - categories
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    put:
+      operationId: categories_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Category'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Category'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    patch:
+      operationId: categories_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCategory'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+    delete:
+      operationId: categories_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this category.
+        required: true
+      tags:
+      - categories
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/certificates/:
+    get:
+      operationId: certificates_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - certificates
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Certificate'
+          description: ''
+    post:
+      operationId: certificates_create
+      tags:
+      - certificates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Certificate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Certificate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Certificate'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+          description: ''
+  /api/certificates/{id}/:
+    get:
+      operationId: certificates_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this certificate.
+        required: true
+      tags:
+      - certificates
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+          description: ''
+    put:
+      operationId: certificates_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this certificate.
+        required: true
+      tags:
+      - certificates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Certificate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Certificate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Certificate'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+          description: ''
+    patch:
+      operationId: certificates_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this certificate.
+        required: true
+      tags:
+      - certificates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCertificate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCertificate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCertificate'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Certificate'
+          description: ''
+    delete:
+      operationId: certificates_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this certificate.
+        required: true
+      tags:
+      - certificates
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/courses/:
+    get:
+      operationId: courses_list
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: integer
+      - in: query
+        name: category__slug
+        schema:
+          type: string
+      - in: query
+        name: level
+        schema:
+          type: string
+          enum:
+          - ADVANCED
+          - BEGINNER
+          - INTERMEDIATE
+        description: |-
+          * `BEGINNER` - Beginner
+          * `INTERMEDIATE` - Intermediate
+          * `ADVANCED` - Advanced
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - ARCHIVED
+          - DRAFT
+          - PUBLISHED
+        description: |-
+          * `DRAFT` - Draft
+          * `PUBLISHED` - Published
+          * `ARCHIVED` - Archived
+      tags:
+      - courses
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+          description: ''
+    post:
+      operationId: courses_create
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Course'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Course'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+  /api/courses/{id}/:
+    get:
+      operationId: courses_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - courses
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+    put:
+      operationId: courses_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Course'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Course'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+    patch:
+      operationId: courses_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCourse'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCourse'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCourse'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: ''
+    delete:
+      operationId: courses_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this course.
+        required: true
+      tags:
+      - courses
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/enrollments/:
+    get:
+      operationId: enrollments_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - enrollments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Enrollment'
+          description: ''
+    post:
+      operationId: enrollments_create
+      tags:
+      - enrollments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Enrollment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Enrollment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Enrollment'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+          description: ''
+  /api/enrollments/{id}/:
+    get:
+      operationId: enrollments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this enrollment.
+        required: true
+      tags:
+      - enrollments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+          description: ''
+    delete:
+      operationId: enrollments_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this enrollment.
+        required: true
+      tags:
+      - enrollments
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/exam-attempts/:
+    get:
+      operationId: exam_attempts_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - exam-attempts
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExamAttempt'
+          description: ''
+    post:
+      operationId: exam_attempts_create
+      tags:
+      - exam-attempts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamAttempt'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExamAttempt'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExamAttempt'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAttempt'
+          description: ''
+  /api/exam-attempts/{id}/:
+    get:
+      operationId: exam_attempts_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam attempt.
+        required: true
+      tags:
+      - exam-attempts
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAttempt'
+          description: ''
+    patch:
+      operationId: exam_attempts_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam attempt.
+        required: true
+      tags:
+      - exam-attempts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExamAttempt'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExamAttempt'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExamAttempt'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAttempt'
+          description: ''
+  /api/exam-attempts/{id}/grade/:
+    patch:
+      operationId: exam_attempts_grade_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam attempt.
+        required: true
+      tags:
+      - exam-attempts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExamGrade'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExamGrade'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExamGrade'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAttempt'
+          description: ''
+  /api/exam-attempts/{id}/submit/:
+    post:
+      operationId: exam_attempts_submit_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam attempt.
+        required: true
+      tags:
+      - exam-attempts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamSubmit'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExamSubmit'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExamSubmit'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamAttempt'
+          description: ''
+  /api/exam-questions/:
+    get:
+      operationId: exam_questions_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - exam-questions
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExamQuestion'
+          description: ''
+    post:
+      operationId: exam_questions_create
+      tags:
+      - exam-questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamQuestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExamQuestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExamQuestion'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamQuestion'
+          description: ''
+  /api/exam-questions/{id}/:
+    get:
+      operationId: exam_questions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam question.
+        required: true
+      tags:
+      - exam-questions
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamQuestion'
+          description: ''
+    put:
+      operationId: exam_questions_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam question.
+        required: true
+      tags:
+      - exam-questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamQuestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExamQuestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExamQuestion'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamQuestion'
+          description: ''
+    patch:
+      operationId: exam_questions_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam question.
+        required: true
+      tags:
+      - exam-questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExamQuestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExamQuestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExamQuestion'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamQuestion'
+          description: ''
+    delete:
+      operationId: exam_questions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this exam question.
+        required: true
+      tags:
+      - exam-questions
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/examinations/:
+    get:
+      operationId: examinations_list
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - COMPLETED
+          - ONGOING
+          - SCHEDULED
+        description: |-
+          * `SCHEDULED` - Scheduled
+          * `ONGOING` - Ongoing
+          * `COMPLETED` - Completed
+      tags:
+      - examinations
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Examination'
+          description: ''
+    post:
+      operationId: examinations_create
+      tags:
+      - examinations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Examination'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Examination'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Examination'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Examination'
+          description: ''
+  /api/examinations/{id}/:
+    get:
+      operationId: examinations_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this examination.
+        required: true
+      tags:
+      - examinations
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Examination'
+          description: ''
+    put:
+      operationId: examinations_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this examination.
+        required: true
+      tags:
+      - examinations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Examination'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Examination'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Examination'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Examination'
+          description: ''
+    patch:
+      operationId: examinations_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this examination.
+        required: true
+      tags:
+      - examinations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExamination'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExamination'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExamination'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Examination'
+          description: ''
+    delete:
+      operationId: examinations_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this examination.
+        required: true
+      tags:
+      - examinations
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/examinations/{id}/questions/:
+    get:
+      operationId: examinations_questions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this examination.
+        required: true
+      tags:
+      - examinations
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Examination'
+          description: ''
+  /api/grades/:
+    get:
+      operationId: grades_list
+      description: Returns grades for assignments, quizzes, and examinations. Students
+        see their own grades. Instructors see grades for students in their courses.
+        Admins see all grades. For quizzes and examinations, only the highest submitted
+        attempt per student and assessment is included.
+      summary: List grades
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: integer
+        description: Filter grades by course ID.
+      tags:
+      - grades
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+          description: ''
+  /api/lessons/:
+    get:
+      operationId: lessons_list
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - lessons
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lesson'
+          description: ''
+    post:
+      operationId: lessons_create
+      tags:
+      - lessons
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lesson'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Lesson'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Lesson'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+          description: ''
+  /api/lessons/{id}/:
+    get:
+      operationId: lessons_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lessons
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+          description: ''
+    put:
+      operationId: lessons_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lessons
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lesson'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Lesson'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Lesson'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+          description: ''
+    patch:
+      operationId: lessons_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lessons
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLesson'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLesson'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLesson'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+          description: ''
+    delete:
+      operationId: lessons_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lessons
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/lessons/{id}/complete/:
+    post:
+      operationId: lessons_complete_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this lesson.
+        required: true
+      tags:
+      - lessons
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lesson'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Lesson'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Lesson'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lesson'
+          description: ''
+  /api/notifications/:
+    get:
+      operationId: notifications_list
+      description: Return notifications belonging to the authenticated user.
+      summary: List my notifications
+      parameters:
+      - in: query
+        name: is_read
+        schema:
+          type: boolean
+      - in: query
+        name: notification_type
+        schema:
+          type: string
+          enum:
+          - ASSIGNMENT_REMINDER
+          - ASSIGNMENT_SUBMISSION
+          - CERTIFICATE
+          - ENROLLMENT
+          - EXAM_REMINDER
+          - EXAM_SUBMISSION
+          - GENERAL
+          - GRADE
+        description: |-
+          * `ENROLLMENT` - Enrollment
+          * `ASSIGNMENT_SUBMISSION` - Assignment Submission
+          * `EXAM_SUBMISSION` - Examination Submission
+          * `ASSIGNMENT_REMINDER` - Assignment Reminder
+          * `EXAM_REMINDER` - Examination Reminder
+          * `GRADE` - Grade
+          * `CERTIFICATE` - Certificate
+          * `GENERAL` - General
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/notifications/{id}/:
+    get:
+      operationId: notifications_retrieve
+      description: Return a single notification belonging to the authenticated user.
+      summary: Get my notification
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this notification.
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/notifications/{id}/mark-read/:
+    post:
+      operationId: notifications_mark_read_create
+      description: Mark one of the authenticated user's notifications as read.
+      summary: Mark notification as read
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this notification.
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/notifications/mark-all-read/:
+    post:
+      operationId: notifications_mark_all_read_create
+      description: Mark all notifications belonging to the authenticated user as read.
+      summary: Mark all notifications as read
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/notifications/unread-count/:
+    get:
+      operationId: notifications_unread_count_retrieve
+      description: Return the number of unread notifications for the authenticated
+        user.
+      summary: Get unread notification count
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/profile/:
+    get:
+      operationId: profile_retrieve
+      tags:
+      - profile
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+    patch:
+      operationId: profile_partial_update
+      tags:
+      - profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProfile'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+  /api/quiz-attempts/:
+    get:
+      operationId: quiz_attempts_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - quiz-attempts
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuizAttempt'
+          description: ''
+    post:
+      operationId: quiz_attempts_create
+      tags:
+      - quiz-attempts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizAttempt'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuizAttempt'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuizAttempt'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizAttempt'
+          description: ''
+  /api/quiz-attempts/{id}/:
+    get:
+      operationId: quiz_attempts_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz attempt.
+        required: true
+      tags:
+      - quiz-attempts
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizAttempt'
+          description: ''
+  /api/quiz-attempts/{id}/submit/:
+    post:
+      operationId: quiz_attempts_submit_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz attempt.
+        required: true
+      tags:
+      - quiz-attempts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizSubmit'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuizSubmit'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuizSubmit'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizAttempt'
+          description: ''
+  /api/quiz-questions/:
+    get:
+      operationId: quiz_questions_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - quiz-questions
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuizQuestion'
+          description: ''
+    post:
+      operationId: quiz_questions_create
+      tags:
+      - quiz-questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizQuestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuizQuestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuizQuestion'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizQuestion'
+          description: ''
+  /api/quiz-questions/{id}/:
+    get:
+      operationId: quiz_questions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz question.
+        required: true
+      tags:
+      - quiz-questions
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizQuestion'
+          description: ''
+    put:
+      operationId: quiz_questions_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz question.
+        required: true
+      tags:
+      - quiz-questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizQuestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuizQuestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuizQuestion'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizQuestion'
+          description: ''
+    patch:
+      operationId: quiz_questions_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz question.
+        required: true
+      tags:
+      - quiz-questions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedQuizQuestion'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedQuizQuestion'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedQuizQuestion'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizQuestion'
+          description: ''
+    delete:
+      operationId: quiz_questions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz question.
+        required: true
+      tags:
+      - quiz-questions
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/quizzes/:
+    get:
+      operationId: quizzes_list
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Quiz'
+          description: ''
+    post:
+      operationId: quizzes_create
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
+  /api/quizzes/{id}/:
+    get:
+      operationId: quizzes_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
+    put:
+      operationId: quizzes_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Quiz'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
+    patch:
+      operationId: quizzes_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz.
+        required: true
+      tags:
+      - quizzes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedQuiz'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedQuiz'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedQuiz'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
+    delete:
+      operationId: quizzes_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/quizzes/{id}/questions/:
+    get:
+      operationId: quizzes_questions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this quiz.
+        required: true
+      tags:
+      - quizzes
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quiz'
+          description: ''
+  /api/results/:
+    get:
+      operationId: results_list
+      description: Returns calculated course results. Students receive their own results.
+        Instructors receive results for students associated with their courses. Admins
+        receive results for all courses.
+      summary: List course results
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: integer
+        description: Filter results by course ID.
+      tags:
+      - results
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Result'
+          description: ''
+  /api/reviews/:
+    get:
+      operationId: reviews_list
+      parameters:
+      - in: query
+        name: course
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: rating
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - reviews
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+          description: ''
+    post:
+      operationId: reviews_create
+      tags:
+      - reviews
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Review'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Review'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Review'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+          description: ''
+  /api/reviews/{id}/:
+    get:
+      operationId: reviews_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this review.
+        required: true
+      tags:
+      - reviews
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+          description: ''
+    patch:
+      operationId: reviews_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this review.
+        required: true
+      tags:
+      - reviews
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedReview'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedReview'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedReview'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+          description: ''
+    delete:
+      operationId: reviews_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this review.
+        required: true
+      tags:
+      - reviews
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/reviews/course/{course_id}/summary/:
+    get:
+      operationId: reviews_course_summary_retrieve
+      parameters:
+      - in: path
+        name: course_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - reviews
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+          description: ''
+  /api/submissions/:
+    get:
+      operationId: submissions_list
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - submissions
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssignmentSubmission'
+          description: ''
+    post:
+      operationId: submissions_create
+      tags:
+      - submissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentSubmission'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssignmentSubmission'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AssignmentSubmission'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentSubmission'
+          description: ''
+  /api/submissions/{id}/:
+    get:
+      operationId: submissions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this assignment submission.
+        required: true
+      tags:
+      - submissions
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentSubmission'
+          description: ''
+    patch:
+      operationId: submissions_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this assignment submission.
+        required: true
+      tags:
+      - submissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAssignmentSubmission'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAssignmentSubmission'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAssignmentSubmission'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentSubmission'
+          description: ''
+    delete:
+      operationId: submissions_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this assignment submission.
+        required: true
+      tags:
+      - submissions
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/submissions/{id}/grade/:
+    post:
+      operationId: submissions_grade_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this assignment submission.
+        required: true
+      tags:
+      - submissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentGrade'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssignmentGrade'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AssignmentGrade'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentGrade'
+          description: ''
+components:
+  schemas:
+    AdminAnalytics:
+      type: object
+      properties:
+        users:
+          $ref: '#/components/schemas/AdminUsers'
+        courses:
+          $ref: '#/components/schemas/AdminCourses'
+        enrollments:
+          $ref: '#/components/schemas/AdminEnrollments'
+        student_engagement:
+          $ref: '#/components/schemas/AdminStudentEngagement'
+        average_course_rating:
+          type: number
+          format: double
+      required:
+      - average_course_rating
+      - courses
+      - enrollments
+      - student_engagement
+      - users
+    AdminCourseCompletion:
+      type: object
+      properties:
+        course_id:
+          type: integer
+        course_title:
+          type: string
+        enrolled_students:
+          type: integer
+        completed_students:
+          type: integer
+        completion_rate:
+          type: number
+          format: double
+      required:
+      - completed_students
+      - completion_rate
+      - course_id
+      - course_title
+      - enrolled_students
+    AdminCourses:
+      type: object
+      properties:
+        total_courses:
+          type: integer
+        course_completion_rates:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminCourseCompletion'
+        most_popular_courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdminPopularCourse'
+      required:
+      - course_completion_rates
+      - most_popular_courses
+      - total_courses
+    AdminEnrollments:
+      type: object
+      properties:
+        total_enrollments:
+          type: integer
+        active_enrollments:
+          type: integer
+        completed_enrollments:
+          type: integer
+      required:
+      - active_enrollments
+      - completed_enrollments
+      - total_enrollments
+    AdminPopularCourse:
+      type: object
+      properties:
+        course_id:
+          type: integer
+        course_title:
+          type: string
+        enrollment_count:
+          type: integer
+      required:
+      - course_id
+      - course_title
+      - enrollment_count
+    AdminStudentEngagement:
+      type: object
+      properties:
+        engaged_students:
+          type: integer
+        engagement_rate:
+          type: number
+          format: double
+        lesson_completions:
+          type: integer
+        assignment_submissions:
+          type: integer
+        quiz_attempts:
+          type: integer
+        exam_attempts:
+          type: integer
+      required:
+      - assignment_submissions
+      - engaged_students
+      - engagement_rate
+      - exam_attempts
+      - lesson_completions
+      - quiz_attempts
+    AdminUsers:
+      type: object
+      properties:
+        total_students:
+          type: integer
+        total_instructors:
+          type: integer
+      required:
+      - total_instructors
+      - total_students
+    Assignment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        course_title:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        due_date:
+          type: string
+          format: date-time
+        total_marks:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        attachment:
+          type: string
+          format: uri
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course
+      - course_title
+      - created_at
+      - description
+      - due_date
+      - id
+      - title
+      - total_marks
+      - updated_at
+    AssignmentGrade:
+      type: object
+      properties:
+        grade:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+        feedback:
+          type: string
+    AssignmentSubmission:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        assignment:
+          type: integer
+        assignment_title:
+          type: string
+          readOnly: true
+        student_email:
+          type: string
+          readOnly: true
+        submission_file:
+          type: string
+          format: uri
+        submitted_at:
+          type: string
+          format: date-time
+          readOnly: true
+        grade:
+          type: integer
+          readOnly: true
+          nullable: true
+        feedback:
+          type: string
+          readOnly: true
+      required:
+      - assignment
+      - assignment_title
+      - feedback
+      - grade
+      - id
+      - student_email
+      - submission_file
+      - submitted_at
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - slug
+    Certificate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student:
+          type: integer
+        student_email:
+          type: string
+          format: email
+          readOnly: true
+        course:
+          type: integer
+        course_title:
+          type: string
+          readOnly: true
+        certificate_number:
+          type: string
+          readOnly: true
+        completion_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          readOnly: true
+        issued_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - certificate_number
+      - completion_percentage
+      - course
+      - course_title
+      - id
+      - issued_at
+      - student
+      - student_email
+    Course:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        category:
+          type: integer
+        category_name:
+          type: string
+          readOnly: true
+        instructor:
+          type: string
+          readOnly: true
+        duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Duration in months
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        thumbnail:
+          type: string
+          format: uri
+          nullable: true
+        status:
+          $ref: '#/components/schemas/CourseStatusEnum'
+        average_rating:
+          type: number
+          format: double
+          readOnly: true
+        review_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - average_rating
+      - category
+      - category_name
+      - created_at
+      - description
+      - duration
+      - id
+      - instructor
+      - review_count
+      - title
+      - updated_at
+    CourseStatusEnum:
+      enum:
+      - DRAFT
+      - PUBLISHED
+      - ARCHIVED
+      type: string
+      description: |-
+        * `DRAFT` - Draft
+        * `PUBLISHED` - Published
+        * `ARCHIVED` - Archived
+    Enrollment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        course_title:
+          type: string
+          readOnly: true
+        enrolled_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course
+      - course_title
+      - enrolled_at
+      - id
+    ExamAttempt:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        examination:
+          type: integer
+        examination_title:
+          type: string
+          readOnly: true
+        score:
+          type: integer
+          readOnly: true
+        total_marks:
+          type: integer
+          readOnly: true
+        percentage:
+          type: number
+          format: double
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        submitted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        time_limit_minutes:
+          type: integer
+          readOnly: true
+      required:
+      - examination
+      - examination_title
+      - id
+      - percentage
+      - score
+      - started_at
+      - status
+      - submitted_at
+      - time_limit_minutes
+      - total_marks
+    ExamQuestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        examination:
+          type: integer
+        question_text:
+          type: string
+        question_type:
+          $ref: '#/components/schemas/ExamQuestionQuestionTypeEnum'
+        option_a:
+          type: string
+          maxLength: 255
+        option_b:
+          type: string
+          maxLength: 255
+        option_c:
+          type: string
+          maxLength: 255
+        option_d:
+          type: string
+          maxLength: 255
+        correct_answer:
+          type: string
+          maxLength: 1
+        marks:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - examination
+      - id
+      - order
+      - question_text
+      - question_type
+    ExamQuestionQuestionTypeEnum:
+      enum:
+      - MCQ
+      - TRUE_FALSE
+      - ESSAY
+      type: string
+      description: |-
+        * `MCQ` - Multiple Choice
+        * `TRUE_FALSE` - True / False
+        * `ESSAY` - Essay
+    ExamSubmit:
+      type: object
+      properties:
+        answers:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - answers
+    Examination:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        course_title:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Duration in minutes
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ExaminationStatusEnum'
+          readOnly: true
+        question_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        total_marks:
+          type: integer
+          readOnly: true
+      required:
+      - course
+      - course_title
+      - created_at
+      - duration
+      - end_time
+      - id
+      - question_count
+      - start_time
+      - status
+      - title
+      - total_marks
+      - updated_at
+    ExaminationStatusEnum:
+      enum:
+      - SCHEDULED
+      - ONGOING
+      - COMPLETED
+      type: string
+      description: |-
+        * `SCHEDULED` - Scheduled
+        * `ONGOING` - Ongoing
+        * `COMPLETED` - Completed
+    Grade:
+      type: object
+      properties:
+        assessment_type:
+          type: string
+        assessment_id:
+          type: integer
+        title:
+          type: string
+        score:
+          type: integer
+        total_marks:
+          type: integer
+        percentage:
+          type: number
+          format: double
+      required:
+      - assessment_id
+      - assessment_type
+      - percentage
+      - score
+      - title
+      - total_marks
+    InstructorAnalytics:
+      type: object
+      properties:
+        total_students:
+          type: integer
+        assignment_completion:
+          $ref: '#/components/schemas/InstructorAssignmentCompletion'
+        quiz_performance:
+          $ref: '#/components/schemas/InstructorQuizPerformance'
+        average_course_rating:
+          type: number
+          format: double
+        course_completion_statistics:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstructorCourseCompletion'
+      required:
+      - assignment_completion
+      - average_course_rating
+      - course_completion_statistics
+      - quiz_performance
+      - total_students
+    InstructorAssignmentCompletion:
+      type: object
+      properties:
+        total_assignments:
+          type: integer
+        total_submissions:
+          type: integer
+        graded_submissions:
+          type: integer
+        completion_rate:
+          type: number
+          format: double
+      required:
+      - completion_rate
+      - graded_submissions
+      - total_assignments
+      - total_submissions
+    InstructorCourseCompletion:
+      type: object
+      properties:
+        course_id:
+          type: integer
+        course_title:
+          type: string
+        enrolled_students:
+          type: integer
+        completed_students:
+          type: integer
+        completion_rate:
+          type: number
+          format: double
+      required:
+      - completed_students
+      - completion_rate
+      - course_id
+      - course_title
+      - enrolled_students
+    InstructorCreate:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        qualification:
+          type: string
+        specialization:
+          type: string
+        biography:
+          type: string
+        phone:
+          type: string
+        profile_photo:
+          type: string
+          format: uri
+          nullable: true
+      required:
+      - email
+      - qualification
+      - specialization
+    InstructorQuizPerformance:
+      type: object
+      properties:
+        total_attempts:
+          type: integer
+        average_percentage:
+          type: number
+          format: double
+      required:
+      - average_percentage
+      - total_attempts
+    InstructorSetPassword:
+      type: object
+      properties:
+        token:
+          type: string
+          format: uuid
+        password:
+          type: string
+          writeOnly: true
+        password_confirm:
+          type: string
+          writeOnly: true
+      required:
+      - password
+      - password_confirm
+      - token
+    Lesson:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        title:
+          type: string
+          maxLength: 255
+        content:
+          type: string
+        video:
+          type: string
+          format: uri
+          nullable: true
+        pdf:
+          type: string
+          format: uri
+          nullable: true
+        audio:
+          type: string
+          format: uri
+          nullable: true
+        external_resource:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course
+      - created_at
+      - id
+      - order
+      - title
+      - updated_at
+    LevelEnum:
+      enum:
+      - BEGINNER
+      - INTERMEDIATE
+      - ADVANCED
+      type: string
+      description: |-
+        * `BEGINNER` - Beginner
+        * `INTERMEDIATE` - Intermediate
+        * `ADVANCED` - Advanced
+    LogoutResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        notification_type:
+          allOf:
+          - $ref: '#/components/schemas/NotificationTypeEnum'
+          readOnly: true
+        notification_type_display:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+        is_read:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - is_read
+      - message
+      - notification_type
+      - notification_type_display
+      - title
+    NotificationTypeEnum:
+      enum:
+      - ENROLLMENT
+      - ASSIGNMENT_SUBMISSION
+      - EXAM_SUBMISSION
+      - ASSIGNMENT_REMINDER
+      - EXAM_REMINDER
+      - GRADE
+      - CERTIFICATE
+      - GENERAL
+      type: string
+      description: |-
+        * `ENROLLMENT` - Enrollment
+        * `ASSIGNMENT_SUBMISSION` - Assignment Submission
+        * `EXAM_SUBMISSION` - Examination Submission
+        * `ASSIGNMENT_REMINDER` - Assignment Reminder
+        * `EXAM_REMINDER` - Examination Reminder
+        * `GRADE` - Grade
+        * `CERTIFICATE` - Certificate
+        * `GENERAL` - General
+    PasswordResetConfirm:
+      type: object
+      properties:
+        uid:
+          type: string
+        token:
+          type: string
+        new_password:
+          type: string
+          writeOnly: true
+        new_password_confirm:
+          type: string
+          writeOnly: true
+      required:
+      - new_password
+      - new_password_confirm
+      - token
+      - uid
+    PasswordResetRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
+    PatchedAssignment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        course_title:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        due_date:
+          type: string
+          format: date-time
+        total_marks:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        attachment:
+          type: string
+          format: uri
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedAssignmentSubmission:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        assignment:
+          type: integer
+        assignment_title:
+          type: string
+          readOnly: true
+        student_email:
+          type: string
+          readOnly: true
+        submission_file:
+          type: string
+          format: uri
+        submitted_at:
+          type: string
+          format: date-time
+          readOnly: true
+        grade:
+          type: integer
+          readOnly: true
+          nullable: true
+        feedback:
+          type: string
+          readOnly: true
+    PatchedCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedCertificate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student:
+          type: integer
+        student_email:
+          type: string
+          format: email
+          readOnly: true
+        course:
+          type: integer
+        course_title:
+          type: string
+          readOnly: true
+        certificate_number:
+          type: string
+          readOnly: true
+        completion_percentage:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          readOnly: true
+        issued_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedCourse:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        category:
+          type: integer
+        category_name:
+          type: string
+          readOnly: true
+        instructor:
+          type: string
+          readOnly: true
+        duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Duration in months
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        thumbnail:
+          type: string
+          format: uri
+          nullable: true
+        status:
+          $ref: '#/components/schemas/CourseStatusEnum'
+        average_rating:
+          type: number
+          format: double
+          readOnly: true
+        review_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedExamAttempt:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        examination:
+          type: integer
+        examination_title:
+          type: string
+          readOnly: true
+        score:
+          type: integer
+          readOnly: true
+        total_marks:
+          type: integer
+          readOnly: true
+        percentage:
+          type: number
+          format: double
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        submitted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        time_limit_minutes:
+          type: integer
+          readOnly: true
+    PatchedExamGrade:
+      type: object
+      properties:
+        question_id:
+          type: integer
+        marks:
+          type: integer
+          minimum: 0
+    PatchedExamQuestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        examination:
+          type: integer
+        question_text:
+          type: string
+        question_type:
+          $ref: '#/components/schemas/ExamQuestionQuestionTypeEnum'
+        option_a:
+          type: string
+          maxLength: 255
+        option_b:
+          type: string
+          maxLength: 255
+        option_c:
+          type: string
+          maxLength: 255
+        option_d:
+          type: string
+          maxLength: 255
+        correct_answer:
+          type: string
+          maxLength: 1
+        marks:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+    PatchedExamination:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        course_title:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Duration in minutes
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ExaminationStatusEnum'
+          readOnly: true
+        question_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        total_marks:
+          type: integer
+          readOnly: true
+    PatchedLesson:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        title:
+          type: string
+          maxLength: 255
+        content:
+          type: string
+        video:
+          type: string
+          format: uri
+          nullable: true
+        pdf:
+          type: string
+          format: uri
+          nullable: true
+        audio:
+          type: string
+          format: uri
+          nullable: true
+        external_resource:
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+        profile:
+          type: object
+          additionalProperties: {}
+    PatchedQuiz:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        course_title:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Duration in minutes
+        question_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedQuizQuestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        quiz:
+          type: integer
+        question_text:
+          type: string
+        question_type:
+          $ref: '#/components/schemas/QuizQuestionQuestionTypeEnum'
+        option_a:
+          type: string
+          maxLength: 255
+        option_b:
+          type: string
+          maxLength: 255
+        option_c:
+          type: string
+          maxLength: 255
+        option_d:
+          type: string
+          maxLength: 255
+        correct_answer:
+          type: string
+          maxLength: 1
+        marks:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+    PatchedReview:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student_email:
+          type: string
+          readOnly: true
+        course:
+          type: integer
+        course_title:
+          type: string
+          readOnly: true
+        rating:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        comment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    Profile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+        profile:
+          type: object
+          additionalProperties: {}
+      required:
+      - email
+      - id
+      - role
+    Quiz:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+        course_title:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Duration in minutes
+        question_count:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course
+      - course_title
+      - created_at
+      - duration
+      - id
+      - question_count
+      - title
+      - updated_at
+    QuizAttempt:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        quiz:
+          type: integer
+        quiz_title:
+          type: string
+          readOnly: true
+        score:
+          type: integer
+          readOnly: true
+        total_marks:
+          type: integer
+          readOnly: true
+        percentage:
+          type: number
+          format: double
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        submitted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        time_limit_minutes:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - percentage
+      - quiz
+      - quiz_title
+      - score
+      - started_at
+      - status
+      - submitted_at
+      - time_limit_minutes
+      - total_marks
+    QuizQuestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        quiz:
+          type: integer
+        question_text:
+          type: string
+        question_type:
+          $ref: '#/components/schemas/QuizQuestionQuestionTypeEnum'
+        option_a:
+          type: string
+          maxLength: 255
+        option_b:
+          type: string
+          maxLength: 255
+        option_c:
+          type: string
+          maxLength: 255
+        option_d:
+          type: string
+          maxLength: 255
+        correct_answer:
+          type: string
+          maxLength: 1
+        marks:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+      required:
+      - correct_answer
+      - id
+      - option_a
+      - option_b
+      - order
+      - question_text
+      - question_type
+      - quiz
+    QuizQuestionQuestionTypeEnum:
+      enum:
+      - MCQ
+      - TRUE_FALSE
+      type: string
+      description: |-
+        * `MCQ` - Multiple Choice
+        * `TRUE_FALSE` - True / False
+    QuizSubmit:
+      type: object
+      properties:
+        answers:
+          type: object
+          additionalProperties:
+            type: string
+      required:
+      - answers
+    Register:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+        password_confirm:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+      - password_confirm
+    Result:
+      type: object
+      properties:
+        student_id:
+          type: integer
+          nullable: true
+        student_email:
+          type: string
+          format: email
+          nullable: true
+        course_id:
+          type: integer
+        course_title:
+          type: string
+        assignment_score:
+          type: integer
+        assignment_total:
+          type: integer
+        quiz_score:
+          type: integer
+        quiz_total:
+          type: integer
+        examination_score:
+          type: integer
+        examination_total:
+          type: integer
+        total_score:
+          type: integer
+        total_marks:
+          type: integer
+        percentage:
+          type: number
+          format: double
+      required:
+      - assignment_score
+      - assignment_total
+      - course_id
+      - course_title
+      - examination_score
+      - examination_total
+      - percentage
+      - quiz_score
+      - quiz_total
+      - total_marks
+      - total_score
+    Review:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student_email:
+          type: string
+          readOnly: true
+        course:
+          type: integer
+        course_title:
+          type: string
+          readOnly: true
+        rating:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        comment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - course
+      - course_title
+      - created_at
+      - id
+      - rating
+      - student_email
+      - updated_at
+    RoleEnum:
+      enum:
+      - STUDENT
+      - INSTRUCTOR
+      - ADMIN
+      type: string
+      description: |-
+        * `STUDENT` - Student
+        * `INSTRUCTOR` - Instructor
+        * `ADMIN` - Admin
+    StudentAnalytics:
+      type: object
+      properties:
+        courses_enrolled:
+          type: integer
+        completed_courses:
+          type: integer
+        lessons_completed:
+          type: integer
+        total_lessons:
+          type: integer
+        learning_progress:
+          type: number
+          format: double
+        course_progress:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentCourseProgress'
+        assignment_scores:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentAssignmentScore'
+        quiz_performance:
+          $ref: '#/components/schemas/StudentQuizPerformance'
+        certificates_earned:
+          type: integer
+      required:
+      - assignment_scores
+      - certificates_earned
+      - completed_courses
+      - course_progress
+      - courses_enrolled
+      - learning_progress
+      - lessons_completed
+      - quiz_performance
+      - total_lessons
+    StudentAssignmentScore:
+      type: object
+      properties:
+        assignment_id:
+          type: integer
+        assignment_title:
+          type: string
+        score:
+          type: integer
+        total_marks:
+          type: integer
+        percentage:
+          type: number
+          format: double
+      required:
+      - assignment_id
+      - assignment_title
+      - percentage
+      - score
+      - total_marks
+    StudentCourseProgress:
+      type: object
+      properties:
+        course_id:
+          type: integer
+        course_title:
+          type: string
+        lessons_completed:
+          type: integer
+        total_lessons:
+          type: integer
+        progress_percentage:
+          type: number
+          format: double
+        completed:
+          type: boolean
+      required:
+      - completed
+      - course_id
+      - course_title
+      - lessons_completed
+      - progress_percentage
+      - total_lessons
+    StudentQuizAttempt:
+      type: object
+      properties:
+        quiz_id:
+          type: integer
+        quiz_title:
+          type: string
+        score:
+          type: integer
+        total_marks:
+          type: integer
+        percentage:
+          type: number
+          format: double
+        submitted_at:
+          type: string
+          format: date-time
+      required:
+      - percentage
+      - quiz_id
+      - quiz_title
+      - score
+      - submitted_at
+      - total_marks
+    StudentQuizPerformance:
+      type: object
+      properties:
+        total_attempts:
+          type: integer
+        average_percentage:
+          type: number
+          format: double
+        attempts:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentQuizAttempt'
+      required:
+      - attempts
+      - average_percentage
+      - total_attempts
+    TokenObtainPair:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - email
+      - password
+      - refresh
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    VerifyEmail:
+      type: object
+      properties:
+        token:
+          type: string
+          format: uuid
+      required:
+      - token
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

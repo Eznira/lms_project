@@ -24,6 +24,7 @@ from .permissions import IsAdmin
 from .serializers import (
     InstructorCreateSerializer,
     InstructorSetPasswordSerializer,
+    LogoutResponseSerializer,
     PasswordResetConfirmSerializer,
     PasswordResetRequestSerializer,
     ProfileSerializer,
@@ -215,7 +216,7 @@ class LoginView(TokenObtainPairView):
 class LogoutView(APIView):
     @extend_schema(
         request=None,
-        responses={200: ...},
+        responses=LogoutResponseSerializer,
     )
     def post(self, request):
         refresh_token = request.data.get("refresh")

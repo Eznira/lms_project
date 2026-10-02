@@ -1,4 +1,5 @@
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from .models import (
@@ -270,6 +271,7 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
             "time_limit_minutes",
         ]
 
+    @extend_schema_field(serializers.FloatField())
     def get_percentage(self, obj):
         if obj.total_marks == 0:
             return 0
@@ -279,6 +281,7 @@ class QuizAttemptSerializer(serializers.ModelSerializer):
             2,
         )
 
+    @extend_schema_field(serializers.CharField())
     def get_status(self, obj):
         if obj.submitted_at:
             return "SUBMITTED"
@@ -333,6 +336,7 @@ class ExaminationSerializer(serializers.ModelSerializer):
             "total_marks",
         ]
 
+    @extend_schema_field(serializers.IntegerField())
     def get_total_marks(self, obj):
         return sum(question.marks for question in obj.questions.all())
 
@@ -480,6 +484,7 @@ class ExamAttemptSerializer(serializers.ModelSerializer):
             "time_limit_minutes",
         ]
 
+    @extend_schema_field(serializers.FloatField())
     def get_percentage(self, obj):
         if obj.total_marks == 0:
             return 0
@@ -489,6 +494,7 @@ class ExamAttemptSerializer(serializers.ModelSerializer):
             2,
         )
 
+    @extend_schema_field(serializers.CharField())
     def get_status(self, obj):
         if obj.submitted_at:
             return "SUBMITTED"

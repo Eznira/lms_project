@@ -89,6 +89,8 @@ class AssignmentViewSet(viewsets.ModelViewSet):
     ordering = ["-created_at"]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return Assignment.objects.none()
         user = self.request.user
 
         if user.role == user.Role.STUDENT:
@@ -164,6 +166,9 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return AssignmentSubmission.objects.none()
+        
         user = self.request.user
 
         if user.role == user.Role.ADMIN:
@@ -336,6 +341,10 @@ class QuizViewSet(viewsets.ModelViewSet):
     ordering = ["-created_at"]
 
     def get_queryset(self):
+
+        if getattr(self, "swagger_fake_view", False):
+            return Quiz.objects.none()
+        
         user = self.request.user
 
         if user.role == user.Role.ADMIN:
@@ -412,6 +421,8 @@ class QuizQuestionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return QuizQuestion.objects.none()
         user = self.request.user
 
         if user.role == user.Role.ADMIN:
@@ -496,6 +507,9 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "head", "options"]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return QuizAttempt.objects.none()
+        
         user = self.request.user
 
         if user.role == user.Role.ADMIN:
@@ -674,6 +688,10 @@ class ExaminationViewSet(viewsets.ModelViewSet):
     ordering = ["-created_at"]
 
     def get_queryset(self):
+
+        if getattr(self, "swagger_fake_view", False):
+            return Examination.objects.none()   
+        
         user = self.request.user
 
         if user.role == user.Role.ADMIN:
@@ -755,6 +773,9 @@ class ExamQuestionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return ExamQuestion.objects.none()
+
         user = self.request.user
 
         if user.role == user.Role.ADMIN:
@@ -823,6 +844,9 @@ class ExamAttemptViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+                    return ExamAttempt.objects.none()
+
         user = self.request.user
 
         if user.role == user.Role.ADMIN:
@@ -1568,6 +1592,10 @@ class CertificateViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+
+        if getattr(self, "swagger_fake_view", False):
+                    return Certificate.objects.none()
+
         user = self.request.user
 
         if user.role == user.Role.STUDENT:
