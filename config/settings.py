@@ -180,9 +180,108 @@ SIMPLE_JWT = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Education LMS API",
-    "DESCRIPTION": ("REST API for an Education Learning Management System."),
+    "DESCRIPTION": """
+REST API for an Education Learning Management System.
+
+The API provides functionality for:
+
+- User authentication and authorization
+- Course management
+- Lessons and lesson completion
+- Student enrollments
+- Assignments and grading
+- Quizzes and examinations
+- Certificates
+- Reviews and ratings
+- Notifications
+- Learning analytics
+
+Authentication is handled using JWT bearer tokens.
+""",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "TAGS": [
+        {
+            "name": "auth",
+            "description": "Registration, authentication, verification, password reset, and instructor onboarding.",
+        },
+        {
+            "name": "profile",
+            "description": "Authenticated user profile operations.",
+        },
+        {
+            "name": "courses",
+            "description": "Course discovery and course management.",
+        },
+        {
+            "name": "categories",
+            "description": "Course category management.",
+        },
+        {
+            "name": "lessons",
+            "description": "Lesson management and completion tracking.",
+        },
+        {
+            "name": "enrollments",
+            "description": "Student course enrollment operations.",
+        },
+        {
+            "name": "assignments",
+            "description": "Assignment creation and management.",
+        },
+        {
+            "name": "submissions",
+            "description": "Assignment submission and grading operations.",
+        },
+        {
+            "name": "quizzes",
+            "description": "Quiz management and question access.",
+        },
+        {
+            "name": "quiz-questions",
+            "description": "Quiz question management.",
+        },
+        {
+            "name": "quiz-attempts",
+            "description": "Quiz attempt lifecycle and submission.",
+        },
+        {
+            "name": "examinations",
+            "description": "Scheduled examination management and question access.",
+        },
+        {
+            "name": "exam-questions",
+            "description": "Examination question management.",
+        },
+        {
+            "name": "exam-attempts",
+            "description": "Examination attempt lifecycle and manual grading.",
+        },
+        {
+            "name": "grades",
+            "description": "Aggregated assignment, quiz, and examination grades.",
+        },
+        {
+            "name": "results",
+            "description": "Calculated course-level results.",
+        },
+        {
+            "name": "certificates",
+            "description": "Course certificate issuance and management.",
+        },
+        {
+            "name": "notifications",
+            "description": "Authenticated notification inbox and read-state management.",
+        },
+        {
+            "name": "reviews",
+            "description": "Course reviews and rating summaries.",
+        },
+        {
+            "name": "analytics",
+            "description": "Role-specific learning and platform analytics.",
+        },
+    ],
     # JWT authentication
     "SECURITY": [
         {

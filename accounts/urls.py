@@ -1,13 +1,9 @@
 from django.urls import path
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
-
 from .views import (
     InstructorCreateView,
     InstructorSetPasswordView,
     LoginView,
+    RefreshTokenView,
     LogoutView,
     PasswordResetConfirmView,
     PasswordResetRequestView,
@@ -22,7 +18,7 @@ urlpatterns = [
     # Login
     path("login/", LoginView.as_view(), name="login"),
     # Refresh JWT
-    path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("refresh/", RefreshTokenView.as_view(), name="token_refresh"),
     # Logout
     path("logout/", LogoutView.as_view(), name="logout"),
     # Email verification

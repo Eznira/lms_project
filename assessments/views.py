@@ -5,7 +5,7 @@ from django.db import IntegrityError
 from django.db.models import Q
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -59,6 +59,18 @@ from .serializers import (
 )
 
 
+@extend_schema_view(
+    list=extend_schema(summary="List assignments", description="Retrieve assignments visible to the authenticated user. Results can be filtered by course and searched or ordered using the configured query parameters."),
+    create=extend_schema(
+        summary="Create assignment",
+        description="Create an assignment for a course. Instructors and administrators can create assignments.",
+        examples=[OpenApiExample("Create assignment", value={"course":1,"title":"Python Variables Assignment","description":"Write a Python script demonstrating variable usage.","due_date":"2027-01-01T23:59:00Z","total_marks":100}, request_only=True)],
+    ),
+    retrieve=extend_schema(summary="Get assignment", description="Retrieve an assignment by ID."),
+    update=extend_schema(summary="Replace assignment", description="Replace an assignment. Only the course owner or an administrator can update it."),
+    partial_update=extend_schema(summary="Update assignment", description="Update selected assignment fields."),
+    destroy=extend_schema(summary="Delete assignment", description="Delete an assignment owned by the instructor or managed by an administrator."),
+)
 class AssignmentViewSet(viewsets.ModelViewSet):
     serializer_class = AssignmentSerializer
     permission_classes = [IsAuthenticated]
@@ -152,6 +164,13 @@ class AssignmentViewSet(viewsets.ModelViewSet):
         serializer.save()
 
 
+@extend_schema_view(
+    list=extend_schema(summary="List submissions", description="List assignment submissions visible to the authenticated user. Students see their submissions; instructors see submissions for their courses; administrators see all submissions."),
+    create=extend_schema(summary="Submit assignment", description="Submit a file for an assignment. Students can submit while the assignment is still open."),
+    retrieve=extend_schema(summary="Get submission", description="Retrieve an assignment submission by ID."),
+    partial_update=extend_schema(summary="Resubmit assignment", description="Replace the submitted file for an assignment submission when resubmission is permitted."),
+    destroy=extend_schema(summary="Delete submission", description="Delete an assignment submission when permitted by the authenticated user's role and ownership."),
+)
 class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
     serializer_class = AssignmentSubmissionSerializer
     permission_classes = [IsAuthenticated]
@@ -168,7 +187,7 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return AssignmentSubmission.objects.none()
-        
+
         user = self.request.user
 
         if user.role == user.Role.ADMIN:
@@ -277,6 +296,12 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
+    @extend_schema(
+        summary="Grade assignment submission",
+        description="Assign a grade and optional feedback to an assignment submission.",
+        request=AssignmentGradeSerializer,
+        responses=AssignmentSubmissionSerializer,
+    )
     @action(
         detail=True,
         methods=["post"],
@@ -311,7 +336,19 @@ class AssignmentSubmissionViewSet(viewsets.ModelViewSet):
             AssignmentSubmissionSerializer(submission).data,
             status=status.HTTP_200_OK,
         )
-    
+
+@extend_schema_view(
+    list=extend_schema(summary="List quizzes", description="Retrieve quizzes visible to the authenticated user. Instructors can filter quizzes by course; students see quizzes for accessible courses."),
+    create=extend_schema(
+        summary="Create quiz",
+        description="Create a quiz for a course. Instructors and administrators can create quizzes.",
+        examples=[OpenApiExample("Create quiz", value={"course":1,"title":"Python Basics Quiz","description":"Quiz covering Python fundamentals.","duration":30}, request_only=True)],
+    ),
+    retrieve=extend_schema(summary="Get quiz", description="Retrieve a quiz by ID."),
+    update=extend_schema(summary="Replace quiz", description="Replace a quiz's writable fields."),
+    partial_update=extend_schema(summary="Update quiz", description="Update selected quiz fields."),
+    destroy=extend_schema(summary="Delete quiz", description="Delete a quiz managed by the course instructor or an administrator."),
+)
 class QuizViewSet(viewsets.ModelViewSet):
     serializer_class = QuizSerializer
     permission_classes = [IsAuthenticated]
@@ -344,7 +381,7 @@ class QuizViewSet(viewsets.ModelViewSet):
 
         if getattr(self, "swagger_fake_view", False):
             return Quiz.objects.none()
-        
+
         user = self.request.user
 
         if user.role == user.Role.ADMIN:
@@ -398,6 +435,11 @@ class QuizViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
+    @extend_schema(
+        summary="List quiz questions",
+        description="Return all questions belonging to a quiz in their configured order.",
+        responses=QuizQuestionSerializer(many=True),
+    )
     @action(
         detail=True,
         methods=["get"],
@@ -416,6 +458,18 @@ class QuizViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+@extend_schema_view(
+    list=extend_schema(summary="List quiz questions", description="Retrieve quiz questions visible to the authenticated user."),
+    create=extend_schema(
+        summary="Create quiz question",
+        description="Create a multiple-choice or true/false question for a quiz.",
+        examples=[OpenApiExample("Create MCQ", value={"quiz":1,"question_text":"What is the correct way to declare a variable in Python?","question_type":"MCQ","option_a":"var x = 5","option_b":"x = 5","option_c":"int x = 5","option_d":"declare x = 5","correct_answer":"B","marks":1,"order":1}, request_only=True)],
+    ),
+    retrieve=extend_schema(summary="Get quiz question", description="Retrieve a quiz question by ID. Correct answers are hidden from students."),
+    update=extend_schema(summary="Replace quiz question", description="Replace a quiz question."),
+    partial_update=extend_schema(summary="Update quiz question", description="Update selected quiz-question fields."),
+    destroy=extend_schema(summary="Delete quiz question", description="Delete a quiz question."),
+)
 class QuizQuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuizQuestionSerializer
     permission_classes = [IsAuthenticated]
@@ -500,6 +554,15 @@ class QuizQuestionViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
+@extend_schema_view(
+    list=extend_schema(summary="List quiz attempts", description="List quiz attempts visible to the authenticated user."),
+    create=extend_schema(
+        summary="Start quiz",
+        description="Start a new attempt for a quiz. The authenticated student becomes the owner of the attempt.",
+        examples=[OpenApiExample("Start quiz", value={"quiz":1}, request_only=True)],
+    ),
+    retrieve=extend_schema(summary="Get quiz attempt", description="Retrieve a quiz attempt and its current grading status."),
+)
 class QuizAttemptViewSet(viewsets.ModelViewSet):
     serializer_class = QuizAttemptSerializer
     permission_classes = [IsAuthenticated]
@@ -509,7 +572,7 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return QuizAttempt.objects.none()
-        
+
         user = self.request.user
 
         if user.role == user.Role.ADMIN:
@@ -582,8 +645,11 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
         )
 
     @extend_schema(
+        summary="Submit quiz attempt",
+        description="Submit answers for a quiz attempt and calculate the objective score.",
         request=QuizSubmitSerializer,
         responses=QuizAttemptSerializer,
+        examples=[OpenApiExample("Submit quiz", value={"answers":{"1":"B","2":"A"}}, request_only=True)],
     )
     @action(
         detail=True,
@@ -655,6 +721,18 @@ class QuizAttemptViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK,
         )
 
+@extend_schema_view(
+    list=extend_schema(summary="List examinations", description="Retrieve examinations visible to the authenticated user. Instructors can filter examinations by course."),
+    create=extend_schema(
+        summary="Create examination",
+        description="Create a scheduled examination for a course.",
+        examples=[OpenApiExample("Create examination", value={"course":1,"title":"Python Final Exam","description":"Comprehensive exam covering all Python topics.","duration":120,"start_time":"2027-01-15T09:00:00Z","end_time":"2027-01-15T11:00:00Z"}, request_only=True)],
+    ),
+    retrieve=extend_schema(summary="Get examination", description="Retrieve an examination by ID."),
+    update=extend_schema(summary="Replace examination", description="Replace an examination's writable fields."),
+    partial_update=extend_schema(summary="Update examination", description="Update selected examination fields."),
+    destroy=extend_schema(summary="Delete examination", description="Delete an examination managed by the course instructor or an administrator."),
+)
 class ExaminationViewSet(viewsets.ModelViewSet):
     serializer_class = ExaminationSerializer
     permission_classes = [IsAuthenticated]
@@ -690,8 +768,8 @@ class ExaminationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
 
         if getattr(self, "swagger_fake_view", False):
-            return Examination.objects.none()   
-        
+            return Examination.objects.none()
+
         user = self.request.user
 
         if user.role == user.Role.ADMIN:
@@ -748,6 +826,11 @@ class ExaminationViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
+    @extend_schema(
+        summary="List examination questions",
+        description="Return all questions belonging to an examination in their configured order.",
+        responses=ExamQuestionSerializer(many=True),
+    )
     @action(
         detail=True,
         methods=["get"],
@@ -768,6 +851,18 @@ class ExaminationViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+@extend_schema_view(
+    list=extend_schema(summary="List examination questions", description="Retrieve examination questions visible to the authenticated user. Correct answers are hidden from students."),
+    create=extend_schema(
+        summary="Create examination question",
+        description="Create a multiple-choice, true/false, or essay question for an examination.",
+        examples=[OpenApiExample("Create essay question", value={"examination":1,"question_text":"Explain the concept of object-oriented programming in Python.","question_type":"ESSAY","marks":20,"order":1}, request_only=True)],
+    ),
+    retrieve=extend_schema(summary="Get examination question", description="Retrieve an examination question by ID."),
+    update=extend_schema(summary="Replace examination question", description="Replace an examination question."),
+    partial_update=extend_schema(summary="Update examination question", description="Update selected examination-question fields."),
+    destroy=extend_schema(summary="Delete examination question", description="Delete an examination question."),
+)
 class ExamQuestionViewSet(viewsets.ModelViewSet):
     serializer_class = ExamQuestionSerializer
     permission_classes = [IsAuthenticated]
@@ -830,6 +925,16 @@ class ExamQuestionViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
+@extend_schema_view(
+    list=extend_schema(summary="List examination attempts", description="List examination attempts visible to the authenticated user."),
+    create=extend_schema(
+        summary="Start examination",
+        description="Start a new examination attempt for the authenticated student.",
+        examples=[OpenApiExample("Start examination", value={"examination":1}, request_only=True)],
+    ),
+    retrieve=extend_schema(summary="Get examination attempt", description="Retrieve an examination attempt and its current result."),
+    partial_update=extend_schema(summary="Update examination attempt", description="Update an examination attempt where the endpoint permits partial updates."),
+)
 class ExamAttemptViewSet(viewsets.ModelViewSet):
     serializer_class = ExamAttemptSerializer
 
@@ -947,8 +1052,11 @@ class ExamAttemptViewSet(viewsets.ModelViewSet):
         )
 
     @extend_schema(
+        summary="Submit examination attempt",
+        description="Submit answers for an examination attempt. Objective questions are graded automatically; essay questions can be graded separately.",
         request=ExamSubmitSerializer,
         responses=ExamAttemptSerializer,
+        examples=[OpenApiExample("Submit examination", value={"answers":{"1":"This is my essay answer about OOP in Python.","2":"B"}}, request_only=True)],
     )
     @action(
         detail=True,
@@ -1016,7 +1124,7 @@ class ExamAttemptViewSet(viewsets.ModelViewSet):
             ]
         )
 
-        NotificationService.exam_submission_notification_student(attempt.student, attempt.examination)  
+        NotificationService.exam_submission_notification_student(attempt.student, attempt.examination)
         NotificationService.exam_submission_notification_instructor(attempt.examination.course.instructor, attempt.student, attempt.examination)
 
         serializer = self.get_serializer(attempt)
@@ -1027,8 +1135,11 @@ class ExamAttemptViewSet(viewsets.ModelViewSet):
         )
 
     @extend_schema(
+        summary="Grade examination essay",
+        description="Award marks for an essay question in a submitted examination attempt.",
         request=ExamGradeSerializer,
         responses=ExamAttemptSerializer,
+        examples=[OpenApiExample("Grade essay", value={"question_id":1,"marks":18}, request_only=True)],
     )
     @action(
         detail=True,
@@ -1587,6 +1698,14 @@ class ResultViewSet(viewsets.ViewSet):
             "percentage": percentage,
         }
 
+@extend_schema_view(
+    list=extend_schema(summary="List certificates", description="Retrieve certificates visible to the authenticated user. Students see their certificates; instructors and administrators have broader access based on ownership and role."),
+    create=extend_schema(summary="Issue certificate", description="Issue a certificate for a student who has graded work for the course. Students cannot issue certificates; instructors may issue certificates for their own courses and administrators may issue certificates globally."),
+    retrieve=extend_schema(summary="Get certificate", description="Retrieve a certificate by ID."),
+    update=extend_schema(summary="Replace certificate", description="Replace writable certificate fields when permitted."),
+    partial_update=extend_schema(summary="Update certificate", description="Update selected writable certificate fields when permitted."),
+    destroy=extend_schema(summary="Delete certificate", description="Delete a certificate when permitted by the authenticated user's role and ownership."),
+)
 class CertificateViewSet(viewsets.ModelViewSet):
     serializer_class = CertificateSerializer
     permission_classes = [IsAuthenticated]

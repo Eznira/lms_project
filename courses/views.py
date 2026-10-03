@@ -1,6 +1,7 @@
 from django.db.migrations import serializer
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
@@ -22,6 +23,26 @@ from .permissions import (
 from .serializers import CategorySerializer, CourseSerializer, LessonSerializer
 
 
+@extend_schema_view(
+    list=extend_schema(summary="List courses", description="Retrieve courses available to the authenticated user. Students see published courses; instructors see their own courses plus published courses; administrators can view all courses."),
+    create=extend_schema(
+        summary="Create course",
+        description="Create a course and automatically assign it to the authenticated instructor. Administrators can also create courses.",
+        examples=[OpenApiExample("Create course", value={"title":"Python Basics","description":"Introduction to Python programming","category":1,"duration":30,"price":"49.99","level":"BEGINNER","status":"DRAFT"}, request_only=True)],
+    ),
+    retrieve=extend_schema(summary="Get course", description="Retrieve detailed information about a course by ID."),
+    update=extend_schema(
+        summary="Replace course",
+        description="Replace all writable fields of a course. Instructors may update only courses they own; administrators can update any course.",
+        examples=[OpenApiExample("Update course", value={"title":"Python Basics Updated","description":"Updated introduction to Python programming","category":1,"duration":40,"price":"59.99","level":"BEGINNER","status":"PUBLISHED"}, request_only=True)],
+    ),
+    partial_update=extend_schema(
+        summary="Update course",
+        description="Update selected fields of a course. Instructors may update only courses they own; administrators can update any course.",
+        examples=[OpenApiExample("Publish course", value={"status":"PUBLISHED"}, request_only=True)],
+    ),
+    destroy=extend_schema(summary="Delete course", description="Delete a course. Only the owning instructor or an administrator can perform this operation."),
+)
 class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated]
@@ -95,6 +116,18 @@ class CourseViewSet(viewsets.ModelViewSet):
         serializer.save(instructor=self.request.user)
 
 
+@extend_schema_view(
+    list=extend_schema(summary="List categories", description="Retrieve all course categories."),
+    create=extend_schema(
+        summary="Create category",
+        description="Create a new course category. Administrators only.",
+        examples=[OpenApiExample("Create category", value={"name":"Programming","description":"Courses related to programming and software development"}, request_only=True)],
+    ),
+    retrieve=extend_schema(summary="Get category", description="Retrieve a category by ID."),
+    update=extend_schema(summary="Replace category", description="Replace a category. Administrators only."),
+    partial_update=extend_schema(summary="Update category", description="Update selected category fields. Administrators only."),
+    destroy=extend_schema(summary="Delete category", description="Delete a category. Administrators only."),
+)
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -107,6 +140,22 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return [IsAuthenticated()]
 
 
+@extend_schema_view(
+    list=extend_schema(summary="List lessons", description="Retrieve lessons visible to the authenticated user. Students see lessons from published courses they are enrolled in; instructors see lessons for their courses and published courses."),
+    create=extend_schema(
+        summary="Create lesson",
+        description="Create a lesson for a course. Instructors and administrators can create lessons; instructors can assign lessons only to their own courses.",
+        examples=[OpenApiExample("Create lesson", value={"course":1,"title":"Introduction to Variables","content":"In this lesson, we cover Python variables and data types.","order":1}, request_only=True)],
+    ),
+    retrieve=extend_schema(summary="Get lesson", description="Retrieve a lesson by ID."),
+    update=extend_schema(summary="Replace lesson", description="Replace all writable fields of a lesson. Only the course owner or an administrator can update it."),
+    partial_update=extend_schema(
+        summary="Update lesson",
+        description="Update selected lesson fields. Only the course owner or an administrator can update it.",
+        examples=[OpenApiExample("Update lesson", value={"content":"Partially updated lesson content."}, request_only=True)],
+    ),
+    destroy=extend_schema(summary="Delete lesson", description="Delete a lesson. Only the course owner or an administrator can delete it."),
+)
 class LessonViewSet(viewsets.ModelViewSet):
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated]
@@ -184,6 +233,12 @@ class LessonViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
+    @extend_schema(
+        summary="Complete lesson",
+        description="Mark a lesson as completed for the authenticated student. The student must be enrolled in the lesson's course. Repeating the request returns the existing completion record.",
+        request=None,
+        responses=LessonCompletionSerializer,
+    )
     @action(
         detail=True,
         methods=["post"],

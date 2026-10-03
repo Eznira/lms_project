@@ -2,7 +2,6 @@ from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
@@ -10,20 +9,32 @@ from django.utils.http import (
     urlsafe_base64_decode,
     urlsafe_base64_encode,
 )
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView, settings
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.serializers import (
+    TokenObtainPairSerializer,
+    TokenRefreshSerializer,
+)
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 from .models import EmailVerificationToken
 from .permissions import IsAdmin
 from .serializers import (
     InstructorCreateSerializer,
     InstructorSetPasswordSerializer,
+    LogoutRequestSerializer,
     LogoutResponseSerializer,
     PasswordResetConfirmSerializer,
     PasswordResetRequestSerializer,
@@ -40,8 +51,11 @@ class RegisterView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        summary="Register student",
+        description="Register a new student account. Public registration always creates a STUDENT account and requires email verification before login.",
         request=RegisterSerializer,
-        responses=RegisterSerializer,
+        responses=OpenApiResponse(description="Registration confirmation containing the account email."),
+        examples=[OpenApiExample("Register student", value={"email": "student@example.com", "first_name": "John", "last_name": "Doe", "password": "StrongPassword123!", "password_confirm": "StrongPassword123!"}, request_only=True)],
     )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -79,8 +93,11 @@ class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        summary="Verify email",
+        description="Verify a user's email address using the UUID token delivered by email. A successful verification activates the account.",
         request=VerifyEmailSerializer,
-        responses=VerifyEmailSerializer,
+        responses=OpenApiResponse(description="Email verification confirmation."),
+        examples=[OpenApiExample("Verification token", value={"token": "00000000-0000-0000-0000-000000000000"}, request_only=True)],
     )
     def post(self, request):
         serializer = VerifyEmailSerializer(data=request.data)
@@ -119,8 +136,11 @@ class InstructorCreateView(APIView):
     permission_classes = [IsAdmin]
 
     @extend_schema(
+        summary="Create instructor",
+        description="Create an instructor account. This endpoint is restricted to administrators; the instructor receives a verification/setup token before first login.",
         request=InstructorCreateSerializer,
-        responses=InstructorCreateSerializer,
+        responses=OpenApiResponse(description="Instructor creation confirmation and instructor details."),
+        examples=[OpenApiExample("Create instructor", value={"email": "instructor@example.com", "first_name": "Jane", "last_name": "Smith", "qualification": "B.Sc. Computer Science", "specialization": "Backend Development", "biography": "Backend instructor.", "phone": "+2348000000000"}, request_only=True)],
     )
     def post(self, request):
         serializer = InstructorCreateSerializer(data=request.data)
@@ -160,8 +180,11 @@ class InstructorSetPasswordView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        summary="Set instructor password",
+        description="Complete instructor account setup using the verification token and create the password used for login.",
         request=InstructorSetPasswordSerializer,
-        responses=InstructorSetPasswordSerializer,
+        responses=OpenApiResponse(description="Password setup confirmation."),
+        examples=[OpenApiExample("Set password", value={"token": "00000000-0000-0000-0000-000000000000", "password": "InstructorPass123!", "password_confirm": "InstructorPass123!"}, request_only=True)],
     )
     def post(self, request):
         serializer = InstructorSetPasswordSerializer(data=request.data)
@@ -213,10 +236,25 @@ class InstructorSetPasswordView(APIView):
 )
 class LoginView(TokenObtainPairView):
     pass
+@extend_schema_view(
+    post=extend_schema(
+        summary="Refresh access token",
+        description="Exchange a valid refresh token for a new access token.",
+        request=TokenRefreshSerializer,
+        responses=TokenRefreshSerializer,
+        examples=[OpenApiExample("Refresh token", value={"refresh": "<refresh-token>"}, request_only=True)],
+    )
+)
+class RefreshTokenView(TokenRefreshView):
+    pass
+
 class LogoutView(APIView):
     @extend_schema(
-        request=None,
+        summary="Logout",
+        description="Blacklist the supplied refresh token so it can no longer be used to obtain access tokens.",
+        request=LogoutRequestSerializer,
         responses=LogoutResponseSerializer,
+        examples=[OpenApiExample("Logout", value={"refresh": "<refresh-token>"}, request_only=True)],
     )
     def post(self, request):
         refresh_token = request.data.get("refresh")
@@ -244,8 +282,11 @@ class PasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        summary="Request password reset",
+        description="Request a password-reset email. The response does not reveal whether the supplied email belongs to an account.",
         request=PasswordResetRequestSerializer,
-        responses=PasswordResetRequestSerializer,
+        responses=OpenApiResponse(description="Password reset request confirmation."),
+        examples=[OpenApiExample("Password reset request", value={"email": "student@example.com"}, request_only=True)],
     )
     def post(self, request):
         serializer = PasswordResetRequestSerializer(data=request.data)
@@ -286,8 +327,11 @@ class PasswordResetConfirmView(APIView):
     permission_classes = [AllowAny]
 
     @extend_schema(
+        summary="Confirm password reset",
+        description="Set a new password using the UID and reset token from the password-reset link.",
         request=PasswordResetConfirmSerializer,
-        responses=PasswordResetConfirmSerializer,
+        responses=OpenApiResponse(description="Password reset confirmation."),
+        examples=[OpenApiExample("Confirm reset", value={"uid": "encoded-uid", "token": "reset-token", "new_password": "NewStrongPassword123!", "new_password_confirm": "NewStrongPassword123!"}, request_only=True)],
     )
     def post(self, request):
         serializer = PasswordResetConfirmSerializer(data=request.data)
@@ -332,6 +376,8 @@ class ProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
+        summary="Get user profile",
+        description="Retrieve the authenticated user's account information and role-specific profile fields.",
         request=None,
         responses=ProfileSerializer,
     )
@@ -341,6 +387,8 @@ class ProfileView(APIView):
         return Response(serializer.data)
 
     @extend_schema(
+        summary="Update user profile",
+        description="Update editable account fields and role-specific profile information for the authenticated user.",
         request=ProfileSerializer,
         responses=ProfileSerializer,
     )
