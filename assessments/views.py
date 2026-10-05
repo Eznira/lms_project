@@ -1,5 +1,5 @@
 from datetime import timedelta
-from tkinter import N
+
 
 from django.db import IntegrityError
 from django.db.models import Q
