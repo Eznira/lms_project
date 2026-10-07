@@ -1,0 +1,53 @@
+digraph LMS {
+  graph [rankdir=LR, bgcolor="white", pad="0.3", nodesep="0.45", ranksep="0.8", fontname="Arial"];
+  node [shape=record, style="rounded,filled", fillcolor="#f8fafc", color="#334155", fontname="Arial", fontsize=9, margin="0.08,0.05"];
+  edge [color="#64748b", arrowsize=0.7, fontname="Arial", fontsize=8];
+
+  User [label="{USER|PK id|UK email|role|email_verified}"];
+  StudentProfile [label="{STUDENT_PROFILE|PK id|FK/UK user_id|phone|biography|profile_photo}"];
+  InstructorProfile [label="{INSTRUCTOR_PROFILE|PK id|FK/UK user_id|qualification|specialization|biography|phone|profile_photo}"];
+  EmailToken [label="{EMAIL_VERIFICATION_TOKEN|PK id|FK user_id|UK token|created_at|expires_at}"];
+  Category [label="{CATEGORY|PK id|UK name|UK slug|description|created_at}"];
+  Course [label="{COURSE|PK id|FK category_id|FK instructor_id|title|description|duration|price|level|status}"];
+  Lesson [label="{LESSON|PK id|FK course_id|title|content|order|media fields}"];
+  Enrollment [label="{ENROLLMENT|PK id|FK student_id|FK course_id|enrolled_at}"];
+  Completion [label="{LESSON_COMPLETION|PK id|FK student_id|FK lesson_id|completed_at}"];
+  Assignment [label="{ASSIGNMENT|PK id|FK course_id|title|due_date|total_marks|attachment}"];
+  Submission [label="{ASSIGNMENT_SUBMISSION|PK id|FK assignment_id|FK student_id|submission_file|grade|feedback}"];
+  Quiz [label="{QUIZ|PK id|FK course_id|title|duration}"];
+  QuizQuestion [label="{QUIZ_QUESTION|PK id|FK quiz_id|question_type|correct_answer|marks|order}"];
+  QuizAttempt [label="{QUIZ_ATTEMPT|PK id|FK quiz_id|FK student_id|answers|score|total_marks}"];
+  Exam [label="{EXAMINATION|PK id|FK course_id|title|duration|start_time|end_time|status}"];
+  ExamQuestion [label="{EXAM_QUESTION|PK id|FK examination_id|question_type|correct_answer|marks|order}"];
+  ExamAttempt [label="{EXAM_ATTEMPT|PK id|FK examination_id|FK student_id|answers|manual_grades|score|total_marks}"];
+  Certificate [label="{CERTIFICATE|PK id|FK student_id|FK course_id|UK certificate_number|completion_percentage|issued_at}"];
+  Review [label="{REVIEW|PK id|FK student_id|FK course_id|rating|comment}"];
+  Notification [label="{NOTIFICATION|PK id|FK recipient_id|notification_type|title|message|is_read}"];
+
+  User -> StudentProfile [label="1:0..1"];
+  User -> InstructorProfile [label="1:0..1"];
+  User -> EmailToken [label="1:N"];
+  User -> Course [label="instructs"];
+  Category -> Course [label="contains"];
+  Course -> Lesson [label="contains"];
+  User -> Enrollment [label="student"];
+  Course -> Enrollment [label="course"];
+  User -> Completion [label="student"];
+  Lesson -> Completion [label="lesson"];
+  Course -> Assignment [label="contains"];
+  Assignment -> Submission [label="receives"];
+  User -> Submission [label="student"];
+  Course -> Quiz [label="contains"];
+  Quiz -> QuizQuestion [label="contains"];
+  Quiz -> QuizAttempt [label="has"];
+  User -> QuizAttempt [label="student"];
+  Course -> Exam [label="contains"];
+  Exam -> ExamQuestion [label="contains"];
+  Exam -> ExamAttempt [label="has"];
+  User -> ExamAttempt [label="student"];
+  User -> Certificate [label="student"];
+  Course -> Certificate [label="course"];
+  User -> Review [label="student"];
+  Course -> Review [label="course"];
+  User -> Notification [label="recipient"];
+}

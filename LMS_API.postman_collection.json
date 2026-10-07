@@ -6496,46 +6496,6 @@
       "value": "1"
     },
     {
-      "key": "admin_username",
-      "value": "admin@lms.com"
-    },
-    {
-      "key": "admin_password",
-      "value": "Admin@1234!"
-    },
-    {
-      "key": "instructor_username",
-      "value": "instructor@lms.com"
-    },
-    {
-      "key": "instructor_password",
-      "value": "Instructor@1234!"
-    },
-    {
-      "key": "student1_username",
-      "value": "student1@lms.com"
-    },
-    {
-      "key": "student1_password",
-      "value": "Student1@1234!"
-    },
-    {
-      "key": "student2_username",
-      "value": "student2@lms.com"
-    },
-    {
-      "key": "student2_password",
-      "value": "Student2@1234!"
-    },
-    {
-      "key": "student3_username",
-      "value": "student3@lms.com"
-    },
-    {
-      "key": "student3_password",
-      "value": "Student3@1234!"
-    },
-    {
       "key": "user_id",
       "value": "1"
     },
@@ -6597,6 +6557,30 @@
     },
     {
       "key": "notificatiion_id",
+      "value": ""
+    },
+    {
+      "key": "admin_demo",
+      "value": ""
+    },
+    {
+      "key": "instructor1_demo",
+      "value": ""
+    },
+    {
+      "key": "instructor2_demo",
+      "value": ""
+    },
+    {
+      "key": "student1_demo",
+      "value": ""
+    },
+    {
+      "key": "student2_demo",
+      "value": ""
+    },
+    {
+      "key": "password_demo",
       "value": ""
     }
   ]
