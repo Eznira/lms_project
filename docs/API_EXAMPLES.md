@@ -1,397 +1,207 @@
-# API Request Examples
+# API Examples & Demo Workflow
 
-These examples are synchronized from `LMS_API.postman_collection.json`. Replace collection variables with values from your local run where necessary.
+These examples are written for the deployed LMS demo and use the seeded data created by `seed_demo`. IDs are intentionally represented by Postman collection variables because database IDs can differ between environments.
 
-## Auth / Register
+## Demo base URL
 
-`POST {{base_url}}/api/auth/register/`
+```text
+https://lms-project-aj6m.onrender.com
+```
+
+Local development uses:
+
+```text
+http://127.0.0.1:8000
+```
+
+## Demo accounts
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@lmsdemo.com` | `DemoAdmin123!` |
+| Instructor | `john.instructor@lmsdemo.com` | `DemoInstructor123!` |
+| Instructor | `sarah.instructor@lmsdemo.com` | `DemoInstructor123!` |
+| Student | `student1@lmsdemo.com` | `DemoStudent123!` |
+| Student | `student2@lmsdemo.com` | `DemoStudent123!` |
+
+Additional seeded students are `student3@lmsdemo.com`, `student4@lmsdemo.com`, and `student5@lmsdemo.com` with the same demo password.
+
+## Seeded showcase data
+
+The demo database contains:
+
+- **Python Fundamentals** — published, instructor: John Okafor
+- **Django REST API Development** — published, instructor: John Okafor
+- **Flutter Mobile Development** — published, instructor: Sarah Eze
+- **Database Fundamentals** — draft, instructor: Sarah Eze
+- Lessons for each course
+- Student enrollments and mixed lesson progress
+- Assignments, submissions, quizzes, quiz attempts, examinations, and exam attempts
+- A completed Python certificate for `student1`
+- Reviews and notifications
+
+The exact numeric IDs are environment-dependent. Use list requests to populate the corresponding Postman collection variables instead of hard-coding IDs.
+
+---
+
+## 1. Login
+
+`POST /api/auth/login/`
 
 ```json
 {
-  "email": "student@example.com",
-  "first_name": "John",
-  "last_name": "Doe",
-  "password": "StrongPassword123!",
-  "password_confirm": "StrongPassword123!"
+  "email": "admin@lmsdemo.com",
+  "password": "DemoAdmin123!"
 }
 ```
 
-## Auth / Verify Email
-
-`POST {{base_url}}/api/auth/verify-email/`
+A successful response contains:
 
 ```json
 {
-  "token": "your-verification-token-here"
+  "refresh": "<refresh-token>",
+  "access": "<access-token>"
 }
 ```
 
-## Auth / Login
+For protected requests, send:
 
-`POST {{base_url}}/api/auth/login/`
-
-```json
-{
-  "email": "{{student1_email}}",
-  "password": "{{student1_password}}"
-}
+```text
+Authorization: Bearer <access-token>
 ```
 
-## Auth / Refresh Token
+The Postman collection automatically saves both tokens as collection variables.
 
-`POST {{base_url}}/api/auth/refresh/`
+---
 
-```json
-{
-  "refresh": "{{refresh_token}}"
-}
+## 2. List courses
+
+`GET /api/courses/`
+
+The seeded catalog includes published courses visible to students and a draft course visible to instructors/admins according to the role rules.
+
+Useful filters/search examples:
+
+```text
+GET /api/courses/?search=Python
+GET /api/courses/?category={{category_id}}
+GET /api/courses/?level=BEGINNER
 ```
 
-## Auth / Logout
+After the list request, the Postman collection stores the first returned course ID in `{{course_id}}`.
 
-`POST {{base_url}}/api/auth/logout/`
+---
 
-```json
-{
-  "refresh": "{{refresh_token}}"
-}
-```
+## 3. Get a course
 
-## Auth / Password Reset
+`GET /api/courses/{{course_id}}/`
 
-`POST {{base_url}}/api/auth/password-reset/`
+Example response shape:
 
 ```json
 {
-  "email": "student@example.com"
-}
-```
-
-## Auth / Password Reset Confirm
-
-`POST {{base_url}}/api/auth/password-reset-confirm/`
-
-```json
-{
-  "uid": "encoded-uid",
-  "token": "reset-token",
-  "new_password": "NewStrongPassword123!",
-  "new_password_confirm": "NewStrongPassword123!"
-}
-```
-
-## Auth / Create Instructors
-
-`POST {{base_url}}/api/auth/instructors/`
-
-```json
-{
-  "email": "instructor@example.com",
-  "first_name": "Jane",
-  "last_name": "Smith"
-}
-```
-
-## Auth / Set Instructor Password
-
-`POST {{base_url}}/api/auth/instructors/set-password/`
-
-```json
-{
-  "token": "instructor-setup-token",
-  "new_password": "InstructorPass123!",
-  "new_password_confirm": "InstructorPass123!"
-}
-```
-
-## Auth / Login - Admin
-
-`POST {{base_url}}/api/auth/login/`
-
-```json
-{
-  "email": "{{admin_email}}",
-  "password": "{{admin_password}}"
-}
-```
-
-## Auth / Login - Instructor
-
-`POST {{base_url}}/api/auth/login/`
-
-```json
-{
-  "email": "{{instructor_email}}",
-  "password": "{{instructor_password}}"
-}
-```
-
-## Auth / Login - Student
-
-`POST {{base_url}}/api/auth/login/`
-
-```json
-{
-  "email": "{{student1_email}}",
-  "password": "{{student1_password}}"
-}
-```
-
-## Course / Create Course
-
-`POST {{base_url}}/api/courses/`
-
-```json
-{
-  "title": "Python Basics",
-  "description": "Introduction to Python programming",
-  "category": {{category_id}},
-  "duration": 30,
-  "price": "49.99",
-  "level": "BEGINNER",
-  "status": "DRAFT"
-}
-```
-
-## Course / Update Course - Put
-
-`PUT {{base_url}}/api/courses/{{course_id}}/`
-
-```json
-{
-  "title": "Python Basics Updated",
-  "description": "Updated introduction to Python programming",
-  "category": {{category_id}},
-  "duration": 40,
-  "price": "59.99",
+  "id": 1,
+  "title": "Python Fundamentals",
+  "description": "...",
+  "category": 1,
+  "instructor": "john.instructor@lmsdemo.com",
+  "duration": 8,
+  "price": "0.00",
   "level": "BEGINNER",
   "status": "PUBLISHED"
 }
 ```
 
-## Course / Update Course - Patch
+The numeric values above are illustrative; use the IDs returned by the current environment.
 
-`PATCH {{base_url}}/api/courses/{{course_id}}/`
+---
 
-```json
-{
-  "status": "PUBLISHED"
-}
+## 4. List lessons for a course
+
+`GET /api/lessons/?course={{course_id}}`
+
+Students can access lessons for courses in which they are enrolled. Instructors can access lessons according to course ownership/visibility rules.
+
+The collection stores the first lesson ID as `{{lesson_id}}`.
+
+---
+
+## 5. Complete a lesson as a student
+
+`POST /api/lessons/{{lesson_id}}/complete/`
+
+Authenticate as a student first. The student must be enrolled in the lesson's course.
+
+A successful request creates or returns the student's lesson-completion record.
+
+---
+
+## 6. List enrollments
+
+`GET /api/enrollments/`
+
+When authenticated as `student1@lmsdemo.com`, the seeded data includes enrollments in:
+
+- Python Fundamentals
+- Django REST API Development
+
+The first returned enrollment ID is stored as `{{enrollment_id}}` by the Postman collection.
+
+---
+
+## 7. Assignments and submissions
+
+### List assignments
+
+`GET /api/assignments/?course={{course_id}}`
+
+Seeded assignment examples include:
+
+- **Build a Calculator** — Python Fundamentals
+- **Build a REST API** — Django REST API Development
+- **Build a Course List App** — Flutter Mobile Development
+
+### Submit an assignment
+
+`POST /api/submissions/`
+
+This endpoint accepts the assignment ID and a submission file.
+
+```text
+assignment = {{assignment_id}}
+submission_file = <file>
 ```
 
-## Category / Create Category
+### Grade a submission
 
-`POST {{base_url}}/api/categories/`
-
-```json
-{
-  "name": "Programming",
-  "description": "Courses related to programming and software development"
-}
-```
-
-## Category / Update Category - Put
-
-`PUT {{base_url}}/api/categories/{{category_id}}/`
+`POST /api/submissions/{{submission_id}}/grade/`
 
 ```json
 {
-  "name": "Programming Updated",
-  "description": "Updated description for programming courses"
-}
-```
-
-## Category / Update Category - Patch
-
-`PATCH {{base_url}}/api/categories/{{category_id}}/`
-
-```json
-{
-  "description": "Partially updated description"
-}
-```
-
-## Profile / Update User Profile
-
-`PATCH {{base_url}}/api/profile/`
-
-```json
-{
-  "first_name": "John",
-  "last_name": "Doe",
-  "profile": {
-    "phone": "+1234567890",
-    "biography": "A passionate learner."
-  }
-}
-```
-
-## Lesson / Create Lesson
-
-`POST {{base_url}}/api/lessons/`
-
-```json
-{
-  "course": {{course_id}},
-  "title": "Introduction to Variables",
-  "content": "In this lesson, we cover Python variables and data types.",
-  "order": 1
-}
-```
-
-## Lesson / Update Lesson - Put
-
-`PUT {{base_url}}/api/lessons/{{lesson_id}}/`
-
-```json
-{
-  "course": {{course_id}},
-  "title": "Introduction to Variables - Updated",
-  "content": "Updated content for Python variables and data types.",
-  "order": 1
-}
-```
-
-## Lesson / Update Lesson - Patch
-
-`PATCH {{base_url}}/api/lessons/{{lesson_id}}/`
-
-```json
-{
-  "content": "Partially updated lesson content."
-}
-```
-
-## Enrollment / Enroll in Course
-
-`POST {{base_url}}/api/enrollments/`
-
-```json
-{
-  "course": {{course_id}}
-}
-```
-
-## Assignment / Create Assignment
-
-`POST {{base_url}}/api/assignments/`
-
-```json
-{
-  "course": {{course_id}},
-  "title": "Python Variables Assignment",
-  "description": "Write a Python script demonstrating variable usage.",
-  "due_date": "2027-01-01T23:59:00Z",
-  "total_marks": 100
-}
-```
-
-## Assignment / Create Assignment With Attachment
-
-`POST {{base_url}}/api/assignments/`
-
-| Field | Type | Example |
-|---|---|---|
-| `course` | `text` | `{{course_id}}` |
-| `title` | `text` | `Assignment With File` |
-| `description` | `text` | `Assignment that includes an attachment file.` |
-| `due_date` | `text` | `2027-01-01T23:59:00Z` |
-| `total_marks` | `text` | `100` |
-| `attachment` | `file` | `{{attachment_file_path}}` |
-
-## Assignment / Update Assignment - Put
-
-`PUT {{base_url}}/api/assignments/{{assignment_id}}/`
-
-```json
-{
-  "course": {{course_id}},
-  "title": "Python Variables Assignment Updated",
-  "description": "Updated assignment description.",
-  "due_date": "2027-02-01T23:59:00Z",
-  "total_marks": 100
-}
-```
-
-## Assignment / Update Assignment - Patch
-
-`PATCH {{base_url}}/api/assignments/{{assignment_id}}/`
-
-```json
-{
-  "description": "Partially updated assignment description."
-}
-```
-
-## Submission / Submit Assignment
-
-`POST {{base_url}}/api/submissions/`
-
-| Field | Type | Example |
-|---|---|---|
-| `assignment` | `text` | `{{assignment_id}}` |
-| `submission_file` | `file` | `{{submission_file_path}}` |
-
-## Submission / Resubmit Assignment
-
-`PATCH {{base_url}}/api/submissions/{{submission_id}}/`
-
-```json
-{
-  "submission_file": "{{submission_file_path}}"
-}
-```
-
-## Submission / Grade Assignment
-
-`POST {{base_url}}/api/submissions/{{submission_id}}/grade/`
-
-```json
-{
-  "grade": 85,
+  "grade": 18,
   "feedback": "Good work! Well structured solution."
 }
 ```
 
-## Quiz / Create Quiz
+---
 
-`POST {{base_url}}/api/quizzes/`
+## 8. Quizzes
 
-```json
-{
-  "course": {{course_id}},
-  "title": "Python Basics Quiz",
-  "description": "Test your knowledge of Python basics.",
-  "duration": 30
-}
-```
+### List quizzes
 
-## Quiz / Update Quiz
+`GET /api/quizzes/?course={{course_id}}`
 
-`PUT {{base_url}}/api/quizzes/{{quiz_id}}/`
+Seeded quizzes include Python Fundamentals Quiz, Django REST API Quiz, and Flutter Fundamentals Quiz.
 
-```json
-{
-  "course": {{course_id}},
-  "title": "Python Basics Quiz Updated",
-  "description": "Updated quiz description.",
-  "duration": 45
-}
-```
+### Get quiz questions
 
-## Quiz / Partial Update Quiz
+`GET /api/quiz-questions/by-quiz/?quiz={{quiz_id}}`
 
-`PATCH {{base_url}}/api/quizzes/{{quiz_id}}/`
+The collection also provides the general quiz-question list endpoint.
 
-```json
-{
-  "duration": 60
-}
-```
+### Start a quiz attempt
 
-## Quiz-attempt / Start Quiz
-
-`POST {{base_url}}/api/quiz-attempts/`
+`POST /api/quiz-attempts/`
 
 ```json
 {
@@ -399,148 +209,38 @@ These examples are synchronized from `LMS_API.postman_collection.json`. Replace 
 }
 ```
 
-## Quiz-attempt / Submit Quiz
+### Submit a quiz attempt
 
-`POST {{base_url}}/api/quiz-attempts/{{quiz_attempt_id}}/submit/`
+`POST /api/quiz-attempts/{{quiz_attempt_id}}/submit/`
 
 ```json
 {
   "answers": {
-    "1": "b",
-    "2": "a"
+    "1": "B",
+    "2": "A",
+    "3": "C"
   }
 }
 ```
 
-## Quiz-questions / Create Quiz Questions
+Objective questions are automatically scored when the attempt is submitted.
 
-`POST {{base_url}}/api/quiz-questions/`
+---
 
-```json
-{
-  "quiz": {{quiz_id}},
-  "question_text": "What is the correct way to declare a variable in Python?",
-  "question_type": "MCQ",
-  "option_a": "var x = 5",
-  "option_b": "x = 5",
-  "option_c": "int x = 5",
-  "option_d": "declare x = 5",
-  "correct_answer": "B",
-  "marks": 1,
-  "order": 1
-}
-```
+## 9. Examinations
 
-## Quiz-questions / Update Question
+### List examinations
 
-`PUT {{base_url}}/api/quiz-questions/{{quiz_question_id}}/`
+`GET /api/examinations/?course={{course_id}}`
 
-```json
-{
-  "quiz": {{quiz_id}},
-  "question_text": "Updated: What is the correct way to declare a variable in Python?",
-  "question_type": "MCQ",
-  "option_a": "var x = 5",
-  "option_b": "x = 5",
-  "option_c": "int x = 5",
-  "option_d": "declare x = 5",
-  "correct_answer": "B",
-  "marks": 1,
-  "order": 1
-}
-```
+The seeded data includes:
 
-## Quiz-questions / Partial Update Question
+- **Python Final Examination** — completed historical attempt data
+- **Django REST API Final Examination** — active demo examination
 
-`PATCH {{base_url}}/api/quiz-questions/{{quiz_question_id}}/`
+### Start an exam
 
-```json
-{
-  "correct_answer": "B"
-}
-```
-
-## Examination / Create Examination
-
-`POST {{base_url}}/api/examinations/`
-
-```json
-{
-  "course": {{course_id}},
-  "title": "Python Final Exam",
-  "description": "Comprehensive exam covering all Python topics.",
-  "duration": 120,
-  "start_time": "2027-01-15T09:00:00Z",
-  "end_time": "2027-01-15T11:00:00Z"
-}
-```
-
-## Examination / Update Examination
-
-`PUT {{base_url}}/api/examinations/{{examination_id}}/`
-
-```json
-{
-  "course": {{course_id}},
-  "title": "Python Final Exam Updated",
-  "description": "Updated comprehensive exam.",
-  "duration": 150,
-  "start_time": "2027-01-20T09:00:00Z",
-  "end_time": "2027-01-20T11:30:00Z"
-}
-```
-
-## Examination / Partial Update Examination
-
-`PATCH {{base_url}}/api/examinations/{{examination_id}}/`
-
-```json
-{
-  "status": "ONGOING"
-}
-```
-
-## Examination-questions / Create Exam Question
-
-`POST {{base_url}}/api/exam-questions/`
-
-```json
-{
-  "examination": {{examination_id}},
-  "question_text": "Explain the concept of object-oriented programming in Python.",
-  "question_type": "ESSAY",
-  "marks": 20,
-  "order": 1
-}
-```
-
-## Examination-questions / Update Exam Question
-
-`PUT {{base_url}}/api/exam-questions/{{exam_question_id}}/`
-
-```json
-{
-  "examination": {{examination_id}},
-  "question_text": "Updated: Explain OOP in Python with examples.",
-  "question_type": "ESSAY",
-  "marks": 25,
-  "order": 1
-}
-```
-
-## Examination-questions / Partial Update Exam Question
-
-`PATCH {{base_url}}/api/exam-questions/{{exam_question_id}}/`
-
-```json
-{
-  "marks": 30
-}
-```
-
-## Exam-attempt / Start Exam
-
-`POST {{base_url}}/api/exam-attempts/`
+`POST /api/exam-attempts/`
 
 ```json
 {
@@ -548,77 +248,106 @@ These examples are synchronized from `LMS_API.postman_collection.json`. Replace 
 }
 ```
 
-## Exam-attempt / Submit Exam
+### Submit an exam
 
-`POST {{base_url}}/api/exam-attempts/{{exam_attempt_id}}/submit/`
+`POST /api/exam-attempts/{{exam_attempt_id}}/submit/`
 
 ```json
 {
   "answers": {
-    "1": "This is my essay answer about OOP in Python.",
-    "2": "b"
+    "1": "B",
+    "2": "TRUE",
+    "3": "Serializers convert complex data types...",
+    "4": "C"
   }
 }
 ```
 
-## Exam-attempt / Essay Grading
+Objective questions are graded automatically. Essay questions can be graded separately by an instructor/admin.
 
-`PATCH {{base_url}}/api/exam-attempts/{{exam_attempt_id}}/grade/`
+### Grade an essay answer
+
+`PATCH /api/exam-attempts/{{exam_attempt_id}}/grade/`
 
 ```json
 {
   "question_id": {{exam_question_id}},
-  "marks": 18
+  "marks": 8
 }
 ```
 
-## Certificate / Create Certificate
+---
 
-`POST {{base_url}}/api/certificates/`
+## 10. Grades and results
+
+### Student grades
+
+`GET /api/grades/`
+
+Optional course filter:
+
+```text
+GET /api/grades/?course={{course_id}}
+```
+
+### Results
+
+`GET /api/results/`
+
+For instructor/admin course results:
+
+```text
+GET /api/results/?course={{course_id}}
+```
+
+---
+
+## 11. Certificates
+
+`GET /api/certificates/`
+
+`student1@lmsdemo.com` has a seeded certificate for Python Fundamentals.
+
+To issue a certificate as an instructor/admin:
+
+`POST /api/certificates/`
 
 ```json
 {
-  "student": "{{student_id}}",
-  "course": "{{course_id}}"
+  "student": {{student_id}},
+  "course": {{course_id}}
 }
 ```
 
-## Certificate / Update Certificate - Put
+The completion percentage is calculated from the student's available graded learning activity when it is not supplied.
 
-`PUT {{base_url}}/api/certificates/{{certificate_id}}/`
+---
 
-```json
-{
-  "student": "{{student_id}}",
-  "course": "{{course_id}}"
-}
-```
+## 12. Reviews
 
-## Certificate / Update Certificate - Patch
+### List reviews
 
-`PATCH {{base_url}}/api/certificates/{{certificate_id}}/`
+`GET /api/reviews/`
 
-```json
-{
-  "course": "{{course_id}}"
-}
-```
+### Create a review
 
-## Reviews / Create Review
+Authenticate as a student and use a course in which the student is enrolled:
 
-`POST {{base_url}}/api/reviews/`
+`POST /api/reviews/`
 
 ```json
 {
-  "course": "{{course_id}}",
+  "course": {{course_id}},
   "rating": 5,
-  "comment": "Excellent course."
+  "comment": "Excellent course with practical examples."
 }
 ```
 
-## Reviews / Update Review
+The Postman collection stores the first review ID as `{{review_id}}` when reviews are listed.
 
-`PATCH {{base_url}}/api/reviews/{{review_id}}/`
+### Update a review
+
+`PATCH /api/reviews/{{review_id}}/`
 
 ```json
 {
@@ -626,3 +355,60 @@ These examples are synchronized from `LMS_API.postman_collection.json`. Replace 
   "comment": "Updated review."
 }
 ```
+
+---
+
+## 13. Notifications
+
+`GET /api/notifications/`
+
+The seeded demo includes notification records for learning activity such as enrollment and assessment events.
+
+Mark one notification as read:
+
+`POST /api/notifications/{{notification_id}}/mark-read/`
+
+Check unread count:
+
+`GET /api/notifications/unread-count/`
+
+Mark all as read:
+
+`POST /api/notifications/mark-all-read/`
+
+---
+
+## 14. Analytics
+
+Student analytics:
+
+`GET /api/analytics/student/`
+
+Instructor analytics:
+
+`GET /api/analytics/instructor/`
+
+Admin analytics:
+
+`GET /api/analytics/admin/`
+
+Each endpoint enforces the corresponding role.
+
+---
+
+## Recommended demo sequence
+
+For a clean presentation, use this order:
+
+1. Open **Swagger UI** and show the API groups and JWT Authorize button.
+2. Log in as `student1@lmsdemo.com`.
+3. View the student's profile and enrolled courses.
+4. Show Python lesson progress, quiz/exam activity, grades, and certificate.
+5. Log in as `john.instructor@lmsdemo.com`.
+6. Show instructor-owned courses and course-filtered assessments.
+7. Show assignment grading or exam essay grading.
+8. Log in as `admin@lmsdemo.com`.
+9. Show unrestricted course/assessment visibility and admin analytics.
+10. Use the Postman collection for repeatable request execution and automated response checks.
+
+For the full request catalogue, see `LMS_API.postman_collection.json`. For collection-variable setup and execution details, see `docs/POSTMAN_GUIDE.md`.

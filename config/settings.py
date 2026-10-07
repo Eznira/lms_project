@@ -211,9 +211,25 @@ The API provides functionality for:
 - Learning analytics
 
 Authentication is handled using JWT bearer tokens.
+
+The deployed demonstration uses seeded Admin, Instructor, and Student accounts.
+Use the interactive Authorize button with a valid access token to call protected endpoints.
+The Swagger UI keeps authorization state during the current browser session.
+
+The API returns ordinary JSON arrays for list endpoints; pagination is not enabled.
 """,
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SERVERS": [
+        {
+            "url": "https://lms-project-aj6m.onrender.com",
+            "description": "Hosted Render demo",
+        },
+        {
+            "url": "http://127.0.0.1:8000",
+            "description": "Local development server",
+        },
+    ],
     "TAGS": [
         {
             "name": "auth",

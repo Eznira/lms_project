@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "42315ff2-7731-41bc-abec-6e0f577c870a",
     "name": "LMS_API",
-    "description": "## LMS API\n\nThis collection provides a complete set of REST API endpoints for a **Learning Management System (LMS)** backend. It is organized into the following functional modules:\n\n### Authentication & User Management\n\nHandles user registration, email verification, login, token refresh, logout, password reset, and instructor account creation. Bearer token authentication is configured at the collection level using the `{{access_token}}` variable.\n\n### Courses & Categories\n\nSupports full CRUD operations for courses and course categories, enabling instructors and admins to create, update, and manage the course catalog.\n\n### Lessons\n\nCovers creating, retrieving, updating, and deleting lessons within a course, as well as marking lessons as complete for progress tracking.\n\n### Enrollments\n\nAllows students to enroll in courses, view their enrollments, and manage enrollment records.\n\n### Assignments & Submissions\n\nManages assignment creation by instructors, student submissions (including file attachments), resubmissions, and instructor grading.\n\n### Quizzes & Quiz Attempts\n\nSupports quiz creation, question management, and the full quiz attempt lifecycle — starting, submitting, and reviewing attempts.\n\n### Examinations & Exam Attempts\n\nCovers examination scheduling, question management, and the exam attempt flow including essay grading.\n\n### Grades & Results\n\nProvides endpoints for listing grades and viewing student results per course.\n\n### Certificates\n\nHandles certificate issuance, retrieval, update, and deletion for course completions.\n\n### Notifications\n\nEnables listing notifications, marking individual or all notifications as read, and checking unread counts.\n\n### Reviews\n\nSupports creating, reading, updating, and deleting course reviews by students.\n\n### Analytics\n\nExposes analytics endpoints for students, instructors, and admins to track performance and platform usage.\n\n---\n\n**Base URL:** `{{base_url}}` (default: `http://127.0.0.1:8000`)\n\n**Auth:** Bearer token via `{{access_token}}` — obtain a token using the Login request in the Auth folder.",
+    "description": "## LMS API\n\nThis collection provides a complete set of REST API endpoints for a **Learning Management System (LMS)** backend. It is organized into the following functional modules:\n\n### Authentication & User Management\n\nHandles user registration, email verification, login, token refresh, logout, password reset, and instructor account creation. Bearer token authentication is configured at the collection level using the `{{access_token}}` variable.\n\n### Courses & Categories\n\nSupports full CRUD operations for courses and course categories, enabling instructors and admins to create, update, and manage the course catalog.\n\n### Lessons\n\nCovers creating, retrieving, updating, and deleting lessons within a course, as well as marking lessons as complete for progress tracking.\n\n### Enrollments\n\nAllows students to enroll in courses, view their enrollments, and manage enrollment records.\n\n### Assignments & Submissions\n\nManages assignment creation by instructors, student submissions (including file attachments), resubmissions, and instructor grading.\n\n### Quizzes & Quiz Attempts\n\nSupports quiz creation, question management, and the full quiz attempt lifecycle — starting, submitting, and reviewing attempts.\n\n### Examinations & Exam Attempts\n\nCovers examination scheduling, question management, and the exam attempt flow including essay grading.\n\n### Grades & Results\n\nProvides endpoints for listing grades and viewing student results per course.\n\n### Certificates\n\nHandles certificate issuance, retrieval, update, and deletion for course completions.\n\n### Notifications\n\nEnables listing notifications, marking individual or all notifications as read, and checking unread counts.\n\n### Reviews\n\nSupports creating, reading, updating, and deleting course reviews by students.\n\n### Analytics\n\nExposes analytics endpoints for students, instructors, and admins to track performance and platform usage.\n\n---\n\n**Base URL:** `{{base_url}}` (defaults to the deployed Render demo). Change the collection variable when testing locally.\n\n**Auth:** Bearer token via `{{access_token}}` — obtain a token using the Login request in the Auth folder.\n\n**Demo credentials:** `{{admin_demo}}`, `{{instructor1_demo}}`, `{{instructor2_demo}}`, `{{student1_demo}}`, `{{student2_demo}}`. The admin demo password is `{{password_demo}}`; for instructor/student logins, use the same variable after changing its value to `DemoInstructor123!` or `DemoStudent123!` as appropriate.\n\n**Collection variables only:** tokens and resource IDs are stored with `pm.collectionVariables.set(...)`; no Postman environment is required.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "42814936"
   },
@@ -138,14 +138,47 @@
           "response": []
         },
         {
-          "name": "Login",
+          "name": "Login - Admin",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Login successful\", function () {\n    pm.response.to.have.status(200);\n});\n\nconst json = pm.response.json();\nif (json.access) pm.collectionVariables.set(\"access_token\", json.access);\nif (json.refresh) pm.collectionVariables.set(\"refresh_token\", json.refresh);\n\nconst res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"Response contains access token\", () => {\n    pm.expect(json).to.have.property(\"access\");\n    pm.expect(json.access).to.be.a(\"string\").and.not.empty;\n});\n\npm.test(\"Response contains refresh token\", () => {\n    pm.expect(json).to.have.property(\"refresh\");\n    pm.expect(json.refresh).to.be.a(\"string\").and.not.empty;\n});\n\npm.test(\"Access token is a valid JWT (3 parts)\", () => {\n    const parts = json.access.split(\".\");\n    pm.expect(parts).to.have.lengthOf(3);\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});\n\nif (json.access) pm.collectionVariables.set(\"access_token\", json.access);\nif (json.refresh) pm.collectionVariables.set(\"refresh_token\", json.refresh);"
+                  "pm.test(\"Login successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.access) pm.collectionVariables.set(\"access_token\", json.access);",
+                  "if (json.refresh) pm.collectionVariables.set(\"refresh_token\", json.refresh);",
+                  "",
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response contains access token\", () => {",
+                  "    pm.expect(json).to.have.property(\"access\");",
+                  "    pm.expect(json.access).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains refresh token\", () => {",
+                  "    pm.expect(json).to.have.property(\"refresh\");",
+                  "    pm.expect(json.refresh).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Access token is a valid JWT (3 parts)\", () => {",
+                  "    const parts = json.access.split(\".\");",
+                  "    pm.expect(parts).to.have.lengthOf(3);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "if (json.access) pm.collectionVariables.set(\"access_token\", json.access);",
+                  "if (json.refresh) pm.collectionVariables.set(\"refresh_token\", json.refresh);"
                 ]
               }
             }
@@ -160,7 +193,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{admin_username}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+              "raw": "{\n  \"email\": \"{{admin_demo}}\",\n  \"password\": \"{{password_demo}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -179,7 +212,165 @@
                 ""
               ]
             },
-            "description": "Authenticates a user and returns a JWT access and refresh token pair.\n\nUses email and password credentials. The returned `access` token should be stored in `{{access_token}}` and used as a Bearer token for all protected endpoints. The `refresh` token should be stored in `{{refresh_token}}`.\n\n**Method:** POST  \n**Auth:** None required  \n**Body (JSON):**\n- `email` (string, required)\n- `password` (string, required)\n\n**Response:** 200 OK — `{ \"access\": \"...\", \"refresh\": \"...\" }`  \n**Notes:** Access tokens are short-lived. Use the Refresh Token endpoint to obtain a new access token without re-logging in."
+            "description": "Authenticates a user and returns a JWT access and refresh token pair.\n\nUses email and password credentials. The returned `access` token should be stored in `{{access_token}}` and used as a Bearer token for all protected endpoints. The `refresh` token should be stored in `{{refresh_token}}`.\n\n**Method:** POST  \n**Auth:** None required  \n**Body (JSON):**\n- `email` (string, required)\n- `password` (string, required)\n\n**Response:** 200 OK — `{ \"access\": \"...\", \"refresh\": \"...\" }`  \n**Notes:** Access tokens are short-lived. Use the Refresh Token endpoint to obtain a new access token without re-logging in.\n\nDefault demo login uses `{{admin_demo}}`. Running this request stores `access_token` and `refresh_token` as collection variables."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Instructor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.access) pm.collectionVariables.set(\"access_token\", json.access);",
+                  "if (json.refresh) pm.collectionVariables.set(\"refresh_token\", json.refresh);",
+                  "",
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response contains access token\", () => {",
+                  "    pm.expect(json).to.have.property(\"access\");",
+                  "    pm.expect(json.access).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains refresh token\", () => {",
+                  "    pm.expect(json).to.have.property(\"refresh\");",
+                  "    pm.expect(json.refresh).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Access token is a valid JWT (3 parts)\", () => {",
+                  "    const parts = json.access.split(\".\");",
+                  "    pm.expect(parts).to.have.lengthOf(3);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "if (json.access) pm.collectionVariables.set(\"access_token\", json.access);",
+                  "if (json.refresh) pm.collectionVariables.set(\"refresh_token\", json.refresh);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{instructor1_demo}}\",\n  \"password\": \"{{password_demo}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login",
+                ""
+              ]
+            },
+            "description": "Authenticates a user and returns a JWT access and refresh token pair.\n\nUses email and password credentials. The returned `access` token should be stored in `{{access_token}}` and used as a Bearer token for all protected endpoints. The `refresh` token should be stored in `{{refresh_token}}`.\n\n**Method:** POST  \n**Auth:** None required  \n**Body (JSON):**\n- `email` (string, required)\n- `password` (string, required)\n\n**Response:** 200 OK — `{ \"access\": \"...\", \"refresh\": \"...\" }`  \n**Notes:** Access tokens are short-lived. Use the Refresh Token endpoint to obtain a new access token without re-logging in.\n\nThis request uses `{{instructor1_demo}}`. Set `{{password_demo}}` to `DemoInstructor123!` before running it. Running this request stores `access_token` and `refresh_token` as collection variables."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Login successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.access) pm.collectionVariables.set(\"access_token\", json.access);",
+                  "if (json.refresh) pm.collectionVariables.set(\"refresh_token\", json.refresh);",
+                  "",
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response contains access token\", () => {",
+                  "    pm.expect(json).to.have.property(\"access\");",
+                  "    pm.expect(json.access).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains refresh token\", () => {",
+                  "    pm.expect(json).to.have.property(\"refresh\");",
+                  "    pm.expect(json.refresh).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Access token is a valid JWT (3 parts)\", () => {",
+                  "    const parts = json.access.split(\".\");",
+                  "    pm.expect(parts).to.have.lengthOf(3);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "if (json.access) pm.collectionVariables.set(\"access_token\", json.access);",
+                  "if (json.refresh) pm.collectionVariables.set(\"refresh_token\", json.refresh);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{student1_demo}}\",\n  \"password\": \"{{password_demo}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login",
+                ""
+              ]
+            },
+            "description": "Authenticates a user and returns a JWT access and refresh token pair.\n\nUses email and password credentials. The returned `access` token should be stored in `{{access_token}}` and used as a Bearer token for all protected endpoints. The `refresh` token should be stored in `{{refresh_token}}`.\n\n**Method:** POST  \n**Auth:** None required  \n**Body (JSON):**\n- `email` (string, required)\n- `password` (string, required)\n\n**Response:** 200 OK — `{ \"access\": \"...\", \"refresh\": \"...\" }`  \n**Notes:** Access tokens are short-lived. Use the Refresh Token endpoint to obtain a new access token without re-logging in.\n\nThis request uses `{{student1_demo}}`. Set `{{password_demo}}` to `DemoStudent123!` before running it. Running this request stores `access_token` and `refresh_token` as collection variables."
           },
           "response": []
         },
@@ -192,7 +383,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.access) pm.environment.set(\"access_token\", json.access);",
+                  "if (json.access) pm.collectionVariables.set(\"access_token\", json.access);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -587,11 +778,11 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && (j.hasOwnProperty(\"results\") || j.hasOwnProperty(\"count\"))));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
-                  "const courses = Array.isArray(json) ? json : (json.results || []);",
+                  "const courses = json;",
                   "",
                   "pm.test(\"Each course has required fields\", () => {",
                   "    courses.forEach(course => {",
@@ -601,6 +792,7 @@
                   "    });",
                   "});",
                   "",
+                  "if (courses.length && courses[0].id) pm.collectionVariables.set(\"course_id\", courses[0].id);",
                   "pm.test(\"Response time is acceptable\", () => {",
                   "    pm.expect(res.responseTime).to.be.below(3000);",
                   "});"
@@ -632,7 +824,7 @@
                 ""
               ]
             },
-            "description": "Returns a paginated list of courses. Students and unauthenticated users see only published courses. Instructors see their own courses plus all published courses. Admins see all courses regardless of status.\n\nSupports filtering and search via query parameters.\n\n**Method:** GET  \n**Auth:** Optional (unauthenticated users see published courses only)  \n**Query params:**\n- `search` — search by title or description\n- `category` — filter by category ID\n- `level` — filter by level (BEGINNER / INTERMEDIATE / ADVANCED)\n- `status` — filter by status (admin/instructor only)\n\n**Response:** 200 OK — paginated list of courses"
+            "description": "Returns a list of courses. Students and unauthenticated users see only published courses. Instructors see their own courses plus all published courses. Admins see all courses regardless of status.\n\nSupports filtering and search via query parameters.\n\n**Method:** GET  \n**Auth:** Optional (unauthenticated users see published courses only)  \n**Query params:**\n- `search` — search by title or description\n- `category` — filter by category ID\n- `level` — filter by level (BEGINNER / INTERMEDIATE / ADVANCED)\n- `status` — filter by status (admin/instructor only)\n\n**Response:** 200 OK — list of courses"
           },
           "response": []
         },
@@ -645,7 +837,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.id) pm.environment.set(\"course_id\", json.id);",
+                  "if (json.id) pm.collectionVariables.set(\"course_id\", json.id);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -993,11 +1185,11 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
-                  "const categories = Array.isArray(json) ? json : (json.results || []);",
+                  "const categories = json;",
                   "",
                   "pm.test(\"Each category has required fields\", () => {",
                   "    categories.forEach(cat => {",
@@ -1007,6 +1199,7 @@
                   "    });",
                   "});",
                   "",
+                  "if (categories.length && categories[0].id) pm.collectionVariables.set(\"category_id\", categories[0].id);",
                   "pm.test(\"Response time is acceptable\", () => {",
                   "    pm.expect(res.responseTime).to.be.below(3000);",
                   "});"
@@ -1051,7 +1244,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.id) pm.environment.set(\"category_id\", json.id);",
+                  "if (json.id) pm.collectionVariables.set(\"category_id\", json.id);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -1407,6 +1600,7 @@
                   "    pm.expect([\"STUDENT\", \"INSTRUCTOR\", \"ADMIN\"]).to.include(json.role.toUpperCase());",
                   "});",
                   "",
+                  "if (json.id && String(json.role).toUpperCase() === \"STUDENT\") pm.collectionVariables.set(\"student_id\", json.id);",
                   "pm.test(\"Response time is acceptable\", () => {",
                   "    pm.expect(res.responseTime).to.be.below(3000);",
                   "});",
@@ -1540,11 +1734,11 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
-                  "const lessons = Array.isArray(json) ? json : (json.results || []);",
+                  "const lessons = json;",
                   "",
                   "pm.test(\"Each lesson has required fields\", () => {",
                   "    lessons.forEach(lesson => {",
@@ -1554,6 +1748,7 @@
                   "    });",
                   "});",
                   "",
+                  "if (lessons.length && lessons[0].id) pm.collectionVariables.set(\"lesson_id\", lessons[0].id);",
                   "pm.test(\"Response time is acceptable\", () => {",
                   "    pm.expect(res.responseTime).to.be.below(3000);",
                   "});"
@@ -1598,7 +1793,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.id) pm.environment.set(\"lesson_id\", json.id);",
+                  "if (json.id) pm.collectionVariables.set(\"lesson_id\", json.id);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -1999,11 +2194,11 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
-                  "const enrollments = Array.isArray(json) ? json : (json.results || []);",
+                  "const enrollments = json;",
                   "",
                   "pm.test(\"Each enrollment has required fields\", () => {",
                   "    enrollments.forEach(e => {",
@@ -2014,6 +2209,7 @@
                   "    });",
                   "});",
                   "",
+                  "if (enrollments.length && enrollments[0].id) pm.collectionVariables.set(\"enrollment_id\", enrollments[0].id);",
                   "pm.test(\"Response time is acceptable\", () => {",
                   "    pm.expect(res.responseTime).to.be.below(3000);",
                   "});"
@@ -2058,7 +2254,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.id) pm.environment.set(\"enrollment_id\", json.id);",
+                  "if (json.id) pm.collectionVariables.set(\"enrollment_id\", json.id);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -2268,11 +2464,11 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
-                  "const assignments = Array.isArray(json) ? json : (json.results || []);",
+                  "const assignments = json;",
                   "",
                   "pm.test(\"Each assignment has required fields\", () => {",
                   "    assignments.forEach(a => {",
@@ -2283,6 +2479,7 @@
                   "    });",
                   "});",
                   "",
+                  "if (assignments.length && assignments[0].id) pm.collectionVariables.set(\"assignment_id\", assignments[0].id);",
                   "pm.test(\"Response time is acceptable\", () => {",
                   "    pm.expect(res.responseTime).to.be.below(3000);",
                   "});"
@@ -2327,7 +2524,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.id) pm.environment.set(\"assignment_id\", json.id);",
+                  "if (json.id) pm.collectionVariables.set(\"assignment_id\", json.id);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -2770,8 +2967,8 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
                   "const submissions = Array.isArray(json) ? json : (json.results || []);",
@@ -3152,11 +3349,11 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
-                  "const quizzes = Array.isArray(json) ? json : (json.results || []);",
+                  "const quizzes = json;",
                   "",
                   "pm.test(\"Each quiz has required fields\", () => {",
                   "    quizzes.forEach(q => {",
@@ -3166,6 +3363,7 @@
                   "    });",
                   "});",
                   "",
+                  "if (quizzes.length && quizzes[0].id) pm.collectionVariables.set(\"quiz_id\", quizzes[0].id);",
                   "pm.test(\"Response time is acceptable\", () => {",
                   "    pm.expect(res.responseTime).to.be.below(3000);",
                   "});"
@@ -3210,7 +3408,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.id) pm.environment.set(\"quiz_id\", json.id);",
+                  "if (json.id) pm.collectionVariables.set(\"quiz_id\", json.id);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -3547,8 +3745,8 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
                   "const attempts = Array.isArray(json) ? json : (json.results || []);",
@@ -3605,7 +3803,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.id) pm.environment.set(\"quiz_attempt_id\", json.id);",
+                  "if (json.id) pm.collectionVariables.set(\"quiz_attempt_id\", json.id);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -3840,8 +4038,8 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
                   "const questions = Array.isArray(json) ? json : (json.results || []);",
@@ -3899,7 +4097,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.id) pm.environment.set(\"quiz_question_id\", json.id);",
+                  "if (json.id) pm.collectionVariables.set(\"quiz_question_id\", json.id);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -4047,8 +4245,8 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
                   "pm.test(\"Response time is acceptable\", () => {",
@@ -4084,7 +4282,7 @@
                 ""
               ]
             },
-            "description": "Retrieves all questions for a specific quiz. Similar to List Quiz Questions but may return a non-paginated response.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `quiz` (integer, required) — quiz ID (use `{{quiz_id}}`)\n\n**Response:** 200 OK — list of question objects"
+            "description": "Retrieves all questions for a specific quiz. Similar to List Quiz Questions but may return a non-list response.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Query params:**\n- `quiz` (integer, required) — quiz ID (use `{{quiz_id}}`)\n\n**Response:** 200 OK — list of question objects"
           },
           "response": []
         },
@@ -4295,11 +4493,11 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
-                  "const exams = Array.isArray(json) ? json : (json.results || []);",
+                  "const exams = json;",
                   "",
                   "pm.test(\"Each examination has required fields\", () => {",
                   "    exams.forEach(e => {",
@@ -4311,6 +4509,7 @@
                   "    });",
                   "});",
                   "",
+                  "if (exams.length && exams[0].id) pm.collectionVariables.set(\"examination_id\", exams[0].id);",
                   "pm.test(\"Response time is acceptable\", () => {",
                   "    pm.expect(res.responseTime).to.be.below(3000);",
                   "});"
@@ -4355,7 +4554,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.id) pm.environment.set(\"examination_id\", json.id);",
+                  "if (json.id) pm.collectionVariables.set(\"examination_id\", json.id);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -4510,8 +4709,8 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
                   "pm.test(\"Response time is acceptable\", () => {",
@@ -4758,8 +4957,8 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
                   "const questions = Array.isArray(json) ? json : (json.results || []);",
@@ -4817,7 +5016,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.id) pm.environment.set(\"exam_question_id\", json.id);",
+                  "if (json.id) pm.collectionVariables.set(\"exam_question_id\", json.id);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -5159,8 +5358,8 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
                   "const attempts = Array.isArray(json) ? json : (json.results || []);",
@@ -5217,7 +5416,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "const json = pm.response.json();",
-                  "if (json.id) pm.environment.set(\"exam_attempt_id\", json.id);",
+                  "if (json.id) pm.collectionVariables.set(\"exam_attempt_id\", json.id);",
                   "",
                   "const res = pm.response;",
                   "const json = res.json();",
@@ -5530,8 +5729,8 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
                   "const grades = Array.isArray(json) ? json : (json.results || []);",
@@ -5604,8 +5803,8 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
                   "const results = Array.isArray(json) ? json : (json.results || []);",
@@ -5665,8 +5864,8 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
                   "pm.test(\"Response time is acceptable\", () => {",
@@ -5724,7 +5923,31 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"Response is an array or paginated object\", () => {\n    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));\n});\n\nconst certs = Array.isArray(json) ? json : (json.results || []);\n\npm.test(\"Each certificate has required fields\", () => {\n    certs.forEach(c => {\n        pm.expect(c).to.have.property(\"id\");\n        pm.expect(c).to.have.property(\"certificate_number\");\n        pm.expect(c).to.have.property(\"student\");\n        pm.expect(c).to.have.property(\"course\");\n        pm.expect(c).to.have.property(\"issued_at\");\n    });\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "const certs = json;",
+                  "",
+                  "pm.test(\"Each certificate has required fields\", () => {",
+                  "    certs.forEach(c => {",
+                  "        pm.expect(c).to.have.property(\"id\");",
+                  "        pm.expect(c).to.have.property(\"certificate_number\");",
+                  "        pm.expect(c).to.have.property(\"student\");",
+                  "        pm.expect(c).to.have.property(\"course\");",
+                  "        pm.expect(c).to.have.property(\"issued_at\");",
+                  "    });",
+                  "});",
+                  "",
+                  "if (certs.length && certs[0].id) pm.collectionVariables.set(\"certificate_id\", certs[0].id);",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -5769,7 +5992,32 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 201 Created\", () => res.to.have.status(201));\n\npm.test(\"Response has required certificate fields\", () => {\n    pm.expect(json).to.have.property(\"id\");\n    pm.expect(json).to.have.property(\"certificate_number\");\n    pm.expect(json).to.have.property(\"student\");\n    pm.expect(json).to.have.property(\"course\");\n    pm.expect(json).to.have.property(\"issued_at\");\n});\n\npm.test(\"certificate_number is a non-empty string\", () => {\n    pm.expect(json.certificate_number).to.be.a(\"string\").and.not.empty;\n});\n\npm.test(\"issued_at is a valid date\", () => {\n    pm.expect(new Date(json.issued_at).toString()).to.not.eql(\"Invalid Date\");\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});\n\nif (json.id) pm.collectionVariables.set(\"certificate_id\", json.id);"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 201 Created\", () => res.to.have.status(201));",
+                  "",
+                  "pm.test(\"Response has required certificate fields\", () => {",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json).to.have.property(\"certificate_number\");",
+                  "    pm.expect(json).to.have.property(\"student\");",
+                  "    pm.expect(json).to.have.property(\"course\");",
+                  "    pm.expect(json).to.have.property(\"issued_at\");",
+                  "});",
+                  "",
+                  "pm.test(\"certificate_number is a non-empty string\", () => {",
+                  "    pm.expect(json.certificate_number).to.be.a(\"string\").and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"issued_at is a valid date\", () => {",
+                  "    pm.expect(new Date(json.issued_at).toString()).to.not.eql(\"Invalid Date\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "if (json.id) pm.collectionVariables.set(\"certificate_id\", json.id);"
                 ]
               }
             }
@@ -5779,7 +6027,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"student\": 17,\r\n    \"course\": 6\r\n}",
+              "raw": "{\r\n    \"student\": {{student_id}},\r\n    \"course\": {{course_id}}\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -5809,7 +6057,26 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"Response has required certificate fields\", () => {\n    pm.expect(json).to.have.property(\"id\");\n    pm.expect(json).to.have.property(\"certificate_number\");\n    pm.expect(json).to.have.property(\"student\");\n    pm.expect(json).to.have.property(\"course\");\n});\n\npm.test(\"Certificate ID matches requested ID\", () => {\n    const requestedId = parseInt(pm.collectionVariables.get(\"certificate_id\"));\n    pm.expect(json.id).to.eql(requestedId);\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response has required certificate fields\", () => {",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json).to.have.property(\"certificate_number\");",
+                  "    pm.expect(json).to.have.property(\"student\");",
+                  "    pm.expect(json).to.have.property(\"course\");",
+                  "});",
+                  "",
+                  "pm.test(\"Certificate ID matches requested ID\", () => {",
+                  "    const requestedId = parseInt(pm.collectionVariables.get(\"certificate_id\"));",
+                  "    pm.expect(json.id).to.eql(requestedId);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -5841,7 +6108,19 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"Response has required certificate fields\", () => {\n    pm.expect(json).to.have.property(\"id\");\n    pm.expect(json).to.have.property(\"certificate_number\");\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response has required certificate fields\", () => {",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json).to.have.property(\"certificate_number\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -5873,7 +6152,18 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"Response has certificate ID\", () => {\n    pm.expect(json).to.have.property(\"id\");\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response has certificate ID\", () => {",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -5905,7 +6195,17 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\n\npm.test(\"Status is 204 No Content\", () => res.to.have.status(204));\n\npm.test(\"Response body is empty\", () => {\n    pm.expect(res.text()).to.be.empty;\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "",
+                  "pm.test(\"Status is 204 No Content\", () => res.to.have.status(204));",
+                  "",
+                  "pm.test(\"Response body is empty\", () => {",
+                  "    pm.expect(res.text()).to.be.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -5943,7 +6243,37 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"Response is an array or paginated object\", () => {\n    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));\n});\n\nconst notifications = Array.isArray(json) ? json : (json.results || []);\n\npm.test(\"Each notification has required fields\", () => {\n    notifications.forEach(n => {\n        pm.expect(n).to.have.property(\"id\");\n        pm.expect(n).to.have.property(\"title\");\n        pm.expect(n).to.have.property(\"message\");\n        pm.expect(n).to.have.property(\"is_read\");\n        pm.expect(n).to.have.property(\"created_at\");\n    });\n});\n\npm.test(\"is_read is a boolean\", () => {\n    notifications.forEach(n => {\n        pm.expect(n.is_read).to.be.a(\"boolean\");\n    });\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "const notifications = json;",
+                  "",
+                  "pm.test(\"Each notification has required fields\", () => {",
+                  "    notifications.forEach(n => {",
+                  "        pm.expect(n).to.have.property(\"id\");",
+                  "        pm.expect(n).to.have.property(\"title\");",
+                  "        pm.expect(n).to.have.property(\"message\");",
+                  "        pm.expect(n).to.have.property(\"is_read\");",
+                  "        pm.expect(n).to.have.property(\"created_at\");",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test(\"is_read is a boolean\", () => {",
+                  "    notifications.forEach(n => {",
+                  "        pm.expect(n.is_read).to.be.a(\"boolean\");",
+                  "    });",
+                  "});",
+                  "",
+                  "if (notifications.length && notifications[0].id) pm.collectionVariables.set(\"notification_id\", notifications[0].id);",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -5974,7 +6304,19 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"is_read is now true\", () => {\n    pm.expect(json).to.have.property(\"is_read\");\n    pm.expect(json.is_read).to.be.true;\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"is_read is now true\", () => {",
+                  "    pm.expect(json).to.have.property(\"is_read\");",
+                  "    pm.expect(json.is_read).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -5983,14 +6325,14 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/notifications/{{notificatiion_id}}/mark-read/",
+              "raw": "{{base_url}}/api/notifications/{{notification_id}}/mark-read/",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "notifications",
-                "{{notificatiion_id}}",
+                "{{notification_id}}",
                 "mark-read",
                 ""
               ]
@@ -6007,7 +6349,23 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"Response has unread_count field\", () => {\n    pm.expect(json).to.have.property(\"unread_count\");\n});\n\npm.test(\"unread_count is a non-negative integer\", () => {\n    pm.expect(json.unread_count).to.be.a(\"number\").and.at.least(0);\n    pm.expect(Number.isInteger(json.unread_count)).to.be.true;\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response has unread_count field\", () => {",
+                  "    pm.expect(json).to.have.property(\"unread_count\");",
+                  "});",
+                  "",
+                  "pm.test(\"unread_count is a non-negative integer\", () => {",
+                  "    pm.expect(json.unread_count).to.be.a(\"number\").and.at.least(0);",
+                  "    pm.expect(Number.isInteger(json.unread_count)).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -6039,7 +6397,19 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"Response confirms all marked as read\", () => {\n    const text = JSON.stringify(json).toLowerCase();\n    pm.expect(text).to.satisfy(t => t.includes(\"read\") || t.includes(\"success\") || t.includes(\"marked\"));\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response confirms all marked as read\", () => {",
+                  "    const text = JSON.stringify(json).toLowerCase();",
+                  "    pm.expect(text).to.satisfy(t => t.includes(\"read\") || t.includes(\"success\") || t.includes(\"marked\"));",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -6082,11 +6452,11 @@
                   "",
                   "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
                   "",
-                  "pm.test(\"Response is an array or paginated object\", () => {",
-                  "    pm.expect(json).to.satisfy(j => Array.isArray(j) || (typeof j === \"object\" && j.hasOwnProperty(\"results\")));",
+                  "pm.test(\"Response is an array\", () => {",
+                  "    pm.expect(json).to.be.an(\"array\");",
                   "});",
                   "",
-                  "const reviews = Array.isArray(json) ? json : (json.results || []);",
+                  "const reviews = json;",
                   "",
                   "pm.test(\"Each review has required fields\", () => {",
                   "    reviews.forEach(r => {",
@@ -6103,6 +6473,7 @@
                   "    });",
                   "});",
                   "",
+                  "if (reviews.length && reviews[0].id) pm.collectionVariables.set(\"review_id\", reviews[0].id);",
                   "pm.test(\"Response time is acceptable\", () => {",
                   "    pm.expect(res.responseTime).to.be.below(3000);",
                   "});"
@@ -6128,7 +6499,27 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 201 Created\", () => res.to.have.status(201));\n\npm.test(\"Response has required review fields\", () => {\n    pm.expect(json).to.have.property(\"id\");\n    pm.expect(json).to.have.property(\"student\");\n    pm.expect(json).to.have.property(\"course\");\n    pm.expect(json).to.have.property(\"rating\");\n});\n\npm.test(\"Rating is between 1 and 5\", () => {\n    pm.expect(json.rating).to.be.at.least(1).and.at.most(5);\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});\n\nif (json.id) pm.collectionVariables.set(\"reviews_id\", json.id);"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 201 Created\", () => res.to.have.status(201));",
+                  "",
+                  "pm.test(\"Response has required review fields\", () => {",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json).to.have.property(\"student\");",
+                  "    pm.expect(json).to.have.property(\"course\");",
+                  "    pm.expect(json).to.have.property(\"rating\");",
+                  "});",
+                  "",
+                  "pm.test(\"Rating is between 1 and 5\", () => {",
+                  "    pm.expect(json.rating).to.be.at.least(1).and.at.most(5);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "if (json.id) pm.collectionVariables.set(\"review_id\", json.id);"
                 ]
               }
             }
@@ -6138,7 +6529,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"rating\": 4,\r\n    \"comment\": \"Very good course. I especially enjoyed the practical lessons.\",\r\n    \"course\": 2\r\n}",
+              "raw": "{\r\n    \"rating\": 4,\r\n    \"comment\": \"Very good course. I especially enjoyed the practical lessons.\",\r\n    \"course\": {{course_id}}\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6168,7 +6559,30 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"Response has required review fields\", () => {\n    pm.expect(json).to.have.property(\"id\");\n    pm.expect(json).to.have.property(\"student\");\n    pm.expect(json).to.have.property(\"course\");\n    pm.expect(json).to.have.property(\"rating\");\n});\n\npm.test(\"Rating is between 1 and 5\", () => {\n    pm.expect(json.rating).to.be.at.least(1).and.at.most(5);\n});\n\npm.test(\"Review ID matches requested ID\", () => {\n    const requestedId = parseInt(pm.collectionVariables.get(\"reviews_id\"));\n    pm.expect(json.id).to.eql(requestedId);\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response has required review fields\", () => {",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json).to.have.property(\"student\");",
+                  "    pm.expect(json).to.have.property(\"course\");",
+                  "    pm.expect(json).to.have.property(\"rating\");",
+                  "});",
+                  "",
+                  "pm.test(\"Rating is between 1 and 5\", () => {",
+                  "    pm.expect(json.rating).to.be.at.least(1).and.at.most(5);",
+                  "});",
+                  "",
+                  "pm.test(\"Review ID matches requested ID\", () => {",
+                  "    const requestedId = parseInt(pm.collectionVariables.get(\"review_id\"));",
+                  "    pm.expect(json.id).to.eql(requestedId);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -6177,18 +6591,18 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/reviews/{{reviewa_id}}/",
+              "raw": "{{base_url}}/api/reviews/{{review_id}}/",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "reviews",
-                "{{reviewa_id}}",
+                "{{review_id}}",
                 ""
               ]
             },
-            "description": "Retrieves a single review by its ID.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — review ID (use `{{reviews_id}}`)\n\n**Response:** 200 OK — review object"
+            "description": "Retrieves a single review by its ID.\n\n**Method:** GET  \n**Auth:** Bearer token required  \n**Path param:** `id` — review ID (use `{{review_id}}`)\n\n**Response:** 200 OK — review object"
           },
           "response": []
         },
@@ -6200,7 +6614,23 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"Response has required review fields\", () => {\n    pm.expect(json).to.have.property(\"id\");\n    pm.expect(json).to.have.property(\"rating\");\n});\n\npm.test(\"Rating is between 1 and 5\", () => {\n    pm.expect(json.rating).to.be.at.least(1).and.at.most(5);\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response has required review fields\", () => {",
+                  "    pm.expect(json).to.have.property(\"id\");",
+                  "    pm.expect(json).to.have.property(\"rating\");",
+                  "});",
+                  "",
+                  "pm.test(\"Rating is between 1 and 5\", () => {",
+                  "    pm.expect(json.rating).to.be.at.least(1).and.at.most(5);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -6210,7 +6640,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"rating\": 4,\r\n    \"comment\": \"Very good course. I especially enjoyed the practical lessons.\",\r\n    \"course\": 2\r\n}",
+              "raw": "{\r\n    \"rating\": 4,\r\n    \"comment\": \"Very good course. I especially enjoyed the practical lessons.\",\r\n    \"course\": {{course_id}}\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -6218,18 +6648,18 @@
               }
             },
             "url": {
-              "raw": "{{base_url}}/api/reviews/{{reviewa_id}}/",
+              "raw": "{{base_url}}/api/reviews/{{review_id}}/",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "reviews",
-                "{{reviewa_id}}",
+                "{{review_id}}",
                 ""
               ]
             },
-            "description": "Updates the authenticated student's review for a course. Students can only update their own reviews.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Student (review owner)  \n**Path param:** `id` — review ID (use `{{reviews_id}}`)  \n**Body (JSON):**\n- `rating` (integer, optional) — 1 to 5\n- `comment` (string, optional)\n\n**Response:** 200 OK — updated review object"
+            "description": "Updates the authenticated student's review for a course. Students can only update their own reviews.\n\n**Method:** PATCH  \n**Auth:** Bearer token required — Student (review owner)  \n**Path param:** `id` — review ID (use `{{review_id}}`)  \n**Body (JSON):**\n- `rating` (integer, optional) — 1 to 5\n- `comment` (string, optional)\n\n**Response:** 200 OK — updated review object"
           },
           "response": []
         },
@@ -6241,7 +6671,17 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\n\npm.test(\"Status is 204 No Content\", () => res.to.have.status(204));\n\npm.test(\"Response body is empty\", () => {\n    pm.expect(res.text()).to.be.empty;\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(3000);\n});"
+                  "const res = pm.response;",
+                  "",
+                  "pm.test(\"Status is 204 No Content\", () => res.to.have.status(204));",
+                  "",
+                  "pm.test(\"Response body is empty\", () => {",
+                  "    pm.expect(res.text()).to.be.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(3000);",
+                  "});"
                 ]
               }
             }
@@ -6250,18 +6690,18 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/reviews/{{reviewa_id}}/",
+              "raw": "{{base_url}}/api/reviews/{{review_id}}/",
               "host": [
                 "{{base_url}}"
               ],
               "path": [
                 "api",
                 "reviews",
-                "{{reviewa_id}}",
+                "{{review_id}}",
                 ""
               ]
             },
-            "description": "Permanently deletes a review. Students can only delete their own reviews. Admins can delete any review.\n\n**Method:** DELETE  \n**Auth:** Bearer token required  \n**Path param:** `id` — review ID (use `{{reviews_id}}`)\n\n**Response:** 204 No Content"
+            "description": "Permanently deletes a review. Students can only delete their own reviews. Admins can delete any review.\n\n**Method:** DELETE  \n**Auth:** Bearer token required  \n**Path param:** `id` — review ID (use `{{review_id}}`)\n\n**Response:** 204 No Content"
           },
           "response": []
         }
@@ -6279,7 +6719,19 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response;\nconst json = res.json();\n\npm.test(\"Status is 200 OK\", () => res.to.have.status(200));\n\npm.test(\"Response has analytics fields\", () => {\n    pm.expect(json).to.be.an(\"object\");\n    pm.expect(Object.keys(json).length).to.be.above(0);\n});\n\npm.test(\"Response time is acceptable\", () => {\n    pm.expect(res.responseTime).to.be.below(5000);\n});"
+                  "const res = pm.response;",
+                  "const json = res.json();",
+                  "",
+                  "pm.test(\"Status is 200 OK\", () => res.to.have.status(200));",
+                  "",
+                  "pm.test(\"Response has analytics fields\", () => {",
+                  "    pm.expect(json).to.be.an(\"object\");",
+                  "    pm.expect(Object.keys(json).length).to.be.above(0);",
+                  "});",
+                  "",
+                  "pm.test(\"Response time is acceptable\", () => {",
+                  "    pm.expect(res.responseTime).to.be.below(5000);",
+                  "});"
                 ]
               }
             }
@@ -6481,39 +6933,39 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://127.0.0.1:8000"
+      "value": "https://lms-project-aj6m.onrender.com"
     },
     {
       "key": "course_id",
-      "value": "1"
+      "value": ""
     },
     {
       "key": "lesson_id",
-      "value": "1"
+      "value": ""
     },
     {
       "key": "submission_id",
-      "value": "1"
+      "value": ""
     },
     {
       "key": "user_id",
-      "value": "1"
+      "value": ""
     },
     {
       "key": "quiz_attempt_id",
-      "value": "1"
+      "value": ""
     },
     {
       "key": "quiz_question_id",
-      "value": "1"
+      "value": ""
     },
     {
       "key": "exam_question_id",
-      "value": "1"
+      "value": ""
     },
     {
       "key": "exam_attempt_id",
-      "value": "1"
+      "value": ""
     },
     {
       "key": "category_id",
@@ -6544,7 +6996,7 @@
       "value": ""
     },
     {
-      "key": "reviewa_id",
+      "key": "review_id",
       "value": ""
     },
     {
@@ -6556,32 +7008,38 @@
       "value": ""
     },
     {
-      "key": "notificatiion_id",
+      "key": "notification_id",
       "value": ""
     },
     {
       "key": "admin_demo",
-      "value": ""
+      "value": "admin@lmsdemo.com",
+      "type": "string"
     },
     {
       "key": "instructor1_demo",
-      "value": ""
+      "value": "john.instructor@lmsdemo.com",
+      "type": "string"
     },
     {
       "key": "instructor2_demo",
-      "value": ""
+      "value": "sarah.instructor@lmsdemo.com",
+      "type": "string"
     },
     {
       "key": "student1_demo",
-      "value": ""
+      "value": "student1@lmsdemo.com",
+      "type": "string"
     },
     {
       "key": "student2_demo",
-      "value": ""
+      "value": "student2@lmsdemo.com",
+      "type": "string"
     },
     {
       "key": "password_demo",
-      "value": ""
+      "value": "DemoAdmin123!",
+      "type": "string"
     }
   ]
 }
