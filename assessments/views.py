@@ -521,39 +521,6 @@ class QuizQuestionViewSet(viewsets.ModelViewSet):
 
         serializer.save()
 
-        if request.user.role not in [
-            request.user.Role.INSTRUCTOR,
-            request.user.Role.ADMIN,
-        ]:
-            return Response(
-                {"detail": "Only instructors and admins can add questions."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
-        serializer = BulkQuizQuestionSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        quiz = serializer.validated_data["quiz"]
-
-        if (
-            request.user.role != request.user.Role.ADMIN
-            and quiz.course.instructor != request.user
-        ):
-            return Response(
-                {"detail": ("You can only add questions to your own quizzes.")},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
-        questions = serializer.save()
-
-        return Response(
-            QuizQuestionSerializer(
-                questions,
-                many=True,
-            ).data,
-            status=status.HTTP_201_CREATED,
-        )
-
 @extend_schema_view(
     list=extend_schema(summary="List quiz attempts", description="List quiz attempts visible to the authenticated user."),
     create=extend_schema(
